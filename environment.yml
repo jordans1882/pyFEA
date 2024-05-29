@@ -1,0 +1,12 @@
+name: feareu
+channels:
+  - default
+  - conda-forge
+  - anaconda
+dependencies:
+  - python=3.11.4
+  - make=4.3
+  - poetry=1.5.1
+  - pip
+  - pip:
+    - black
