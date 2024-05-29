@@ -11,6 +11,7 @@ Implements:
 """
 
 from __future__ import annotations
+
 import numpy as np
 import numpy.typing as npt
 
@@ -74,34 +75,34 @@ class Matrix:
         """Set an alement of the matrix."""
         self._data[idx[0]][idx[1]] = value
 
-    def __add__(self, b: Matrix):
+    def __add__(self, other: Matrix):
         """Add two matrices together."""
-        return self._add_matrix(b)
+        return self._add_matrix(other)
 
     def __repr__(self):
         """Print Matrix object."""
         return str(self._data).replace("],", "]\n")
 
-    def __mul__(self, other) -> Matrix:
+    def __matmul__(self, other) -> Matrix:
         """Add two matrices together with + operator."""
         if isinstance(other, Matrix):
             return self._multiply_matrix(other)
         else:
             raise ValueError("Other is not a Matrix! Cannot multiply!")
 
-    def __sub__(self, b: Matrix):
+    def __sub__(self, other: Matrix):
         """Subtract two matrices with - operator."""
-        return self._subtract_matrix(b)
+        return self._subtract_matrix(other)
 
     def _check_dims_match(self, other):
         """Check dims match between two matrices."""
         return self.get_dims() == other.get_dims()
 
-    def _add_matrix(self, b: Matrix) -> Matrix:
+    def _add_matrix(self, other: Matrix) -> Matrix:
         """Add matrix to self."""
-        if not self._check_dims_match(b):
+        if not self._check_dims_match(other):
             raise ValueError("Error: Dims do not match for matrix addition.")
-        return Matrix(self.get_data() + b.get_data())
+        return Matrix(self.get_data() + other.get_data())
 
     def _subtract_matrix(self, other: Matrix) -> Matrix:
         if not self._check_dims_match(other):
@@ -149,22 +150,9 @@ class Matrix:
         return Matrix(self._data.transpose())
 
 
-def t(a: Matrix) -> Matrix:
-    """Transpose a matrix."""
-    return a.transpose()
-
-
 # def inv(a: Matrix):
 #     """Return the matrix inverse."""
 #     return a.inverse()
 
 # a = Matrix.from_list([[1,2,3],[4,5,6]])
 # a - t(a)
-
-
-class Vector:
-    """Documentation for Vector."""
-
-    def __init__(self):
-        """Initialze a vector."""
-        super(Vector, self).__init__()
