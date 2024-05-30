@@ -19,6 +19,11 @@ pylint = "^2.17.4"
 black = "^23.7.0"
 numpy = "^1.25.1"
 pytest-benchmark = "^4.0.0"
+splipy = "^1.8.2"
+xalglib = "^3.16.0"
+pymoo = "^0.6.1.1"
+nlopt = "^2.7.1"
+ensmallen = "0.8.44"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.4"
