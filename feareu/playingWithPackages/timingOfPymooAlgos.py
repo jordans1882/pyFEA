@@ -1,3 +1,4 @@
+from bayes_opt import BayesianOptimization
 from pymoo.problems.single import Rastrigin
 from pymoo.algorithms.soo.nonconvex.ga import GA
 from pymoo.algorithms.soo.nonconvex.de import DE
@@ -10,25 +11,35 @@ numOfKnots = 1000
 
 rastrigin = Rastrigin()
 
-ga = GA(numOfKnots)
-de = DE(numOfKnots)
-pso = PSO(numOfKnots)
+ga = GA() #specify bayseian
+de = DE()
+pso = PSO()
 
 
 gaRes = minimize(rastrigin, ga)
-finGAPop = gaRes.opt
-#FIND MIN print(finPop.get())
+minGA = gaRes.F
+print("GA MSE: " + str(minGA))
+knotPlacementGA = gaRes.X
+print("GA Knot Placement: " + str(knotPlacementGA))
 gaTime = gaRes.exec_time
 print("GA Timing: " + str(gaTime))
+print()
 
 deRes = minimize(rastrigin, de)
-finDEPop = deRes.opt
-#FIND MIN print(finPop.get())
+minDE = deRes.F
+print("DE MSE: " + str(minDE))
+knotPlacementDE = deRes.X
+print("DE Knot Placement: " + str(knotPlacementDE))
 deTime = deRes.exec_time
 print("DE Timing: " + str(deTime))
+print()
 
 psoRes = minimize(rastrigin, pso)
 finPSOPop = psoRes.opt
-#FIND MIN print(finPop.get())
+minPSO = psoRes.F
+print("PSO MSE: " + str(minDE))
+knotPlacementPSO = psoRes.X
+print("PSO Knot Placement: " + str(knotPlacementPSO))
 psoTime = psoRes.exec_time
 print("PSO Timing: " + str(psoTime))
+print()
