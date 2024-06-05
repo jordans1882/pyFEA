@@ -1,0 +1,3 @@
+[submodule "FEA"]
+	path = FEA
+	url = https://github.com/AmyLinck/FEA.git
