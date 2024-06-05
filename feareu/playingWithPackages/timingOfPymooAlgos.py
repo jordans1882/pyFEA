@@ -50,10 +50,36 @@ print("PSO Timing: " + str(psoTime))
 print()
 """
 
+def ask_and_tell_PSO(algorithm, problem):
+    algorithm.setup(problem, termination=('n_gen', 25), seed=1, verbose=False)
+    while algorithm.has_next():
+    # ask the algorithm for the next solution to be evaluated
+        pop = algorithm.ask()
+    # evaluate the individuals using the algorithm's evaluator (necessary to count evaluations for termination)
+        algorithm.evaluator.eval(problem, pop)
+    # returned the evaluated individuals which have been evaluated or even modified
+        algorithm.tell(infills=pop)
+        # do same more things, printing, logging, storing or even modifying the algorithm object
+        #print(algorithm.n_gen, algorithm.evaluator.n_eval)
+    # obtain the result objective from the algorithm
+    return algorithm.result()
+    """while algorithm.has_next():
+
+    # do the next iteration
+        algorithm.next()
+
+    # do same more things, printing, logging, storing or even modifying the algorithm object
+        print(algorithm.n_gen, algorithm.evaluator.n_eval)
+
+
+# obtain the result objective from the algorithm
+    return algorithm.result()"""
+
 # Bayesian
 def bayInput(w, c1, c2):
     pso = PSO(w = w, c1 = c1, c2 = c2)
-    psoRes = minimize(rastrigin, pso)
+    #psoRes = minimize(rastrigin, pso)
+    psoRes = ask_and_tell_PSO(pso, rastrigin)
     minVal = psoRes.F
     return -(minVal[0])
 
