@@ -25,6 +25,7 @@ pymoo = "^0.6.1.1"
 nlopt = "^2.7.1"
 ensmallen = "0.8.44"
 bayesian-optimization = "^1.4.3"
+scikit-optimize = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 bandit = "^1.7.4"

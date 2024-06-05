@@ -19,7 +19,7 @@ Includes:
 
 import numpy as np
 
-from feareu.matrix import Matrix, t
+from feareu.matrix import Matrix
 
 
 def test_matrix_from_list():
