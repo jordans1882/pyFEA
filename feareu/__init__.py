@@ -9,7 +9,7 @@ Provides:
 
 """
 
-__name__ = "pytemplate"
+__name__ = "feareu"
 
 # import importlib
 
