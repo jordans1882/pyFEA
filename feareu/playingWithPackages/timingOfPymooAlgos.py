@@ -8,6 +8,9 @@ from pymoo.optimize import minimize
 #from pymoo.core.result import Result
 from skopt import gp_minimize
 from bayes_opt import BayesianOptimization
+from FEA.optimizationproblems.continuous_functions import Function
+
+from FEA.basealgorithms.pso import PSO as FEAPSO
 
 numOfKnots = 1000
 
@@ -88,3 +91,21 @@ pbounds = {"w": (0.0, 1.0), "c1": (0.0, 1.0), "c2":(0.0, 1.0)}
 obj = BayesianOptimization(bayInput, pbounds)
 obj.maximize()
 print(obj.max)
+
+
+# Bayesian
+def bayInputFEA(w, c1, c2):
+    
+    pso = FEAPSO(25, 25, function = Function(function_number = 2), dim = rastrigin.n_var)
+    
+    #psoRes = minimize(rastrigin, pso)
+    #psoRes = ask_and_tell_PSO(pso, rastrigin)
+    #minVal = psoRes.F
+    return pso.run()
+
+#pbounds = {"w": (0, 1), "c1": (0, 1), "c2": (0, 1)}
+pbounds = {"w": (0.0, 1.0), "c1": (0.0, 1.0), "c2":(0.0, 1.0)}
+obj = BayesianOptimization(bayInputFEA, pbounds)
+obj.maximize()
+print(obj.max)
+
