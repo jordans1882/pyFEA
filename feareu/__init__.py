@@ -12,7 +12,6 @@ Provides:
 __name__ = "feareu"
 
 # import importlib
-
 from ._version import __version__
 
 from .template import Template
