@@ -1,0 +1,3 @@
+[submodule "FEA"]
+	path = FEA
+	url = git@github.com:NickyTurk/FEA.git
