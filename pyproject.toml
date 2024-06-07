@@ -37,6 +37,7 @@ flake8-pyproject = "^0.9.0"
 pylint = "^2.14.3"
 pytest = "^6.2.1"
 pytest-cov = "^3.0.0"
+sphinx = "^2.4.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
