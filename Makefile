@@ -1,3 +1,5 @@
+.PHONY: docs
+
 BLUE=\033[0;34m
 GREEN='\033[0;32m'
 NC='\033[0m'
@@ -25,6 +27,9 @@ lint:
 	@bandit -r . -c "pyproject.toml"
 	@echo -e "\n${BLUE}Running poetry check against pyproject.toml...${NC}\n"
 	@poetry check
+
+docs:
+	sphinx-build -M html docs _build
 
 clean:
 	@find -type f -name coverage.xml -delete
