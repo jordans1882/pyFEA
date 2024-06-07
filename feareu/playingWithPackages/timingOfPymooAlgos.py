@@ -1,11 +1,12 @@
-
 from pymoo.problems.single import Rastrigin
-#from pymoo.algorithms.soo.nonconvex.ga import GA
-#from pymoo.algorithms.soo.nonconvex.de import DE
+
+# from pymoo.algorithms.soo.nonconvex.ga import GA
+# from pymoo.algorithms.soo.nonconvex.de import DE
 from pymoo.algorithms.soo.nonconvex.pso import PSO
 from pymoo.optimize import minimize
-#from pymoo.core.population import Population
-#from pymoo.core.result import Result
+
+# from pymoo.core.population import Population
+# from pymoo.core.result import Result
 from skopt import gp_minimize
 from bayes_opt import BayesianOptimization
 from FEA.optimizationproblems.continuous_functions import Function
@@ -53,17 +54,18 @@ print("PSO Timing: " + str(psoTime))
 print()
 """
 
+
 def ask_and_tell_PSO(algorithm, problem):
-    algorithm.setup(problem, termination=('n_gen', 25), seed=1, verbose=False)
+    algorithm.setup(problem, termination=("n_gen", 25), seed=1, verbose=False)
     while algorithm.has_next():
-    # ask the algorithm for the next solution to be evaluated
+        # ask the algorithm for the next solution to be evaluated
         pop = algorithm.ask()
-    # evaluate the individuals using the algorithm's evaluator (necessary to count evaluations for termination)
+        # evaluate the individuals using the algorithm's evaluator (necessary to count evaluations for termination)
         algorithm.evaluator.eval(problem, pop)
-    # returned the evaluated individuals which have been evaluated or even modified
+        # returned the evaluated individuals which have been evaluated or even modified
         algorithm.tell(infills=pop)
         # do same more things, printing, logging, storing or even modifying the algorithm object
-        #print(algorithm.n_gen, algorithm.evaluator.n_eval)
+        # print(algorithm.n_gen, algorithm.evaluator.n_eval)
     # obtain the result objective from the algorithm
     return algorithm.result()
     """while algorithm.has_next():
@@ -78,16 +80,18 @@ def ask_and_tell_PSO(algorithm, problem):
 # obtain the result objective from the algorithm
     return algorithm.result()"""
 
+
 # Bayesian
 def bayInput(w, c1, c2):
-    pso = PSO(w = w, c1 = c1, c2 = c2)
-    #psoRes = minimize(rastrigin, pso)
+    pso = PSO(w=w, c1=c1, c2=c2)
+    # psoRes = minimize(rastrigin, pso)
     psoRes = ask_and_tell_PSO(pso, rastrigin)
     minVal = psoRes.F
     return -(minVal[0])
 
-#pbounds = {"w": (0, 1), "c1": (0, 1), "c2": (0, 1)}
-pbounds = {"w": (0.0, 1.0), "c1": (0.0, 1.0), "c2":(0.0, 1.0)}
+
+# pbounds = {"w": (0, 1), "c1": (0, 1), "c2": (0, 1)}
+pbounds = {"w": (0.0, 1.0), "c1": (0.0, 1.0), "c2": (0.0, 1.0)}
 obj = BayesianOptimization(bayInput, pbounds)
 obj.maximize()
 print(obj.max)
@@ -95,17 +99,16 @@ print(obj.max)
 
 # Bayesian
 def bayInputFEA(w, c1, c2):
-    
-    pso = FEAPSO(25, 25, function = Function(function_number = 2), dim = rastrigin.n_var)
-    
-    #psoRes = minimize(rastrigin, pso)
-    #psoRes = ask_and_tell_PSO(pso, rastrigin)
-    #minVal = psoRes.F
+    pso = FEAPSO(25, 25, function=Function(function_number=2), dim=rastrigin.n_var)
+
+    # psoRes = minimize(rastrigin, pso)
+    # psoRes = ask_and_tell_PSO(pso, rastrigin)
+    # minVal = psoRes.F
     return pso.run()
 
-#pbounds = {"w": (0, 1), "c1": (0, 1), "c2": (0, 1)}
-pbounds = {"w": (0.0, 1.0), "c1": (0.0, 1.0), "c2":(0.0, 1.0)}
+
+# pbounds = {"w": (0, 1), "c1": (0, 1), "c2": (0, 1)}
+pbounds = {"w": (0.0, 1.0), "c1": (0.0, 1.0), "c2": (0.0, 1.0)}
 obj = BayesianOptimization(bayInputFEA, pbounds)
 obj.maximize()
 print(obj.max)
-

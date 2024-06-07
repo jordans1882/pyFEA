@@ -16,6 +16,7 @@ lint:
 	@black . --check
 	@echo -e "\n${BLUE}Running Pylint against source...${NC}\n"
 	@pylint feareu/**
+	@pylint FEA/**
 	@echo -e"\n${BLUE}Running Pylint against tests...${NC}\n"
 	@pylint -d invalid-name tests/**
 	@echo -e "\n${BLUE}Running Flake8 against source and test files...${NC}\n"
