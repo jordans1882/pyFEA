@@ -11,4 +11,3 @@ import xalglib
 # # Print the sparse matrix
 # xalglib.sparseprint(sparse_matrix)
 #
-
