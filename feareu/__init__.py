@@ -1,5 +1,5 @@
 """
-The pytemplate library.
+The feareu library.
 
 A simple template Python library. Contains functionality for linear algebra
 and statistics
@@ -13,10 +13,8 @@ __name__ = "feareu"
 
 # import importlib
 from ._version import __version__
-
-from .template import Template
 from .matrix import Matrix
-
+from .template import Template
 
 __all__ = [
     "__version__",
