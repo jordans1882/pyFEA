@@ -100,8 +100,7 @@ class DummyFunc():
         return output
 
 class PSO():
-
-    def __init__(self, function, domain, generations=100, pop_size=20, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega = math.sqrt(2) / 2):
+    def __init__(self, function, domain, generations=100, pop_size=20, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega=1/math.sqrt(2)):
         self.generations = generations
         self.pop_size = pop_size
         self.func = function
@@ -111,10 +110,14 @@ class PSO():
         self.omega = omega
         self.pop = self.init_pop()
         self.pbest = self.pop
-        self.pbest_eval = [self.func(self.pop[i, :]) for i in range(pop_size)]
+        self.pbest_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = self.pbest[np.argmin(self.pbest_eval),:]
         self.velocities = self.init_velocities()
+
+    @classmethod
+    def from_kwargs(cls, kwargs):
+        return cls(function=kwargs['function'],domain=kwargs['domain'],generations=kwargs['generations'],pop_size=kwargs['pop_size'],phi_p=kwargs['phi_p'],phi_g=kwargs['phi_g'],omega=kwargs['omega'])
 
     def init_pop(self):
         lbound = self.domain[:,0]
@@ -158,8 +161,12 @@ class PSO():
                     self.gbest_eval = curr_eval
 
 """input_func = DummyFunc(rastrigin)
+kwargs = {"function":rastrigin, "domain":np.array([[-5,5],[-5,5]]), "generations":200, "pop_size":20, "phi_p":1, "phi_g":math.sqrt(2), "omega":1/math.sqrt(2)}
+pso = PSO(function=rastrigin, domain=np.array([[-5,5],[-5,5]]))
+pso.run()
+print(pso.phi_p)
 pso = PSO(input_func, np.array([[-5,5],[-5,5]]))
-pso.run()"""
+pso.run()
 
 def main():
     array = np.zeros((10))
@@ -172,4 +179,4 @@ def main():
     pso = PSO(function, domain)
     print(pso.run())
 if __name__ == "__main__":
-    main()
+    main()"""
