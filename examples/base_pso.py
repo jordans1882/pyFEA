@@ -60,12 +60,7 @@ for iter in range(niter):
                 + phi_p * r_p * (pbest[pidx][dim] - pop[pidx][dim])
                 + phi_g * r_g * (gbest[dim] - pop[pidx][dim])
             )
-            if(pidx==1):
-                print((gbest[dim]), (pop[pidx][dim]))
-                print("velocity of ",  pidx, ", ", dim, velocities[pidx][dim])
             # update position
-            if pidx==1:
-                print(gbest[dim], pop[pidx][dim])
         pop[pidx, :] = pop[pidx, :] + velocities[pidx, :]
         if(pidx==1):
             print("pop", pop[pidx, :])
@@ -82,14 +77,14 @@ for iter in range(niter):
             pbest[pidx, :] = curr_pop
             pbest_evals[pidx] = curr_eval
             if curr_eval < gbest_eval:
-                print("updating gbest from ", gbest_eval, " to ", curr_eval)
+                #print("updating gbest from ", gbest_eval, " to ", curr_eval)
                 gbest = deepcopy(curr_pop)
                 # gbest_eval = curr_eval
                 gbest_eval = np.min(pbest_evals)
                 gbest_idx = np.argmin(pbest_evals)
-    print("gbest = ", gbest)
+    #print("gbest = ", gbest)
     #print("gbest_eval = ", rastrigin(gbest))
-    print("gbe = ", gbest_eval)
+    #print("gbe = ", gbest_eval)
     #print("gbest_idx = ", gbest_idx)
     #print("")
     #print("")
