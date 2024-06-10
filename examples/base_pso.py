@@ -1,5 +1,5 @@
 import math
-
+from copy import deepcopy
 import numpy as np
 
 
@@ -9,10 +9,6 @@ def rastrigin(x):
     return A * n + np.sum(x**2 - A * np.cos(2 * np.pi * x))
 
 
-(pop[gbest_idx, :])
-np.array([-1.87283425, -0.13822152])
-
-len(np.array([-1.87283425, -0.13822152]))
 
 f = rastrigin
 
@@ -40,17 +36,11 @@ velocities = (
 velocities
 
 pbest_evals = [f(pop[i, :]) for i in range(npop)]
-pbest_evals
 # first update
 
 gbest_eval = np.min(pbest_evals)
 gbest_idx = np.argmin(pbest_evals)
-gbest_idx
 gbest = pop[gbest_idx, :]
-f(gbest)
-
-gbest_eval
-npop
 
 omega = math.sqrt(2) / 2
 
@@ -70,6 +60,8 @@ for iter in range(niter):
                 + phi_g * r_g * (gbest[dim] - pop[pidx][dim])
             )
             # update position
+            if pidx==1:
+                print(gbest[dim], pop[pidx][dim])
         pop[pidx, :] = pop[pidx, :] + velocities[pidx, :]
         curr_pop = pop[pidx, :]
         curr_eval = f(curr_pop)
@@ -81,7 +73,7 @@ for iter in range(niter):
             pbest_evals[pidx] = curr_eval
             if curr_eval < gbest_eval:
                 print("updating gbest from ", gbest_eval, " to ", curr_eval)
-                gbest = curr_pop
+                gbest = deepcopy(curr_pop)
                 # gbest_eval = curr_eval
                 gbest_eval = np.min(pbest_evals)
                 gbest_idx = np.argmin(pbest_evals)
