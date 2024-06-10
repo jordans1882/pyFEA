@@ -66,12 +66,8 @@ for iter in range(niter):
             print("pop", pop[pidx, :])
         curr_pop = pop[pidx, :]
         curr_eval = f(curr_pop)
-        """if(pidx==1):
-            print(curr_eval)"""
         # print("f(", curr_pop, ") = ", curr_eval)
         pbe = pbest_evals[pidx]
-        """if(pidx%5==0):
-            print("pbe", pidx, ": ", pbest_evals[pidx])"""
         if curr_eval < pbe:
             # print("updating pbest from ", pbest_evals[pidx], " to ", curr_eval)
             pbest[pidx, :] = curr_pop
@@ -87,18 +83,9 @@ for iter in range(niter):
     print("gbe = ", gbest_eval)
     print("gbest_idx = ", gbest_idx)
     print("")
-    print("")
+    print("")"""
 
 
-# rastrigin(np.array(pop[gbest_idx, :]))
-# pop[gbest_idx, :]
-# rastrigin(np.array([-1.87283425, -0.13822152]))
-# rastrigin(np.array(pop[gbest_idx, :]))
-# gbest
-# gbest_eval
-# pop[gbest_idx, :]
-# rastrigin(np.array([-1.87283425 - 0.13822152]))
-# rastrigin(np.array([9.71623289 - 3.22594915]))
 
 class DummyFunc():
 
