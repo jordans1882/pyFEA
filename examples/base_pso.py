@@ -2,6 +2,9 @@ import math
 from copy import deepcopy
 import numpy as np
 
+from FEA.optimizationproblems.benchmarks import rastrigin__
+from function import Function
+
 
 def rastrigin(x):
     A = 10
@@ -157,3 +160,16 @@ class PSO():
 """input_func = DummyFunc(rastrigin)
 pso = PSO(input_func, np.array([[-5,5],[-5,5]]))
 pso.run()"""
+
+def main():
+    array = np.zeros((10))
+    array[0] = 1
+    array[1] = 2
+    domain = np.zeros((2, 2))
+    domain[:,0] = -5
+    domain[:,1] = 5
+    function = Function(array, rastrigin__, [0, 1])
+    pso = PSO(function, domain)
+    print(pso.run())
+if __name__ == "__main__":
+    main()
