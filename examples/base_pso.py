@@ -9,7 +9,7 @@ def rastrigin(x):
     return A * n + np.sum(x**2 - A * np.cos(2 * np.pi * x))
 
 
-(pop[gbest_idx, :])
+#(pop[gbest_idx, :])
 np.array([-1.87283425, -0.13822152])
 
 len(np.array([-1.87283425, -0.13822152]))
@@ -29,6 +29,7 @@ rastrigin(np.array([0.0, 0.0]))
 # step 1 initialize particles
 pop = (np.random.uniform(bounds[0], bounds[1], npop * 2)).reshape((npop, dims))
 pbest = pop
+print(pop)
 
 # step 2 initialize velocities
 velocities = (
@@ -41,6 +42,7 @@ velocities
 
 pbest_evals = [f(pop[i, :]) for i in range(npop)]
 pbest_evals
+print(pbest_evals)
 # first update
 
 gbest_eval = np.min(pbest_evals)
@@ -57,7 +59,7 @@ omega = math.sqrt(2) / 2
 velocities
 
 for iter in range(niter):
-    print("iter: ", iter, "/", niter)
+    #print("iter: ", iter, "/", niter)
     for pidx in range(npop):
         # print("popid: ", pidx)
         for dim in range(dims):
@@ -69,12 +71,21 @@ for iter in range(niter):
                 + phi_p * r_p * (pbest[pidx][dim] - pop[pidx][dim])
                 + phi_g * r_g * (gbest[dim] - pop[pidx][dim])
             )
+            if(pidx==1):
+                print((gbest[dim]), (pop[pidx][dim]))
+                print("velocity of ",  pidx, ", ", dim, velocities[pidx][dim])
             # update position
         pop[pidx, :] = pop[pidx, :] + velocities[pidx, :]
+        if(pidx==1):
+            print("pop", pop[pidx, :])
         curr_pop = pop[pidx, :]
         curr_eval = f(curr_pop)
+        """if(pidx==1):
+            print(curr_eval)"""
         # print("f(", curr_pop, ") = ", curr_eval)
         pbe = pbest_evals[pidx]
+        """if(pidx%5==0):
+            print("pbe", pidx, ": ", pbest_evals[pidx])"""
         if curr_eval < pbe:
             # print("updating pbest from ", pbest_evals[pidx], " to ", curr_eval)
             pbest[pidx, :] = curr_pop
@@ -86,11 +97,11 @@ for iter in range(niter):
                 gbest_eval = np.min(pbest_evals)
                 gbest_idx = np.argmin(pbest_evals)
     print("gbest = ", gbest)
-    print("gbest_eval = ", rastrigin(gbest))
+    #print("gbest_eval = ", rastrigin(gbest))
     print("gbe = ", gbest_eval)
-    print("gbest_idx = ", gbest_idx)
-    print("")
-    print("")
+    #print("gbest_idx = ", gbest_idx)
+    #print("")
+    #print("")
 
 
 # rastrigin(np.array(pop[gbest_idx, :]))
