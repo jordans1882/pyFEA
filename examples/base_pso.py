@@ -110,7 +110,9 @@ class PSO():
         self.omega = omega
         self.pop = self.init_pop()
         self.pbest = self.pop
-        self.pbest_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.pbest_eval = self.pop_eval
+        self.worst = np.argmax(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = self.pbest[np.argmin(self.pbest_eval),:]
         self.velocities = self.init_velocities()
@@ -152,6 +154,7 @@ class PSO():
     def update_bests(self):
         for pidx in range(self.pop_size):
             curr_eval = self.func(self.pop[pidx,:])
+            self.pop_eval[pidx] = curr_eval
             if curr_eval < self.pbest_eval[pidx]:
                 self.pbest[pidx, :] = self.pop[pidx,:]
                 self.pbest_eval[pidx] = curr_eval
@@ -159,6 +162,7 @@ class PSO():
                     print("updating gbest from ", self.gbest_eval, " to ", curr_eval)
                     self.gbest = (self.pop[pidx,:])
                     self.gbest_eval = curr_eval
+        self.worst = np.argmax(self.pop_eval)
 
 """input_func = DummyFunc(rastrigin)
 kwargs = {"function":rastrigin, "domain":np.array([[-5,5],[-5,5]]), "generations":200, "pop_size":20, "phi_p":1, "phi_g":math.sqrt(2), "omega":1/math.sqrt(2)}
