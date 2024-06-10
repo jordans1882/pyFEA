@@ -25,6 +25,7 @@ rastrigin(np.array([0.0, 0.0]))
 # step 1 initialize particles
 pop = (np.random.uniform(bounds[0], bounds[1], npop * 2)).reshape((npop, dims))
 pbest = pop
+print(pop)
 
 # step 2 initialize velocities
 velocities = (
@@ -47,7 +48,7 @@ omega = math.sqrt(2) / 2
 velocities
 
 for iter in range(niter):
-    print("iter: ", iter, "/", niter)
+    #print("iter: ", iter, "/", niter)
     for pidx in range(npop):
         # print("popid: ", pidx)
         for dim in range(dims):
@@ -60,19 +61,23 @@ for iter in range(niter):
                 + phi_g * r_g * (gbest[dim] - pop[pidx][dim])
             )
             # update position
-            if pidx==1:
-                print(gbest[dim], pop[pidx][dim])
         pop[pidx, :] = pop[pidx, :] + velocities[pidx, :]
+        if(pidx==1):
+            print("pop", pop[pidx, :])
         curr_pop = pop[pidx, :]
         curr_eval = f(curr_pop)
+        """if(pidx==1):
+            print(curr_eval)"""
         # print("f(", curr_pop, ") = ", curr_eval)
         pbe = pbest_evals[pidx]
+        """if(pidx%5==0):
+            print("pbe", pidx, ": ", pbest_evals[pidx])"""
         if curr_eval < pbe:
             # print("updating pbest from ", pbest_evals[pidx], " to ", curr_eval)
             pbest[pidx, :] = curr_pop
             pbest_evals[pidx] = curr_eval
             if curr_eval < gbest_eval:
-                print("updating gbest from ", gbest_eval, " to ", curr_eval)
+                #print("updating gbest from ", gbest_eval, " to ", curr_eval)
                 gbest = deepcopy(curr_pop)
                 # gbest_eval = curr_eval
                 gbest_eval = np.min(pbest_evals)
@@ -82,7 +87,7 @@ for iter in range(niter):
     print("gbe = ", gbest_eval)
     print("gbest_idx = ", gbest_idx)
     print("")
-    print("")"""
+    print("")
 
 
 # rastrigin(np.array(pop[gbest_idx, :]))
