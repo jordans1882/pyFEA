@@ -20,7 +20,7 @@ class DummyFunc():
         return output
 
 class PSO():
-    def __init__(self, function, domain, generations=100, pop_size=20, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega=1/math.sqrt(2)):
+    def __init__(self, function, domain, generations=10, pop_size=20, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega=1/math.sqrt(2)):
         self.generations = generations
         self.pop_size = pop_size
         self.func = function
@@ -39,7 +39,7 @@ class PSO():
 
     @classmethod
     def from_kwargs(cls, function, domain, input):
-        kwargs = {'generations':100, 'pop_size':20,'phi_p':math.sqrt(2),'phi_g':math.sqrt(2),'omega':1/math.sqrt(2)}
+        kwargs = {'generations':10, 'pop_size':20,'phi_p':math.sqrt(2),'phi_g':math.sqrt(2),'omega':1/math.sqrt(2)}
         kwargs.update(input)
         return cls(function = function, domain = domain, generations=kwargs['generations'],pop_size=kwargs['pop_size'],phi_p=kwargs['phi_p'],phi_g=kwargs['phi_g'],omega=kwargs['omega'])
 
@@ -53,12 +53,16 @@ class PSO():
         return 0.5 * area * np.random.random(size=(self.pop_size, area.shape[0]))
     
     def run(self):
+        """print("speed pre-run: ")
+        self.get_speed()"""
         for gen in range(self.generations):
-            print("iter: ", gen, "/", self.generations)
+            #print("iter: ", gen, "/", self.generations)
             self.update_velocities()
             self.pop = self.pop + self.velocities
             self.stay_in_domain()
             self.update_bests()
+        """print("speed post-run: ")
+        self.get_speed()"""
         return self.gbest
 
     
@@ -73,6 +77,10 @@ class PSO():
         r_p = np.random.random(size=self.pop.shape)
         r_g = np.random.random(size=self.pop.shape)
         self.velocities = self.omega * self.velocities + self.phi_p * r_p * (self.pbest - self.pop) + self.phi_g * r_g * (self.gbest - self.pop)
+        
+    def get_speed(self):
+        speed = np.sum(self.velocities**2, axis=0)**.5
+        print(speed)
 
     def update_bests(self):
         for pidx in range(self.pop_size):
@@ -82,7 +90,7 @@ class PSO():
                 self.pbest[pidx, :] = self.pop[pidx,:]
                 self.pbest_eval[pidx] = curr_eval
                 if curr_eval < self.gbest_eval:
-                    print("updating gbest from ", self.gbest_eval, " to ", curr_eval)
+                    #print("updating gbest from ", self.gbest_eval, " to ", curr_eval)
                     self.gbest = (self.pop[pidx,:])
                     self.gbest_eval = curr_eval
         self.worst = np.argmax(self.pop_eval)

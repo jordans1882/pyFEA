@@ -8,12 +8,12 @@ class Function():
         self.context = np.copy(context)
         self.factor = factor
     def __call__(self, arg):
-        """print("context shape: ", self.context.shape)
+        print("context shape: ", self.context.shape)
         print("context: ", self.context)
         print("factor len: ", len(self.factor))
         print("factor: ", self.factor)
         print("args shape: ", len(arg))
-        print("args: ", arg)"""
+        print("args: ", arg)
         self.context.put(self.factor, arg)
         return self.function(self.context)
 
