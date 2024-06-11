@@ -5,10 +5,16 @@ from FEA.optimizationproblems.benchmarks import rastrigin__
 class Function():
     def __init__(self, context, function, factor):
         self.function = function
-        self.context = np.copy(context) 
+        self.context = np.copy(context)
         self.factor = factor
     def __call__(self, arg):
-        self.context[self.factor] = arg
+        """print("context shape: ", self.context.shape)
+        print("context: ", self.context)
+        print("factor len: ", len(self.factor))
+        print("factor: ", self.factor)
+        print("args shape: ", len(arg))
+        print("args: ", arg)"""
+        self.context.put(self.factor, arg)
         return self.function(self.context)
 
 

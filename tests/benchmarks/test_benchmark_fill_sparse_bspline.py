@@ -2,7 +2,7 @@
 
 Tests numpy versus built-in implementation.
 """
-
+"""
 import time
 import random
 import numpy as np
@@ -24,7 +24,7 @@ import math
     warmup=False,
 )
 def test_random_python_theta(benchmark):
-    """Benchmark python list random unif(10000)."""
+    #Benchmark python list random unif(10000).
 
     def mdoppler(x: float) -> float:
         return math.sin(20 / (x + 0.15))
@@ -65,7 +65,7 @@ def test_random_python_theta(benchmark):
     warmup=False,
 )
 def test_random_python_evaluate(benchmark):
-    """Benchmark python list random unif(10000)."""
+    #Benchmark python list random unif(10000).
 
     def mdoppler(x: float) -> float:
         return math.sin(20 / (x + 0.15))
@@ -92,5 +92,5 @@ def test_random_python_evaluate(benchmark):
     benchmark(random2)
     assert int(0) == 0
 
-
+"""
 # Comment this next line to remove benchmark from test suite

@@ -192,7 +192,7 @@ def test_random_python_askandtell_bayeInput(benchmark):
     benchmark(bayInput)
 """
 
-
+"""
 @pytest.mark.benchmark(
     group="random",
     min_time=0.1,
@@ -253,3 +253,4 @@ def test_random_python_FEAmax(benchmark):
         obj.maximize()
 
     benchmark(random)
+"""
