@@ -1,6 +1,7 @@
 import numpy as np
-from examples.function import Function
-from examples.base_pso import PSO
+from function import Function
+from copy import deepcopy
+from base_pso import PSO
 
 class FEA():
     def __init__(self, factors, function, iterations, dim, base_algo_name, domain, **kwargs):
@@ -34,53 +35,49 @@ class FEA():
                subpop.run()
             self.compete(subpopulations)
             self.share(subpopulations)
-            convergence.append(self.function(self.context_variable))
+
         print("best points: ", self.context_variable)
         print("convergence array: ", convergence)
         return self.function(self.context_variable)
-    
-    def compete(self, subpopulations):
-        rand_var_permutation = np.random.permutation(self.dim)
-        best_fit = self.function(self.context_variable)
-        for i in rand_var_permutation:
-            overlapping_factors = self.variable_map[i]
-            best_val = subpopulations[overlapping_factors[0]].gbest_eval
-            rand_pop_permutation = np.random.permutation(len(overlapping_factors))
-            for j in rand_pop_permutation:
-                s_j = overlapping_factors[j]
-                index = np.where(self.factors[s_j]==i)[0][0]
-                self.context_variable[i] = subpopulations[s_j].gbest[index]
-                current_fit = self.function(self.context_variable)
-                if(current_fit<best_fit):
-                    best_val = subpopulations[s_j].gbest[index]
-                    best_fit = current_fit
-            self.context_variable[i] = best_val
-        for subpop in subpopulations:
-            subpop.func.context = self.context_variable
        
-    """def compete(self, subpopulations):
+    def compete(self, subpopulations):
+        print("new compete")
+        cont_var = deepcopy(self.context_variable)
+        best_fit = deepcopy(self.function(self.context_variable))
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
-            best_fit = self.function(self.context_variable)
+            #print("Best fit: ", best_fit)
             overlapping_factors = self.variable_map[i]
-            best_val = subpopulations[overlapping_factors[0]].gbest_eval
+            best_val = deepcopy(cont_var[i])
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
+                """curr_pop = subpopulations[s_j]
+                pop_var_idx = np.where(self.factors[s_j] == i)
+                position = [x for x in curr_pop.gbest]
+                var_candidate_value = position[pop_var_idx[0][0]]
+                cont_var[i] = var_candidate_value"""
                 index = np.where(self.factors[s_j]==i)[0][0]
-                self.context_variable[i] = subpopulations[s_j].gbest[index]
-                current_fit = self.function(self.context_variable)
+                cont_var[i] = deepcopy(subpopulations[s_j].gbest[index])
+                current_fit = deepcopy(self.function(cont_var))
+                #print("Current fit: ", current_fit, "Best fit: ", best_fit)
                 if(current_fit<best_fit):
-                    best_val = subpopulations[s_j].gbest[index]
-                    best_fit = current_fit
-            self.context_variable[i] = best_val
+                    #print("accepted")
+                    #best_val = var_candidate_value
+                    best_val = deepcopy(subpopulations[s_j].gbest[index])
+                    best_fit = deepcopy(current_fit)
+            cont_var[i] = deepcopy(best_val)
+        print("Context Vector before: ", self.context_variable)
+        self.context_variable = deepcopy(cont_var)
+        print("Context Vector after: ", self.context_variable)
         for subpop in subpopulations:
-            subpop.func.context = self.context_variable"""
+            subpop.func.context = deepcopy(self.context_variable)
     def share(self, subpopulations):
         for i in range(len(subpopulations)):
-            worst = subpopulations[i].worst
-            subpopulations[i].pop[worst, :] = self.context_variable[self.factors[i]]
-            subpopulations[i].pop_eval[worst] = self.function(self.context_variable)
+            worst = deepcopy(subpopulations[i].worst)
+            subpopulations[i].pop[worst, :] = deepcopy(self.context_variable[self.factors[i]])
+            #subpopulations[i].pop_eval[worst] = self.function(self.context_variable)
+            subpopulations[i].update_bests()
     
     def init_full_global(self):
         lbound = self.domain[:,0]

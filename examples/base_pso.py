@@ -91,7 +91,7 @@ class PSO():
                 self.pbest_eval[pidx] = curr_eval
                 if curr_eval < self.gbest_eval:
                     #print("updating gbest from ", self.gbest_eval, " to ", curr_eval)
-                    self.gbest = (self.pop[pidx,:])
+                    self.gbest = deepcopy(self.pop[pidx,:])
                     self.gbest_eval = curr_eval
         self.worst = np.argmax(self.pop_eval)
 
