@@ -1,7 +1,7 @@
 import numpy as np
-from function import Function
+from examples.function import Function
 from copy import deepcopy
-from base_pso import PSO
+from examples.base_pso import PSO
 
 class FEA():
     def __init__(self, factors, function, iterations, dim, base_algo_name, domain, **kwargs):
@@ -27,11 +27,12 @@ class FEA():
         self.context_variable = self.init_full_global()
         print("initial context variable: ", self.context_variable)
         subpopulations = self.initialize_subpops()
-        print("initial subpopulations: ", subpopulations)
+        #print("initial subpopulations: ", subpopulations)
         convergence = []
         for i in range(self.iterations):
             for subpop in subpopulations:
                # FIX DOMAIN
+               subpop.reset_fitness()
                subpop.run()
             self.compete(subpopulations)
             self.share(subpopulations)
@@ -49,6 +50,9 @@ class FEA():
             #print("Best fit: ", best_fit)
             overlapping_factors = self.variable_map[i]
             best_val = deepcopy(cont_var[i])
+            best_fit = self.function(cont_var)
+            #print("Fit before: ", best_fit)
+            #print("Val before: ", best_val)
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
@@ -66,10 +70,14 @@ class FEA():
                     #best_val = var_candidate_value
                     best_val = deepcopy(subpopulations[s_j].gbest[index])
                     best_fit = deepcopy(current_fit)
+                    #print("Fit accepted: ", best_fit)
+                    #print("Val accepted: ", best_val)
             cont_var[i] = deepcopy(best_val)
-        print("Context Vector before: ", self.context_variable)
+            #print("Fit after: ", best_fit)
+            #print("Val after: ", best_val)
+        #print("Context Vector before: ", self.context_variable)
         self.context_variable = deepcopy(cont_var)
-        print("Context Vector after: ", self.context_variable)
+        #print("Context Vector after: ", self.context_variable)
         for subpop in subpopulations:
             subpop.func.context = deepcopy(self.context_variable)
     def share(self, subpopulations):
