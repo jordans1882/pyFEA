@@ -25,6 +25,7 @@ __all__ = [
     "Template",
     "Matrix",
     "rastrigin__",
+    "Function",
 ]
 
 

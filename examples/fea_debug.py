@@ -1,11 +1,12 @@
-
-from fea import FEA
-from base_pso import PSO
-from function import Function
+from feareu import FEA
+from feareu import PSO
+from feareu import Function
 import numpy as np
 import pytest
 import time
 import numba
+
+import matplotlib.pyplot as plt
 from numpy import cos, sqrt, pi, e, exp, sum
 
 def rastrigin__(solution = None):
@@ -29,3 +30,5 @@ domain[:,1] = 5
 function = Function(array, rastrigin__, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 fea = FEA(factors=[[0, 1, 2], [1, 2, 3], [2, 3, 4], [3, 4, 5], [4, 5, 6], [5, 6, 7], [6, 7, 8], [7, 8, 9]], function = rastrigin__, iterations = 100, dim = 10, base_algo_name="PSO", domain=domain)
 fea.run()
+daig_plt = fea.diagnostic_plots()
+plt.show()
