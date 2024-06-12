@@ -2,6 +2,7 @@ import numpy as np
 from function import Function
 from copy import deepcopy
 from base_pso import PSO
+import matplotlib.pyplot as plt
 
 class FEA():
     def __init__(self, factors, function, iterations, dim, base_algo_name, domain, **kwargs):
@@ -13,6 +14,7 @@ class FEA():
         self.domain = domain
         self.context_variable = None
         self.base_algo_args = kwargs
+        self.niterations = 0
         self.variable_map = self._construct_factor_variable_mapping()
         
     # UNIT TEST THIS
@@ -31,63 +33,43 @@ class FEA():
         convergence = []
         counter = 0
         for i in range(self.iterations):
-            #counter = counter + 1
-            #print(counter)
+            niterations += 1
             for subpop in subpopulations:
                # FIX DOMAIN
                subpop.velocities = subpop.init_velocities()
-               print("init velocity: ", np.average(subpop.velocities))
                subpop.reset_fitness()
                subpop.run()
-               print("end velocity: ", np.average(subpop.velocities))
             self.compete(subpopulations)
             self.share(subpopulations)
-            #print("best points: ", self.context_variable)
             convergence.append(self.function(self.context_variable))
         print("convergence array: ", convergence)
         return self.function(self.context_variable)
        
     def compete(self, subpopulations):
-        #print("new compete")
         cont_var = deepcopy(self.context_variable)
-        #print("Cont_var pre", cont_var)
         best_fit = deepcopy(self.function(self.context_variable))
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
-            #print("Best fit: ", best_fit)
             overlapping_factors = self.variable_map[i]
             best_val = deepcopy(cont_var[i])
             best_fit = self.function(cont_var)
-            #print("Fit before: ", best_fit)
-            #print("Val before: ", best_val)
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
-                """curr_pop = subpopulations[s_j]
-                pop_var_idx = np.where(self.factors[s_j] == i)
-                position = [x for x in curr_pop.gbest]
-                var_candidate_value = position[pop_var_idx[0][0]]
-                cont_var[i] = var_candidate_value"""
                 index = np.where(self.factors[s_j]==i)[0][0]
                 cont_var[i] = deepcopy(subpopulations[s_j].gbest[index])
                 current_fit = deepcopy(self.function(cont_var))
-                #print("Current fit: ", current_fit, "Best fit: ", best_fit)
                 if(current_fit<best_fit):
-                    #print("accepted")
-                    #best_val = var_candidate_value
                     best_val = deepcopy(subpopulations[s_j].gbest[index])
                     best_fit = deepcopy(current_fit)
             cont_var[i] = deepcopy(best_val)
-        #print("Context Vector before: ", self.context_variable)
         self.context_variable = deepcopy(cont_var)
-        #print("Context Vector after: ", self.context_variable)
         for subpop in subpopulations:
             subpop.func.context = deepcopy(self.context_variable)
     def share(self, subpopulations):
         for i in range(len(subpopulations)):
             worst = deepcopy(subpopulations[i].worst)
             subpopulations[i].pop[worst, :] = deepcopy(self.context_variable[self.factors[i]])
-            #subpopulations[i].pop_eval[worst] = self.function(self.context_variable)
             subpopulations[i].update_bests()
     
     def init_full_global(self):
@@ -102,5 +84,18 @@ class FEA():
             alg = globals()[self.base_algo_name].from_kwargs(fun, self.domain[subpop, :], self.base_algo_args)
             ret.append(alg)
         return ret
-    
+    def diagnostic_plots(self):
+        plt.subplot(1, 3, 1)
+        ret = plt.plot(range(0, self.niterations), self.function(self.context_variable))
+        plt.title("Convergence")
+
+        plt.subplot(1, 3, 2)
+        plt.plot(range(0, self.niterations), self.gbest_evals)
+        plt.title("Global Bests")
+
+        plt.subplot(1, 3, 3)
+        plt.plot(range(0, self.niterations), self.average_velocities)
+        plt.title("Average Velocities")
+        plt.tight_layout()
+        return ret
     
