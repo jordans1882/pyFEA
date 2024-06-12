@@ -20,7 +20,7 @@ class DummyFunc():
         return output
 
 class PSO():
-    def __init__(self, function, domain, generations=10, pop_size=20, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega=1/math.sqrt(2)):
+    def __init__(self, function, domain, generations=100, pop_size=20, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega=1/math.sqrt(2)):
         self.generations = generations
         self.pop_size = pop_size
         self.func = function
@@ -39,7 +39,7 @@ class PSO():
 
     @classmethod
     def from_kwargs(cls, function, domain, input):
-        kwargs = {'generations':10, 'pop_size':20,'phi_p':math.sqrt(2),'phi_g':math.sqrt(2),'omega':1/math.sqrt(2)}
+        kwargs = {'generations':100, 'pop_size':20,'phi_p':math.sqrt(2),'phi_g':math.sqrt(2),'omega':1/math.sqrt(2)}
         kwargs.update(input)
         return cls(function = function, domain = domain, generations=kwargs['generations'],pop_size=kwargs['pop_size'],phi_p=kwargs['phi_p'],phi_g=kwargs['phi_g'],omega=kwargs['omega'])
 
@@ -50,6 +50,7 @@ class PSO():
 
     def init_velocities(self):
         area = self.domain[:,1] - self.domain[:,0]
+        #print(0.5 * area * np.random.random(size=(self.pop_size, area.shape[0])))
         return 0.5 * area * np.random.random(size=(self.pop_size, area.shape[0]))
     
     def run(self):

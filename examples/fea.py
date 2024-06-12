@@ -1,7 +1,7 @@
 import numpy as np
-from examples.function import Function
+from function import Function
 from copy import deepcopy
-from examples.base_pso import PSO
+from base_pso import PSO
 
 class FEA():
     def __init__(self, factors, function, iterations, dim, base_algo_name, domain, **kwargs):
@@ -29,21 +29,28 @@ class FEA():
         subpopulations = self.initialize_subpops()
         #print("initial subpopulations: ", subpopulations)
         convergence = []
+        counter = 0
         for i in range(self.iterations):
+            #counter = counter + 1
+            #print(counter)
             for subpop in subpopulations:
                # FIX DOMAIN
+               subpop.velocities = subpop.init_velocities()
+               print("init velocity: ", np.average(subpop.velocities))
                subpop.reset_fitness()
                subpop.run()
+               print("end velocity: ", np.average(subpop.velocities))
             self.compete(subpopulations)
             self.share(subpopulations)
-
-        print("best points: ", self.context_variable)
+            #print("best points: ", self.context_variable)
+            convergence.append(self.function(self.context_variable))
         print("convergence array: ", convergence)
         return self.function(self.context_variable)
        
     def compete(self, subpopulations):
-        print("new compete")
+        #print("new compete")
         cont_var = deepcopy(self.context_variable)
+        #print("Cont_var pre", cont_var)
         best_fit = deepcopy(self.function(self.context_variable))
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
@@ -70,11 +77,7 @@ class FEA():
                     #best_val = var_candidate_value
                     best_val = deepcopy(subpopulations[s_j].gbest[index])
                     best_fit = deepcopy(current_fit)
-                    #print("Fit accepted: ", best_fit)
-                    #print("Val accepted: ", best_val)
             cont_var[i] = deepcopy(best_val)
-            #print("Fit after: ", best_fit)
-            #print("Val after: ", best_val)
         #print("Context Vector before: ", self.context_variable)
         self.context_variable = deepcopy(cont_var)
         #print("Context Vector after: ", self.context_variable)
