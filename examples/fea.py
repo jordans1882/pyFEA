@@ -35,14 +35,15 @@ class FEA():
                subpop.run()
             self.compete(subpopulations)
             self.share(subpopulations)
-
-        print("best points: ", self.context_variable)
+            print("best points: ", self.context_variable)
+            convergence.append(self.function(self.context_variable))
         print("convergence array: ", convergence)
         return self.function(self.context_variable)
        
     def compete(self, subpopulations):
         print("new compete")
         cont_var = deepcopy(self.context_variable)
+        #print("Cont_var pre", cont_var)
         best_fit = deepcopy(self.function(self.context_variable))
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
@@ -66,8 +67,10 @@ class FEA():
                     #best_val = var_candidate_value
                     best_val = deepcopy(subpopulations[s_j].gbest[index])
                     best_fit = deepcopy(current_fit)
-            cont_var[i] = deepcopy(best_val)
-        print("Context Vector before: ", self.context_variable)
+                cont_var[i] = best_val
+            #cont_var[i] = deepcopy(best_val)
+        #print("Cont_var post", cont_var)
+        #print("Context Fit before: ", best_fit)
         self.context_variable = deepcopy(cont_var)
         print("Context Vector after: ", self.context_variable)
         for subpop in subpopulations:

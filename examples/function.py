@@ -14,7 +14,7 @@ class Function():
         print("factor: ", self.factor)
         print("args shape: ", len(arg))
         print("args: ", arg)"""
-        self.context.put(self.factor, arg)
+        self.context[self.factor] = arg
         return self.function(self.context)
 
 
