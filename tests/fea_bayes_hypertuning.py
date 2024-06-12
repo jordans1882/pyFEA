@@ -41,7 +41,8 @@ def linear_factorizer(fact_size, overlap, dim):
         factors.append([x for x in range(smallest, largest)])
         smallest = largest - overlap
         largest += fact_size - overlap
-    factors.append([x for x in range(smallest, dim)])
+    if smallest < dim:
+        factors.append([x for x in range(smallest, dim)])
     return factors
 
 def bayes_input(fact_size, overlap, iters, generations, phi_p, phi_g, omega):
@@ -54,7 +55,7 @@ def bayes_input(fact_size, overlap, iters, generations, phi_p, phi_g, omega):
     domain[:,0] = -5
     domain[:,1] = 5
     factors = linear_factorizer(fact_size, overlap, dim)
-    fea = FEA(factors, rastrigin__, dim, iters, "PSO", domain, generations=generations, phi_p=phi_p, phi_g=phi_g, omega=omega)
+    fea = FEA(factors, rastrigin__, iters, dim, "PSO", domain, pop_size=50, generations=generations, phi_p=phi_p, phi_g=phi_g, omega=omega)
     return -fea.run()
 
 pbounds = {"fact_size": (1,5), "overlap": (0,3), "iters": (20,200), "generations":(20,200), "phi_p":(0,4), "phi_g":(0,4), "omega":(0,1)}

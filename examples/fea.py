@@ -27,21 +27,28 @@ class FEA():
         self.context_variable = self.init_full_global()
         print("initial context variable: ", self.context_variable)
         subpopulations = self.initialize_subpops()
-        print("initial subpopulations: ", subpopulations)
+        #print("initial subpopulations: ", subpopulations)
         convergence = []
+        counter = 0
         for i in range(self.iterations):
+            #counter = counter + 1
+            #print(counter)
             for subpop in subpopulations:
                # FIX DOMAIN
+               subpop.velocities = subpop.init_velocities()
+               print("init velocity: ", np.average(subpop.velocities))
+               subpop.reset_fitness()
                subpop.run()
+               print("end velocity: ", np.average(subpop.velocities))
             self.compete(subpopulations)
             self.share(subpopulations)
-            print("best points: ", self.context_variable)
+            #print("best points: ", self.context_variable)
             convergence.append(self.function(self.context_variable))
         print("convergence array: ", convergence)
         return self.function(self.context_variable)
        
     def compete(self, subpopulations):
-        print("new compete")
+        #print("new compete")
         cont_var = deepcopy(self.context_variable)
         #print("Cont_var pre", cont_var)
         best_fit = deepcopy(self.function(self.context_variable))
@@ -50,6 +57,9 @@ class FEA():
             #print("Best fit: ", best_fit)
             overlapping_factors = self.variable_map[i]
             best_val = deepcopy(cont_var[i])
+            best_fit = self.function(cont_var)
+            #print("Fit before: ", best_fit)
+            #print("Val before: ", best_val)
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
@@ -67,12 +77,10 @@ class FEA():
                     #best_val = var_candidate_value
                     best_val = deepcopy(subpopulations[s_j].gbest[index])
                     best_fit = deepcopy(current_fit)
-                cont_var[i] = best_val
-            #cont_var[i] = deepcopy(best_val)
-        #print("Cont_var post", cont_var)
-        #print("Context Fit before: ", best_fit)
+            cont_var[i] = deepcopy(best_val)
+        #print("Context Vector before: ", self.context_variable)
         self.context_variable = deepcopy(cont_var)
-        print("Context Vector after: ", self.context_variable)
+        #print("Context Vector after: ", self.context_variable)
         for subpop in subpopulations:
             subpop.func.context = deepcopy(self.context_variable)
     def share(self, subpopulations):
