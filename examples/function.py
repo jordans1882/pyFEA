@@ -1,6 +1,6 @@
 import numpy as np
 
-from FEA.optimizationproblems.benchmarks import rastrigin__
+#from FEA.optimizationproblems.benchmarks import rastrigin__
 
 class Function():
     def __init__(self, context, function, factor):
@@ -21,8 +21,8 @@ class Function():
 #     def _construct_wrapper_fun(partial_ctx, remaining_context):
 #         self.function(concat(partial_ctx, remaining_ctx))
 #         self.function(self.context)
-def main():
+"""def main():
     fun = Function([1, 2, 0, 0, 0], rastrigin__, [0, 1])
     print(fun([0, 0]))
 if __name__ == "__main__":
-    main()
+    main()"""
