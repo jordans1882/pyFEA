@@ -8,3 +8,5 @@ playground.py
 _build/
 
 .vscode/
+
+**/results/
