@@ -39,7 +39,7 @@ class FEA:
         for i in range(self.iterations):
             self.niterations += 1
             for subpop in subpopulations:
-                subpop.base_alreset()
+                subpop.base_reset()
                 subpop.run()
             self.compete(subpopulations)
             self.share(subpopulations)
