@@ -55,10 +55,9 @@ class PSO:
             omega=kwargs["omega"],
         )
 
-    def reset(self){
+    def base_reset(self):
         self.init_velocities()
         self.reset_fitness()
-    }
     
     def init_pop(self):
         lbound = self.domain[:, 0]
