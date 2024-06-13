@@ -1,21 +1,29 @@
-#from copy import deepcopy
-
 from operator import sub
 import matplotlib.pyplot as plt
 import numpy as np
-
-# from feareu. import PSO
 from feareu.function import Function
-from feareu.base_algos import *
 
+"""
+Factored Evolutionary Architecture
 
+Parameters:
+    factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
+    function: the objective function that the FEA minimizes.
+    iterations: the number of times that the FEA runs.
+    dim: the number of dimensions our function optimizes over.
+    base_algo_name: the base algorithm class that we optomize over. Should be a subclass of FeaBaseAlgo.
+    domain: the domain of our function over every dimension as a numpy array of shape (dim, 2).
+    The first column contains lower bounds, the second contains upper bounds.
+    update_worst: determines whether we perform the second half of the share algorithm.
+    **kwargs: parameters for the base algorithm.
+"""
 class FEA:
     def __init__(self, factors, function, iterations, dim, base_algo_name, domain, update_worst = True, **kwargs):
         self.factors = factors
         self.variable_map = self._construct_factor_variable_mapping()
         self.function = function
         self.iterations = iterations
-        self.base_algo_name = base_algo_name
+        self.base_algo = base_algo_name
         self.dim = dim
         self.domain = domain
         self.context_variable = None
@@ -86,7 +94,7 @@ class FEA:
         ret = []
         for subpop in self.factors:
             fun = Function(context=self.context_variable, function=self.function, factor=subpop)
-            ret.append(self.base_algo_name.from_kwargs(fun, self.domain[subpop, :], self.base_algo_args))
+            ret.append(self.base_algo.from_kwargs(fun, self.domain[subpop, :], self.base_algo_args))
         return ret
 
     def diagnostic_plots(self):
