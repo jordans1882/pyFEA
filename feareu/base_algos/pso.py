@@ -35,29 +35,6 @@ class PSO:
         self.average_pop_eval = []
         self.gbest_evals = []
 
-    @classmethod
-    def from_kwargs(cls, function, domain, kwargs):
-        default = {
-            "generations": 100,
-            "pop_size": 20,
-            "phi_p": math.sqrt(2),
-            "phi_g": math.sqrt(2),
-            "omega": 1 / math.sqrt(2),
-        }
-        kwargs.update(kwargs)
-        return cls(
-            function=function,
-            domain=domain,
-            generations=kwargs["generations"],
-            pop_size=kwargs["pop_size"],
-            phi_p=kwargs["phi_p"],
-            phi_g=kwargs["phi_g"],
-            omega=kwargs["omega"],
-        )
-
-    def base_reset(self):
-        self.init_velocities()
-        self.reset_fitness()
     
     def init_pop(self):
         lbound = self.domain[:, 0]
@@ -81,12 +58,6 @@ class PSO:
             self._append_gbest_evals()
             self.ngenerations += 1
         return self.gbest
-
-    def get_solution_at_index(self, index):
-        return self.gbest[index]
-    
-    def update_worst(self, context):
-        self.pop[self.worst, :] = (context)
     
     def _append_gbest_evals(self):
         self.gbest_evals.append(self.gbest_eval)
