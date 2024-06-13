@@ -1,4 +1,4 @@
-from copy import deepcopy
+#from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,6 +22,7 @@ class FEA:
         self.convergences = []
         self.gbest_variance_per_dim = []
         self.gbest_variance_in_total = []
+        #self.pop_variances
         self.variable_map = self._construct_factor_variable_mapping()
 
     # UNIT TEST THIS
@@ -51,36 +52,36 @@ class FEA:
         return self.function(self.context_variable)
 
     def compete(self, subpopulations):
-        cont_var = deepcopy(self.context_variable)
-        best_fit = deepcopy(self.function(self.context_variable))
+        cont_var = self.context_variable
+        best_fit = self.function(self.context_variable)
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
-            best_val = deepcopy(cont_var[i])
+            best_val = cont_var[i]
             best_fit = self.function(cont_var)
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             gbests_to_measure_variance = []
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
                 index = np.where(self.factors[s_j] == i)[0][0]
-                cont_var[i] = deepcopy(subpopulations[s_j].gbest[index])
+                cont_var[i] = subpopulations[s_j].gbest[index]
                 gbests_to_measure_variance.append(subpopulations[s_j].gbest[index])
-                current_fit = deepcopy(self.function(cont_var))
+                current_fit = self.function(cont_var)
                 if current_fit < best_fit:
-                    best_val = deepcopy(subpopulations[s_j].gbest[index])
-                    best_fit = deepcopy(current_fit)
-            cont_var[i] = deepcopy(best_val)
+                    best_val = subpopulations[s_j].gbest[index]
+                    best_fit = current_fit
+            cont_var[i] = best_val
             self.gbest_variance_per_dim.append(np.var(gbests_to_measure_variance))
-        self.context_variable = deepcopy(cont_var)
+        self.context_variable = cont_var
         for subpop in subpopulations:
-            subpop.func.context = deepcopy(self.context_variable)
+            subpop.func.context = np.copy(self.context_variable)
         self.gbest_variance_in_total.append(np.average(self.gbest_variance_per_dim))
         self.gbest_variance_per_dim = []
 
     def share(self, subpopulations):
         for i in range(len(subpopulations)):
-            worst = deepcopy(subpopulations[i].worst)
-            subpopulations[i].pop[worst, :] = deepcopy(self.context_variable[self.factors[i]])
+            worst = (subpopulations[i].worst)
+            subpopulations[i].pop[worst, :] = (self.context_variable[self.factors[i]])
             subpopulations[i].update_bests()
 
     def init_full_global(self):
@@ -106,6 +107,12 @@ class FEA:
         plt.subplot(1, 2, 2)
         plt.plot(range(0, self.niterations), self.gbest_variance_in_total)
         plt.title("Gbest Variance")
+        
+        """plt.subplot(1, 3, 4)
+        plt.plot(range(0, self.niterations), XXXXX)
+        plt.title("Pop Variances")
+        plt.tight_layout()"""
+        
         
         return ret
         

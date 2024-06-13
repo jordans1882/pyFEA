@@ -1,5 +1,4 @@
 import math
-from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,7 +25,7 @@ class PSO:
         self.pop = self.init_pop()
         self.pbest = self.pop
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
-        self.pbest_eval = deepcopy(self.pop_eval)
+        self.pbest_eval = (self.pop_eval)
         self.worst = np.argmax(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = self.pbest[np.argmin(self.pbest_eval), :]
@@ -35,6 +34,7 @@ class PSO:
         self.average_velocities = []
         self.average_pop_eval = []
         self.gbest_evals = []
+        #self.pop_variances = []
 
     @classmethod
     def from_kwargs(cls, function, domain, input):
@@ -81,6 +81,7 @@ class PSO:
             self.ngenerations += 1
         """print("speed post-run: ")
         self.get_speed()"""
+        #self.pop_variances.append(np.var(self.pop[0]))
         return self.gbest
 
     def _append_gbest_evals(self):
@@ -108,10 +109,6 @@ class PSO:
             + self.phi_g * r_g * (self.gbest - self.pop)
         )
 
-    def get_speed(self):
-        speed = np.sum(self.velocities**2, axis=0) ** 0.5
-        print(speed)
-
     def update_bests(self):
         for pidx in range(self.pop_size):
             curr_eval = self.func(self.pop[pidx, :])
@@ -120,7 +117,7 @@ class PSO:
                 self.pbest[pidx, :] = self.pop[pidx, :]
                 self.pbest_eval[pidx] = curr_eval
                 if curr_eval < self.gbest_eval:
-                    self.gbest = deepcopy(self.pop[pidx, :])
+                    self.gbest = (self.pop[pidx, :])
                     self.gbest_eval = curr_eval
         self.worst = np.argmax(self.pop_eval)
 
@@ -145,6 +142,8 @@ class PSO:
         plt.plot(range(0, self.ngenerations), self.average_velocities)
         plt.title("Average Velocities")
         plt.tight_layout()
+        
+        
         return ret
 
 
