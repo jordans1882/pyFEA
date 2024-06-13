@@ -34,18 +34,17 @@ class PSO:
         self.average_velocities = []
         self.average_pop_eval = []
         self.gbest_evals = []
-        #self.pop_variances = []
 
     @classmethod
-    def from_kwargs(cls, function, domain, input):
-        kwargs = {
+    def from_kwargs(cls, function, domain, kwargs):
+        default = {
             "generations": 100,
             "pop_size": 20,
             "phi_p": math.sqrt(2),
             "phi_g": math.sqrt(2),
             "omega": 1 / math.sqrt(2),
         }
-        kwargs.update(input)
+        kwargs.update(kwargs)
         return cls(
             function=function,
             domain=domain,
@@ -56,6 +55,11 @@ class PSO:
             omega=kwargs["omega"],
         )
 
+    def reset(self){
+        self.init_velocities()
+        self.reset_fitness()
+    }
+    
     def init_pop(self):
         lbound = self.domain[:, 0]
         area = self.domain[:, 1] - self.domain[:, 0]
@@ -63,14 +67,12 @@ class PSO:
 
     def init_velocities(self):
         area = self.domain[:, 1] - self.domain[:, 0]
-        # print(0.5 * area * np.random.random(size=(self.pop_size, area.shape[0])))
         return 0.5 * area * np.random.random(size=(self.pop_size, area.shape[0]))
 
     def run(self):
         """print("speed pre-run: ")
         self.get_speed()"""
         for gen in range(self.generations):
-            # print("iter: ", gen, "/", self.generations)
             self.update_velocities()
             self.pop = self.pop + self.velocities
             self.stay_in_domain()
@@ -79,11 +81,14 @@ class PSO:
             self._append_avg_evals()
             self._append_gbest_evals()
             self.ngenerations += 1
-        """print("speed post-run: ")
-        self.get_speed()"""
-        #self.pop_variances.append(np.var(self.pop[0]))
         return self.gbest
 
+    def get_solution_at_index(self, index):
+        return self.gbest[index]
+    
+    def update_worst(self, context):
+        self.pop[self.worst, :] = (context)
+    
     def _append_gbest_evals(self):
         self.gbest_evals.append(self.gbest_eval)
 
@@ -94,11 +99,8 @@ class PSO:
         self.average_pop_eval.append(np.average(self.pop_eval))
 
     def stay_in_domain(self):
-        # print("pre-domain check: ", self.pop)
         self.pop = np.where(self.domain[:, 0] > self.pop, self.domain[:, 0], self.pop)
-        # print("post-lbound check: ", self.pop)
         self.pop = np.where(self.domain[:, 1] < self.pop, self.domain[:, 1], self.pop)
-        # print("post-domain check: ", self.pop)
 
     def update_velocities(self):
         r_p = np.random.random(size=self.pop.shape)
