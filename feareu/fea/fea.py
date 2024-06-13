@@ -18,8 +18,9 @@ Parameters:
     **kwargs: parameters for the base algorithm.
 """
 class FEA:
-    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, update_worst = True, **kwargs):
+    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, **kwargs):
         self.factors = factors
+        self.dim = dim
         self.variable_map = self._construct_factor_variable_mapping()
         self.function = function
         self.iterations = iterations
@@ -29,7 +30,6 @@ class FEA:
         self.context_variable = None
         self.base_algo_args = kwargs
         self.niterations = 0
-        self.update_worst = update_worst
         self.convergences = []
         self.solution_variance_per_dim = []
         self.solution_variance_in_total = []

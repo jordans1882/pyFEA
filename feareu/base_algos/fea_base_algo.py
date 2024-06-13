@@ -1,6 +1,6 @@
 import abc
 
-class BaseAlgo(metaclass=abc.ABCMeta):
+class FeaBaseAlgo(metaclass=abc.ABCMeta):
 
     @classmethod
     def __subclasshook__(cls, subclass):
@@ -8,7 +8,7 @@ class BaseAlgo(metaclass=abc.ABCMeta):
 
     @classmethod
     @abc.abstractmethod
-    def from_kwargs(cls, function, domain, kwargs):
+    def from_kwargs(cls, function, domain, params):
         raise NotImplementedError
 
     @abc.abstractmethod
