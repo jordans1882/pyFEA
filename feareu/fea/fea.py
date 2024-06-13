@@ -35,7 +35,7 @@ class FEA:
 
     def run(self):
         self.context_variable = self.init_full_global()
-        print("initial context variable: ", self.context_variable)
+        #print("initial context variable: ", self.context_variable)
         subpopulations = self.initialize_subpops()
         # print("initial subpopulations: ", subpopulations)
         counter = 0

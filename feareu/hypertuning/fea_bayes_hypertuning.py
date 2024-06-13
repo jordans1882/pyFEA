@@ -1,14 +1,11 @@
 from bayes_opt import BayesianOptimization
-from examples.fea import FEA
-from examples.base_pso import PSO
-import numba
+from feareu import FEA
+from feareu import PSO
+import feareu.benchmarks as benchmarks
 import numpy as np
 import pytest
 import time
 
-@numba.jit
-def rastrigin__(solution = None):
-    return sum(solution**2 - 10 * np.cos(2 * np.pi * solution) + 10)
 
 """@pytest.mark.benchmark
     group="random",
@@ -31,10 +28,12 @@ def test_fea_builder():
 
 def linear_factorizer(fact_size, overlap, dim):
     smallest = 0
-    if fact_size <= overlap:
+    if fact_size < overlap:
         temp = fact_size
         fact_size = overlap
         overlap = temp
+    if fact_size == overlap:
+        fact_size += 1
     largest = fact_size
     factors = []
     while largest <= dim:
@@ -45,20 +44,23 @@ def linear_factorizer(fact_size, overlap, dim):
         factors.append([x for x in range(smallest, dim)])
     return factors
 
-def bayes_input(fact_size, overlap, iters, generations, phi_p, phi_g, omega):
+def bayes_input(fact_size, overlap, phi_p, phi_g, omega, generations, iterations, pop_size):
+    #print("reached bayes_input")
     fact_size = int(fact_size)
     overlap = int(overlap)
-    iters = int(iters)
     generations = int(generations)
+    pop_size = int(pop_size)
+    iterations = int(iterations)
     domain = np.zeros((10, 2))
     dim = 10
     domain[:,0] = -5
     domain[:,1] = 5
     factors = linear_factorizer(fact_size, overlap, dim)
-    fea = FEA(factors, rastrigin__, iters, dim, "PSO", domain, pop_size=50, generations=generations, phi_p=phi_p, phi_g=phi_g, omega=omega)
+    #print("pre-constructor")
+    fea = FEA(factors, benchmarks.rastrigin__, iterations, dim, "PSO", domain, pop_size=pop_size, generations=generations, phi_p=phi_p, phi_g=phi_g, omega=omega)
     return -fea.run()
 
-pbounds = {"fact_size": (1,5), "overlap": (0,3), "iters": (20,200), "generations":(20,200), "phi_p":(0,4), "phi_g":(0,4), "omega":(0,1)}
+pbounds = {"generations":(10,50), "iterations":(100,300), "pop_size":(10,50), "fact_size": (1,5), "overlap": (0,3), "phi_p":(0,4), "phi_g":(0,4), "omega":(0,1)}
 optimizer = BayesianOptimization(bayes_input, pbounds)
 optimizer.maximize()
-print(optimizer.max())
+print(optimizer.max)
