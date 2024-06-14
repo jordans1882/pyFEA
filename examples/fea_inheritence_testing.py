@@ -1,5 +1,5 @@
 from feareu import FEA
-from feareu.base_algos import FeaPso
+from feareu.base_algos import FeaPso, FeaGA
 from feareu import Function
 import numpy as np
 import pytest
@@ -23,7 +23,7 @@ domain[:,1] = 5
 function = Function(array, rastrigin__, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 #rand_factors = [np.random.choice(range(10), replace=False, size=3) for x in range(10)]
 fct = [[0],[0,1],[0,1,2],[1,2,3],[2,3,4],[3,4,5],[4,5,6],[5,6,7],[6,7,8],[7,8,9],[8,9],[9]]
-fea1 = FEA(factors=fct, function = rastrigin__, iterations = 50, dim = 10, base_algo_name=FeaPso, domain=domain, generations= 20, pop_size=20)
+fea1 = FEA(factors=fct, function = rastrigin__, iterations = 300, dim = 10, base_algo_name=FeaGA, domain=domain, generations= 5, pop_size=20)
 fea1.run()
 daig_plt1 = fea1.diagnostic_plots()
 plt.show()
