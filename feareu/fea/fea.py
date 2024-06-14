@@ -15,7 +15,6 @@ class FEA:
         @param dim: the number of dimensions our function optimizes over.
         @param base_algo_name: the base algorithm class that we optomize over. Should be a subclass of FeaBaseAlgo.
         @param domain: the domain of our function over every dimension as a numpy array of shape (dim, 2).
-        @param update_worst: determines whether we perform the second half of the share algorithm.
         @param **kwargs: parameters for the base algorithm.
         """
         self.factors = factors

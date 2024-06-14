@@ -1,6 +1,7 @@
 import numpy as np
 
 class DE:
+    """Differential Evolution Algorithm."""
     def __init__(
         self,
         function,
@@ -8,8 +9,17 @@ class DE:
         generations=100,
         pop_size=20,
         mutation_factor = 0.5,
-        crossover_rate = 0.5
+        crossover_rate = 0.9
     ):
+        """
+        @param function: the objective function to be minimized.
+        @param domain: the domain on which we explore the function stored as a (dim,2) matrix,
+        where dim is the number of dimensions we evaluate the function over.
+        @param generations: the number of generations run before the algorithm terminates.
+        @param pop_size: the number of individuals in the population.
+        @param mutation_factor: the scalar factor used in the mutation step.
+        @param crossover_rate: the probability of taking a mutated value during the crossover step.
+        """
         self.generations = generations
         self.pop_size = pop_size
         self.func = function
@@ -20,44 +30,54 @@ class DE:
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval),:])
         self.mutation_factor = mutation_factor
         self.crossover_rate = crossover_rate
+        self.mutant_pop = np.zeros((self.pop_size, self.domain.shape[0]))
 
     def init_pop(self):
+        """
+        Randomly initializes the values of the population as a numpy array of shape (pop_size, dim).
+        """
         lbound = self.domain[:, 0]
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(self.pop_size, area.shape[0]))
 
     def run(self):
+        """
+        Run the minimization algorithm.
+        """
         for gen in range(self.generations):
             #print("generation: ", gen, "/", self.generations)
-            mutant_pop = self.mutate()
-            cross_pop = self.crossover(mutant_pop)
-            self.fitness_evals(cross_pop)
+            self.mutate()
+            self.crossover()
+            self.selection()
         return  self.best_solution
 
     def mutate(self):
-        mutant_pop = []
+        """
+        The mutation step. Stores mutant values in self.mutant_pop.
+        """
         for i in range(self.pop_size):
             idxs = np.random.choice(self.pop_size, size = 3, replace = False)
             new_pop_mem = self.pop[i,:]+self.mutation_factor*(self.pop[idxs[0],:] - self.pop[idxs[1],:] + self.pop[idxs[2],:])
-            mutant_pop.append(new_pop_mem)
-        return mutant_pop
+            self.mutant_pop[i,:] = new_pop_mem
 
-    def crossover(self, mutant_pop):
-        cross_pop = []
+    def crossover(self):
+        """
+        The crossover step. Stores crossover values in self.mutant_pop.
+        """
         for i in range(self.pop_size):
-            check_crossing = np.random.rand()
-            if check_crossing < self.crossover_rate:
-                cross_idx = np.random.choice(np.delete(range(self.pop_size), i))
-                cross_rand = np.round(np.random.uniform(size=self.domain.shape[0]))
-                crossed_guy = np.where(cross_rand==1, self.pop[i,:], mutant_pop[cross_idx])
-                cross_pop.append((i, crossed_guy))
-        return cross_pop
+            cross_rand = np.round(np.random.choice([0,1], p=[1-self.crossover_rate, self.crossover_rate], size=self.domain.shape[0]))
+            crossed_guy = np.where(cross_rand==1, self.pop[i,:], self.mutant_pop[i,:])
+            self.mutant_pop[i,:] = crossed_guy
 
-    def fitness_evals(self, cross_pop):
-        for fella in cross_pop:
-            fella_eval = self.func(fella[1])
-            if fella_eval < self.pop_eval[fella[0]]:
-                self.pop_eval[fella[0]] = fella_eval
-                self.pop[fella[0],:] = fella[1]
+    def selection(self):
+        """
+        The fitness evaluation and selection. Greedily selects whether to keep or throw out a value.
+        Consider implementing and testing more sophisticated selection algorithms.
+        """
+        for i in range(self.pop_size):
+            fella_eval = self.func(self.mutant_pop[i,:])
+            if fella_eval < self.pop_eval[i]:
+                self.pop_eval[i] = fella_eval
+                self.pop[i,:] = np.copy(self.mutant_pop[i,:])
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval),:])
         self.best_eval = np.min(self.pop_eval)
