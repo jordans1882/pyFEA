@@ -1,5 +1,5 @@
 import numba
-from numpy import cos, e, exp, pi, sqrt, sum
+import numpy as np
 
 """
 Continuous benchmark functions wrappers to speed up calculations
@@ -8,7 +8,7 @@ Continuous benchmark functions wrappers to speed up calculations
 
 @numba.jit
 def sphere__(solution=None):
-    return sum(solution**2)
+    return np.sum(solution**2)
 
 
 @numba.jit
@@ -21,22 +21,21 @@ def elliptic__(solution=None):
 
 @numba.jit
 def rastrigin__(solution=None):
-    return sum(solution**2 - 10 * cos(2 * pi * solution) + 10)
+    return np.sum(solution**2 - 10 * np.cos(2 * np.pi * solution) + 10)
 
 
 @numba.jit
 def ackley__(solution=None):
     return (
-        -20 * exp(-0.2 * sqrt(sum(solution**2) / len(solution)))
-        - exp(sum(cos(2 * pi * solution)) / len(solution))
+        -20 * np.exp(-0.2 * np.sqrt(np.sum(solution**2) / len(solution)))
+        - np.exp(np.sum(np.cos(2 * np.pi * solution)) / len(solution))
         + 20
-        + e
+        + np.e
     )
 
-
-@numba.jit
-def schwefel__(solution=None):
-    return sum([sum(solution[:i]) ** 2 for i in range(0, len(solution))])
+#@numba.jit
+#def schwefel__(solution=None):
+#    return 418.9829*len(solution) - np.sum(solution * np.sin(np.sqrt(np.abs(solution)))) 
 
 
 @numba.jit

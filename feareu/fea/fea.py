@@ -1,22 +1,29 @@
-#from copy import deepcopy
-
 from operator import sub
 import matplotlib.pyplot as plt
 import numpy as np
-
-# from feareu. import PSO
 from feareu.function import Function
-from feareu.base_algos import *
-
 
 class FEA:
+    """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al."""
+
     def __init__(self, factors, function, iterations, dim, base_algo_name, domain, **kwargs):
+        """
+        @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
+        @param function: the objective function that the FEA minimizes.
+        @param iterations: the number of times that the FEA runs.
+        @param dim: the number of dimensions our function optimizes over.
+        @param base_algo_name: the base algorithm class that we optomize over. Should be a subclass of FeaBaseAlgo.
+        @param domain: the domain of our function over every dimension as a numpy array of shape (dim, 2).
+        @param update_worst: determines whether we perform the second half of the share algorithm.
+        @param **kwargs: parameters for the base algorithm.
+        """
         self.factors = factors
         self.dim = dim
         self.variable_map = self._construct_factor_variable_mapping()
         self.function = function
         self.iterations = iterations
-        self.base_algo_name = base_algo_name
+        self.base_algo = base_algo_name
+        self.dim = dim
         self.domain = domain
         self.context_variable = None
         self.base_algo_args = kwargs
@@ -26,6 +33,12 @@ class FEA:
         self.solution_variance_in_total = []
 
     def _construct_factor_variable_mapping(self):
+        """
+        Constructs a list of lists where each list contains the factors that optimize over a given variable.
+        Essentially, indeces of variable_map are variables, and its elements are lists of factors.
+        For example, variable map = [[0],[0,1],[1,2]] tells us that
+        variable 0 is optimized by factor 0 alone, variable 1 is optimized both by factor 0 and factor 1.
+        """
         variable_map = [[] for k in range(self.dim)]
         for i in range(len(self.factors)):
             for j in self.factors[i]:
@@ -33,6 +46,9 @@ class FEA:
         return variable_map
 
     def run(self):
+        """
+        Algorithm 3 from the Strasser et al. paper.
+        """
         self.context_variable = self.init_full_global()
         subpopulations = self.initialize_subpops()
         for i in range(self.iterations):
@@ -46,6 +62,10 @@ class FEA:
         return self.function(self.context_variable)
 
     def compete(self, subpopulations):
+        """
+        Algorithm 1 from the Strasser et al. paper.
+        @param subpopulations: the list of base algorithms, each with their own factor.
+        """
         cont_var = self.context_variable
         best_fit = self.function(self.context_variable)
         rand_var_permutation = np.random.permutation(self.dim)
@@ -71,24 +91,37 @@ class FEA:
         self.solution_variance_per_dim = []
 
     def share(self, subpopulations):
+        """
+        Algorithm 2 from the Strasser et al. paper.
+        @param subpopulations: the list of subpopulations initialized in initialize_subpops. 
+        """
         for i in range(len(subpopulations)):
             subpopulations[i].func.context = np.copy(self.context_variable)
             subpopulations[i].update_worst(self.context_variable[self.factors[i]])
             subpopulations[i].update_bests()
 
     def init_full_global(self):
+        """
+        Randomly initializes the global context vector within the boundaries given by domain.
+        """
         lbound = self.domain[:, 0]
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(area.shape[0]))
 
     def initialize_subpops(self):
+        """
+        Initializes some inheritor of FeaBaseAlgo to optimize over each factor.
+        """
         ret = []
         for subpop in self.factors:
             fun = Function(context=self.context_variable, function=self.function, factor=subpop)
-            ret.append(self.base_algo_name.from_kwargs(fun, self.domain[subpop, :], len(subpop), self.base_algo_args))
+            ret.append(self.base_algo.from_kwargs(fun, self.domain[subpop, :], self.base_algo_args))
         return ret
 
     def diagnostic_plots(self):
+        """
+        Set up plots tracking solution convergence and variance over time.
+        """
         plt.subplot(1, 2, 1)
         ret = plt.plot(range(0, self.niterations), self.convergences)
         plt.title("Convergence")
