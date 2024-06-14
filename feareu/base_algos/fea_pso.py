@@ -18,7 +18,7 @@ class FeaPso(PSO, FeaBaseAlgo):
         super().update_bests()
     
     def run(self):
-        return super().run()"""
+        super().run()"""
     
     def get_solution_at_index(self, idx):
         return self.gbest[idx]
