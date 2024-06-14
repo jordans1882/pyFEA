@@ -4,30 +4,47 @@ import math
 import numpy as np
 
 class FeaPso(PSO, FeaBaseAlgo):
-    """def __init__(self,
-        function,
-        domain,
-        generations=100,
-        pop_size=20,
-        phi_p=math.sqrt(2),
-        phi_g=math.sqrt(2),
-        omega=1 / math.sqrt(2),):
-        PSO.__init__(self, function = function, domain = domain, generations=generations, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega)
-    """    
+    """
+    The PSO algorithm adapted to be run in an FEA.
+    """
     def update_bests(self):
+        """
+        Calls to update_bests() in PSO during the FEA's share step.
+        """
         super().update_bests()
     
     def run(self):
+        """
+        Runs the base PSO algorithm.
+        """
         return super().run()
     
     def get_solution_at_index(self, idx):
+        """
+        Find the gbest value at a given variable for FEA's compete step.
+        @param idx: the index for the variable.
+        """
         return self.gbest[idx]
     
     def update_worst(self, context):
+        """
+        The second half of the FEA's share step. Updates the worst
+        particle to be positioned at the context vector.
+        @param context: the FEA's context vector.
+        """
         self.pop[np.argmax(self.pop_eval), :] = (context)
         
     @classmethod
     def from_kwargs(cls, function, domain, params):
+        """
+        The method for constructing a PSO from input to the FEA's constructor.
+        @param function: the objective function for the PSO to minimize.
+        Will be of the Function class from function.py.
+        @param domain: the domain over which the function is evaluated.
+        A numpy array of size (dim, 2).
+        @param params: other keyword arguments as a dictionary. Includes
+        generations, pop_size, phi_p, phi_g, and omega.
+        """
         kwargs = {
             "generations": 100,
             "pop_size": 20,
@@ -46,10 +63,16 @@ class FeaPso(PSO, FeaBaseAlgo):
             omega=kwargs["omega"],
         )
     def base_reset(self):
+        """
+        Reset velocities and fitness evaluations before the next run of the algorithm.
+        """
         self.velocities = super().init_velocities()
         self.reset_fitness()
     
     def reset_fitness(self):
+        """
+        Reevaluate the fitness function over the entire population and update the fields accordingly.
+        """
         self.pbest = self.pop
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.pbest_eval = self.pop_eval
