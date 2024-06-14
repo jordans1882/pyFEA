@@ -5,4 +5,4 @@ from .fea_ga import FeaGA
 from .de import DE
 from .fea_de import FeaDE
 
-__all__ = ["PSO", "FeaPso", "DE", "FeaDE, "GA", "FeaGA""]
+__all__ = ["PSO", "FeaPso", "DE", "FeaDE", "GA", "FeaGA"]

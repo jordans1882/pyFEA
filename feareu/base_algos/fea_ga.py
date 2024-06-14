@@ -29,6 +29,4 @@ class FeaGA(GA, FeaBaseAlgo):
             mutation_rate=kwargs["mutation_rate"],
         )
     def base_reset(self):
-        self.pbest = self.pop
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
-        self.pbest_eval = self.pop_eval
