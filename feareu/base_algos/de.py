@@ -16,8 +16,8 @@ class DE:
         self.domain = domain
         self.pop = self.init_pop()
         self.pop_eval = [self.func(self.pop[i]) for i in range(self.pop_size)]
-        self.best_solution = np.min(self.pop_eval)
-        self.best_eval = np.copy(self.pop[np.argmin(self.pop_eval),:])
+        self.best_eval = np.min(self.pop_eval)
+        self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval),:])
         self.mutation_factor = mutation_factor
         self.crossover_rate = crossover_rate
 
@@ -28,7 +28,7 @@ class DE:
 
     def run(self):
         for gen in range(self.generations):
-            print("generation: ", gen, "/", self.generations)
+            #print("generation: ", gen, "/", self.generations)
             mutant_pop = self.mutate()
             cross_pop = self.crossover(mutant_pop)
             self.fitness_evals(cross_pop)
@@ -59,5 +59,5 @@ class DE:
             if fella_eval < self.pop_eval[fella[0]]:
                 self.pop_eval[fella[0]] = fella_eval
                 self.pop[fella[0],:] = fella[1]
-        self.best_solution = np.min(self.pop_eval)
-        self.best_eval = np.copy(self.pop[np.argmin(self.pop_eval),:])
+        self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval),:])
+        self.best_eval = np.min(self.pop_eval)
