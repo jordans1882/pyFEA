@@ -24,7 +24,7 @@ class FeaPso(PSO, FeaBaseAlgo):
         return self.gbest[idx]
     
     def update_worst(self, context):
-        self.pop[self.worst, :] = (context)
+        self.pop[np.argmax(self.pop_eval), :] = (context)
         
     @classmethod
     def from_kwargs(cls, function, domain, params):
@@ -53,6 +53,6 @@ class FeaPso(PSO, FeaBaseAlgo):
         self.pbest = self.pop
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.pbest_eval = self.pop_eval
-        self.worst = np.argmax(self.pop_eval)
+        #self.worst = np.argmax(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])

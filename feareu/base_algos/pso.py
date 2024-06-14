@@ -27,7 +27,6 @@ class PSO:
         self.pbest = (self.pop)
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.pbest_eval = deepcopy(self.pop_eval)
-        self.worst = np.argmax(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
         self.velocities = self.init_velocities()
@@ -92,7 +91,7 @@ class PSO:
                 if curr_eval < self.gbest_eval:
                     self.gbest = np.copy(self.pop[pidx, :])
                     self.gbest_eval = curr_eval
-        self.worst = np.argmax(self.pop_eval)
+        #self.worst = np.argmax(self.pop_eval)
 
     def _append_gbest_evals(self):
         self.gbest_evals.append(self.gbest_eval)
