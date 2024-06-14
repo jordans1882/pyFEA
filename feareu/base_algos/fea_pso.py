@@ -14,11 +14,11 @@ class FeaPso(PSO, FeaBaseAlgo):
         omega=1 / math.sqrt(2),):
         PSO.__init__(self, function = function, domain = domain, generations=generations, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega)
     """    
-    """def update_bests(self):
+    def update_bests(self):
         super().update_bests()
     
     def run(self):
-        super().run()"""
+        return super().run()
     
     def get_solution_at_index(self, idx):
         return self.gbest[idx]

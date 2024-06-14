@@ -7,18 +7,10 @@ from feareu.benchmarks import *
 import numpy as np
 import pytest
 import time
-from feareu.base_algos.fea_pso import FeaPso
-
-function = benchmarks.rastrigin__
+from feareu.base_algos import FeaDE
 
 def linear_factorizer(fact_size, overlap, dim):
     smallest = 0
-    #if fact_size < overlap:
-    #    temp = fact_size
-    #    fact_size = overlap
-    #    overlap = temp
-    #if fact_size == overlap:
-    #    fact_size += 1
     largest = fact_size
     factors = []
     while largest <= dim:
@@ -29,7 +21,7 @@ def linear_factorizer(fact_size, overlap, dim):
         factors.append([x for x in range(smallest, dim)])
     return factors
 
-def bayes_input(fact_size, overlap, phi_p, phi_g, omega, generations, iterations, pop_size):
+def bayes_input(fact_size, overlap, generations, iterations, pop_size, mutation_factor, crossover_rate):
     #print("reached bayes_input")
     fact_size = int(fact_size)
     overlap = int(overlap)
@@ -45,7 +37,7 @@ def bayes_input(fact_size, overlap, phi_p, phi_g, omega, generations, iterations
     factors = linear_factorizer(fact_size, overlap, dim)
     #print("pre-constructor")
     #print(function)
-    fea = FEA(factors, function, iterations, dim, FeaPso, domain, pop_size=pop_size, generations=generations, phi_p=phi_p, phi_g=phi_g, omega=omega)
+    fea = FEA(factors, function, iterations, dim, FeaDE, domain, pop_size=pop_size, generations=generations, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
     ret = -fea.run()
     return ret
 
@@ -53,8 +45,14 @@ def bayes_run(init_points=5, n_iter=25):
     for benchmark in benchmarks.__all__:
         global function
         function = globals()[benchmark]
-        print(function)
-        pbounds = {"generations":(10,50), "iterations":(100,300), "pop_size":(10,50), "fact_size": (1,5), "overlap": (0,3), "phi_p":(0,4), "phi_g":(0,4), "omega":(0,1)}
+        print(benchmark)
+        pbounds = {"generations":(10,35), 
+                   "iterations":(30,100), 
+                   "pop_size":(10,35), 
+                   "fact_size": (1,5), 
+                   "overlap": (0,3), 
+                   "mutation_factor":(0.1,1), 
+                   "crossover_rate":(0.1,1)}
         optimizer = BayesianOptimization(bayes_input, pbounds)
         optimizer.maximize(init_points, n_iter)
         print(optimizer.max)
@@ -63,9 +61,4 @@ def bayes_run(init_points=5, n_iter=25):
         storage.close()
 
 bayes_run(2, 8)
-
-#pbounds = {"generations":(10,50), "iterations":(100,300), "pop_size":(10,50), "fact_size": (1,5), "overlap": (0,3), "phi_p":(0,4), "phi_g":(0,4), "omega":(0,1)}
-#optimizer = BayesianOptimization(bayes_input, pbounds)
-#optimizer.maximize()
-#print(optimizer.max)
 

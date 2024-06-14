@@ -1,12 +1,32 @@
-from bayes_opt import BayesianOptimization
-from feareu import FEA
-from feareu import PSO
-from feareu.base_algos import FeaPso
-import feareu.benchmarks as benchmarks
+import matplotlib.pyplot as plt
 import numpy as np
+from feareu.base_algos import FeaDE, DE
+from feareu import Function
+from feareu.fea import FEA
+from bayes_opt import BayesianOptimization
+import feareu.benchmarks as benchmarks
 import pytest
 import time
 
+ndims = 5 
+
+
+array = np.zeros((ndims))
+
+domain = np.zeros((ndims, 2))
+domain[:, 0] = -5
+domain[:, 1] = 5
+domain
+# function = Function(array, rastrigin__, [0, 1])
+
+#function = Function(array, benchmarks.rastrigin__, [0, 1, 2, 3, 4])
+#de = FeaDE(function = function, domain = domain, generations = 400, pop_size=40)
+#de_og = DE(function = function, domain = domain, generations = 400, pop_size=40)
+#print(de.run())
+#print(de_og.run())
+#diag_plots = de.diagnostic_plots()
+#diag_plots = de_og.diagnostic_plots()
+#plt.show()
 
 """@pytest.mark.benchmark
     group="random",
@@ -45,25 +65,25 @@ def linear_factorizer(fact_size, overlap, dim):
         factors.append([x for x in range(smallest, dim)])
     return factors
 
-def bayes_input(generations, iterations, pop_size):#, fact_size, overlap, phi_p, phi_g, omega):
-    #fact_size = int(fact_size)
-    #overlap = int(overlap)
-    #if fact_size <= overlap:
-    #    return -999999999
-    #factors = linear_factorizer(fact_size, overlap, dim)
+def bayes_input(fact_size, overlap, generations, iterations, pop_size, mutation_factor, crossover_rate):
+    #print("reached bayes_input")
+    fact_size = int(fact_size)
+    overlap = int(overlap)
     generations = int(generations)
     pop_size = int(pop_size)
     iterations = int(iterations)
+    if overlap>=fact_size:
+        return -9999999999
     domain = np.zeros((10, 2))
     dim = 10
     domain[:,0] = -5
     domain[:,1] = 5
+    factors = linear_factorizer(fact_size, overlap, dim)
     #print("pre-constructor")
-    factors = [[0],[0,1],[0,1,2],[1,2,3],[2,3,4],[3,4,5],[4,5,6],[5,6,7],[6,7,8],[7,8,9],[8,9],[9]]
-    fea = FEA(factors, benchmarks.rastrigin__, iterations, dim, FeaPso, domain, pop_size=pop_size, generations=generations)#, phi_p=phi_p, phi_g=phi_g, omega=omega)
+    fea = FEA(factors, benchmarks.rastrigin__, iterations, dim, FeaDE, domain, pop_size=pop_size, generations=generations, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
     return -fea.run()
 
-pbounds = {"generations":(10,30), "iterations":(250,450), "pop_size":(10,30)}#, "fact_size": (1,5), "overlap": (0,3), "phi_p":(1.25,1.75), "phi_g":(1.25,1.75), "omega":(0.5,.9)}
+pbounds = {"generations":(10,30), "iterations":(30,80), "pop_size":(10,40), "fact_size": (1,5), "overlap": (0,3), "mutation_factor": (0.1,1), "crossover_rate": (0.1,1)}
 optimizer = BayesianOptimization(bayes_input, pbounds)
-optimizer.maximize(init_points=10, n_iter=40)
+optimizer.maximize()
 print(optimizer.max)

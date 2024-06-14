@@ -37,11 +37,13 @@ class PSO:
 
     
     def init_pop(self):
+        #print(self.generations)
         lbound = self.domain[:, 0]
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(self.pop_size, area.shape[0]))
 
     def init_velocities(self):
+        #print("hi")
         area = self.domain[:, 1] - self.domain[:, 0]
         return 0.5 * area * np.random.random(size=(self.pop_size, area.shape[0]))
 
@@ -51,6 +53,8 @@ class PSO:
         self._append_gbest_evals()
         self.ngenerations += 1
         for gen in range(self.generations):
+            #if(gen == 1):
+            #    print("velocity: ", np.average(self.velocities))
             self.update_velocities()
             self.pop = self.pop + self.velocities
             #print("new pop: ", self.pop)

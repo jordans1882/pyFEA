@@ -18,6 +18,7 @@ def bayes_input(phi_p, phi_g, omega):
 
 pbounds = {"phi_p":(0,4), "phi_g":(0,4), "omega":(0,1)}
 optimizer = BayesianOptimization(bayes_input, pbounds)
-optimizer.maximize()
+optimizer.set_gp_params
+optimizer.maximize(5, 25)
 print(optimizer.max)
 
