@@ -23,12 +23,28 @@ class GA:
         self.average_pop_eval = []
         self.average_pop_variance = []
         
+        """
+        @param function: the objective function to be minimized.
+        @param domain: the domain on which we explore the function stored as a (dim,2) matrix,
+        where dim is the number of dimensions we evaluate the function over.
+        @param generations: the number of generations run before the algorithm terminates.
+        @param pop_size: the number of individuals in the population.
+        @param mutation_rate: the probability of mutation used in the mutation step.
+        @param b: factors that survive to be parents each generation.
+        """
+        
     def init_pop(self):
+        """
+        Randomly initializes the values of the population as a numpy array of shape (pop_size, dim).
+        """
         lbound = self.domain[:, 0]
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(self.pop_size, area.shape[0]))
     
     def run(self):
+        """
+        Run the minimization algorithm.
+        """
         for gen in range(self.generations):
             self.ngenerations +=1
             self.selection()
@@ -39,12 +55,17 @@ class GA:
             self._append_avg_evals()
         return self.pop[0]
             
-            
     def selection(self):
+        """
+        Removes the poorest preforming (1-b)% of the population
+        """
         part_to_be_deleted = np.arange(start = self.b*self.pop_size, stop = self.pop_size, dtype=int)
         self.pop = np.delete(self.pop, part_to_be_deleted, axis=0)
     
     def crossover(self):
+        """
+        Returns an array of new values from combinations of the existing population.
+        """
         num_elements_to_be_added = self.pop_size - self.pop.shape[0]
         last_gen_pop = self.pop.shape[0] - 1
         children = np.zeros([num_elements_to_be_added, self.pop.shape[1]])
@@ -56,6 +77,9 @@ class GA:
         return children
     
     def mutation(self, children):
+        """
+        Mutates children through swapping and recombines that with the parent population.
+        """
         for child in children:
             if random.random() < self.mutation_rate:
                 index_1 = random.randint(0, child.shape[0]-1)
@@ -67,18 +91,16 @@ class GA:
         self.pop = np.vstack((self.pop, children))
     
     def update_bests(self):
-        #FIX SORTING
+        """
+        Resorts the population and updates the evaluations.
+        """
         sorted_order = np.argsort([self.func(row) for row in self.pop])
         self.pop = self.pop[sorted_order]
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
-
-    """def _append_avg_velocities(self):
-        self.average_velocities.append(np.average(np.abs(self.velocities)))
-"""
+        
     def _append_avg_evals(self):
         self.average_pop_eval.append(np.average(self.pop_eval))
         
-    # FIX PLEASE
     def _append_varaince(self):
         self.average_pop_variance.append(np.average(np.var(self.pop, axis = 0)))
         
@@ -90,10 +112,7 @@ class GA:
         plt.subplot(1, 2, 2)
         plt.plot(range(0, self.ngenerations), self.average_pop_variance)
         plt.title("Average Pop")
-
-        """plt.subplot(1, 3, 3)
-        plt.plot(range(0, self.ngenerations), self.average_velocities)
-        plt.title("Average Velocities")"""
+        
         plt.tight_layout()
         
         return ret
