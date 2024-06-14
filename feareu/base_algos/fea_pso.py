@@ -1,13 +1,24 @@
 from feareu.base_algos.fea_base_algo import FeaBaseAlgo
 from feareu.base_algos.pso import PSO
 import math
+import numpy as np
 
-class FeaPso(FeaBaseAlgo, PSO):
-    def update_bests(self):
-        PSO.update_bests(self)
+class FeaPso(PSO, FeaBaseAlgo):
+    """def __init__(self,
+        function,
+        domain,
+        generations=100,
+        pop_size=20,
+        phi_p=math.sqrt(2),
+        phi_g=math.sqrt(2),
+        omega=1 / math.sqrt(2),):
+        PSO.__init__(self, function = function, domain = domain, generations=generations, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega)
+    """    
+    """def update_bests(self):
+        super().update_bests()
     
     def run(self):
-        PSO.run(self)
+        super().run()"""
     
     def get_solution_at_index(self, idx):
         return self.gbest[idx]
@@ -35,5 +46,13 @@ class FeaPso(FeaBaseAlgo, PSO):
             omega=kwargs["omega"],
         )
     def base_reset(self):
-        self.init_velocities()
+        super().init_velocities()
         self.reset_fitness()
+    
+    def reset_fitness(self):
+        self.pbest = self.pop
+        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.pbest_eval = self.pop_eval
+        self.worst = np.argmax(self.pop_eval)
+        self.gbest_eval = np.min(self.pbest_eval)
+        self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])

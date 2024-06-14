@@ -1,4 +1,5 @@
 import math
+from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -23,12 +24,12 @@ class PSO:
         self.phi_g = phi_g
         self.omega = omega
         self.pop = self.init_pop()
-        self.pbest = self.pop
+        self.pbest = (self.pop)
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
-        self.pbest_eval = (self.pop_eval)
+        self.pbest_eval = deepcopy(self.pop_eval)
         self.worst = np.argmax(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
-        self.gbest = self.pbest[np.argmin(self.pbest_eval), :]
+        self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
         self.velocities = self.init_velocities()
         self.ngenerations = 0
         self.average_velocities = []
@@ -46,11 +47,14 @@ class PSO:
         return 0.5 * area * np.random.random(size=(self.pop_size, area.shape[0]))
 
     def run(self):
-        """print("speed pre-run: ")
-        self.get_speed()"""
+        self._append_avg_velocities()
+        self._append_avg_evals()
+        self._append_gbest_evals()
+        self.ngenerations += 1
         for gen in range(self.generations):
             self.update_velocities()
             self.pop = self.pop + self.velocities
+            #print("new pop: ", self.pop)
             self.stay_in_domain()
             self.update_bests()
             self._append_avg_velocities()
@@ -58,15 +62,6 @@ class PSO:
             self._append_gbest_evals()
             self.ngenerations += 1
         return self.gbest
-    
-    def _append_gbest_evals(self):
-        self.gbest_evals.append(self.gbest_eval)
-
-    def _append_avg_velocities(self):
-        self.average_velocities.append(np.average(np.abs(self.velocities)))
-
-    def _append_avg_evals(self):
-        self.average_pop_eval.append(np.average(self.pop_eval))
 
     def stay_in_domain(self):
         self.pop = np.where(self.domain[:, 0] > self.pop, self.domain[:, 0], self.pop)
@@ -82,25 +77,28 @@ class PSO:
         )
 
     def update_bests(self):
+        print("pop evals: ", self.pop_eval)
+            #Not updating
         for pidx in range(self.pop_size):
             curr_eval = self.func(self.pop[pidx, :])
             self.pop_eval[pidx] = curr_eval
             if curr_eval < self.pbest_eval[pidx]:
-                self.pbest[pidx, :] = self.pop[pidx, :]
+                self.pbest[pidx, :] = np.copy(self.pop[pidx, :])
                 self.pbest_eval[pidx] = curr_eval
                 if curr_eval < self.gbest_eval:
-                    self.gbest = (self.pop[pidx, :])
+                    self.gbest = np.copy(self.pop[pidx, :])
                     self.gbest_eval = curr_eval
         self.worst = np.argmax(self.pop_eval)
 
-    def reset_fitness(self):
-        self.pbest = self.pop
-        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
-        self.pbest_eval = self.pop_eval
-        self.worst = np.argmax(self.pop_eval)
-        self.gbest_eval = np.min(self.pbest_eval)
-        self.gbest = self.pbest[np.argmin(self.pbest_eval), :]
+    def _append_gbest_evals(self):
+        self.gbest_evals.append(self.gbest_eval)
 
+    def _append_avg_velocities(self):
+        self.average_velocities.append(np.average(np.abs(self.velocities)))
+
+    def _append_avg_evals(self):
+        self.average_pop_eval.append(np.average(self.pop_eval))
+        
     def diagnostic_plots(self):
         plt.subplot(1, 3, 1)
         ret = plt.plot(range(0, self.ngenerations), self.average_pop_eval)
@@ -114,7 +112,6 @@ class PSO:
         plt.plot(range(0, self.ngenerations), self.average_velocities)
         plt.title("Average Velocities")
         plt.tight_layout()
-        
         
         return ret
 

@@ -51,20 +51,20 @@ class FEA:
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
-            best_val = cont_var[i]
+            best_val = np.copy(cont_var[i])
             best_fit = self.function(cont_var)
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             solution_to_measure_variance = []
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
                 index = np.where(self.factors[s_j] == i)[0][0]
-                cont_var[i] = subpopulations[s_j].get_solution_at_index(index)
+                cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
                 solution_to_measure_variance.append(subpopulations[s_j].get_solution_at_index(index))
                 current_fit = self.function(cont_var)
                 if current_fit < best_fit:
-                    best_val = subpopulations[s_j].get_solution_at_index(index)
+                    best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
-            cont_var[i] = best_val
+            cont_var[i] = np.copy(best_val)
             self.solution_variance_per_dim.append(np.var(solution_to_measure_variance))
         self.context_variable = cont_var
         self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
@@ -85,7 +85,7 @@ class FEA:
         ret = []
         for subpop in self.factors:
             fun = Function(context=self.context_variable, function=self.function, factor=subpop)
-            ret.append(self.base_algo_name.from_kwargs(fun, self.domain[subpop, :], self.base_algo_args))
+            ret.append(self.base_algo_name.from_kwargs(fun, self.domain[subpop, :], len(subpop), self.base_algo_args))
         return ret
 
     def diagnostic_plots(self):
