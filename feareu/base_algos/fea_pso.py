@@ -46,7 +46,7 @@ class FeaPso(PSO, FeaBaseAlgo):
             omega=kwargs["omega"],
         )
     def base_reset(self):
-        super().init_velocities()
+        self.velocities = super().init_velocities()
         self.reset_fitness()
     
     def reset_fitness(self):

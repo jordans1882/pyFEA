@@ -1,3 +1,4 @@
+from copy import deepcopy
 from operator import sub
 import matplotlib.pyplot as plt
 import numpy as np
@@ -86,7 +87,7 @@ class FEA:
                     best_fit = current_fit
             cont_var[i] = np.copy(best_val)
             self.solution_variance_per_dim.append(np.var(solution_to_measure_variance))
-        self.context_variable = cont_var
+        self.context_variable = (cont_var)
         self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
         self.solution_variance_per_dim = []
 

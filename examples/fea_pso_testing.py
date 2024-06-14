@@ -20,8 +20,8 @@ domain
 # function = Function(array, rastrigin__, [0, 1])
 
 function = Function(array, rastrigin__, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-pso = FeaPso(function = function, domain = domain, pop_size=10)
-pso_og = PSO(function = function, domain = domain, pop_size=10)
+pso = FeaPso(function = function, domain = domain, pop_size=20)
+pso_og = PSO(function = function, domain = domain, pop_size=20)
 pso.run()
 pso_og.run()
 diag_plots = pso.diagnostic_plots()
