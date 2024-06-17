@@ -10,6 +10,7 @@ class GA:
         b = 0.7,
         mutation_rate = 0.05,
         generations = 100,
+        mutation_range = 0.5
     ):
         self.pop_size = pop_size
         self.b = b
@@ -19,7 +20,9 @@ class GA:
         self.pop = self.init_pop()
         self.ngenerations = 0
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.update_bests()
         self.generations = generations
+        self.mutation_range = mutation_range
         self.average_pop_eval = []
         self.average_pop_variance = []
         
@@ -81,13 +84,11 @@ class GA:
         Mutates children through swapping and recombines that with the parent population.
         """
         for child in children:
-            if random.random() < self.mutation_rate:
-                index_1 = random.randint(0, child.shape[0]-1)
-                c1_og = child[index_1]
-                index_2 = random.randint(0, child.shape[0]-1)
-                c2_og = child[index_2]
-                child[index_1] = c2_og
-                child[index_2] = c1_og
+            for i in range(len(child)):
+                if random.random() < self.mutation_rate:
+                    rand_value = random.uniform(-1*self.mutation_range, self.mutation_range)
+                    child[i] += rand_value
+        self.bounds_check(children)
         self.pop = np.vstack((self.pop, children))
     
     def update_bests(self):
@@ -97,10 +98,16 @@ class GA:
         sorted_order = np.argsort([self.func(row) for row in self.pop])
         self.pop = self.pop[sorted_order]
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.best_position = self.pop[0]
+        self.best_eval = self.pop_eval[0]
+        
+    def bounds_check(self, children):
+        children = np.where(self.domain[:, 0] > children, self.domain[:, 0], children)
+        children = np.where(self.domain[:, 1] < children, self.domain[:, 1], children)
         
     def _append_avg_evals(self):
         self.average_pop_eval.append(np.average(self.pop_eval))
-        
+    
     def _append_varaince(self):
         self.average_pop_variance.append(np.average(np.var(self.pop, axis = 0)))
         

@@ -13,7 +13,7 @@ class FeaGA(GA, FeaBaseAlgo):
         The method to retrieve a variable's value from the base algorithm.
         @param idx: the index of the variable to be retrieved.
         """
-        return self.pop[0, idx]
+        return self.best_position
     
     
     def update_worst(self, context):
@@ -40,6 +40,7 @@ class FeaGA(GA, FeaBaseAlgo):
             "pop_size": 20,
             "b": 0.7,
             "mutation_rate": 0.05,
+            "mutation_range": 0.5,
         }
         kwargs.update(params)
         return cls(
@@ -49,6 +50,7 @@ class FeaGA(GA, FeaBaseAlgo):
             pop_size=kwargs["pop_size"],
             b=kwargs["b"],
             mutation_rate=kwargs["mutation_rate"],
+            mutation_range=kwargs["mutation_range"],
         )
     def base_reset(self):
         """
