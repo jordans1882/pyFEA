@@ -72,9 +72,7 @@ class PSO:
         """
         Run the algorithm.
         """
-        self._append_avg_velocities()
-        self._append_avg_evals()
-        self._append_gbest_evals()
+        self._track_values()
         self.generations_passed += 1
         for gen in range(self.generations):
             #if(gen == 1):
