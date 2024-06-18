@@ -6,7 +6,9 @@ import numpy as np
 from feareu.function import Function
 
 class BsplineFEA(FEA):
-    """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al."""
+    """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al.
+    Altered so that each factor has its own domain based on the context vector.
+    Intended for use in BSpline knot selection problem."""
 
     def __init__(self, factors, function, iterations, dim, base_algo_name, min_max, **kwargs):
         """
@@ -21,37 +23,11 @@ class BsplineFEA(FEA):
         self.min_max = min_max
         self.domain = None
         super().__init__(factors, function, iterations, dim, base_algo_name, self.domain, **kwargs)
-#        self.factors = factors
-#        self.dim = dim
-#        self.variable_map = self._construct_factor_variable_mapping()
-#        self.function = function
-#        self.iterations = iterations
-#        self.base_algo = base_algo_name
-#        self.dim = dim
-#        self.domain = domain
-#        self.context_variable = None
-#        self.base_algo_args = kwargs
-#        self.niterations = 0
-#        self.convergences = []
-#        self.solution_variance_per_dim = []
-#        self.solution_variance_in_total = []
-
-#    def _construct_factor_variable_mapping(self):
-#        """
-#        Constructs a list of lists where each list contains the factors that optimize over a given variable.
-#        Essentially, indeces of variable_map are variables, and its elements are lists of factors.
-#        For example, variable map = [[0],[0,1],[1,2]] tells us that
-#        variable 0 is optimized by factor 0 alone, variable 1 is optimized both by factor 0 and factor 1.
-#        """
-#        variable_map = [[] for k in range(self.dim)]
-#        for i in range(len(self.factors)):
-#            for j in self.factors[i]:
-#                variable_map[j].append(i)
-#        return variable_map
 
     def run(self):
         """
-        Algorithm 3 from the Strasser et al. paper.
+        Algorithm 3 from the Strasser et al. paper, altered to sort the context
+        vector on initialization.
         """
         self.context_variable = self.init_full_global()
         self.context_variable.sort()
@@ -69,7 +45,8 @@ class BsplineFEA(FEA):
 
     def compete(self, subpopulations):
         """
-        Algorithm 1 from the Strasser et al. paper.
+        Algorithm 1 from the Strasser et al. paper, altered to sort the context vector
+        when updated.
         @param subpopulations: the list of base algorithms, each with their own factor.
         """
         cont_var = self.context_variable
@@ -97,27 +74,10 @@ class BsplineFEA(FEA):
         self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
         self.solution_variance_per_dim = []
 
-#    def share(self, subpopulations):
-#        """
-#        Algorithm 2 from the Strasser et al. paper.
-#        @param subpopulations: the list of subpopulations initialized in initialize_subpops. 
-#        """
-#        for i in range(len(subpopulations)):
-#            subpopulations[i].func.context = np.copy(self.context_variable)
-#            subpopulations[i].update_worst(self.context_variable[self.factors[i]])
-#            subpopulations[i].update_bests()
-#
-    def init_full_global(self):
-        """
-        Randomly initializes the global context vector within the boundaries given by domain.
-        """
-        lbound = self.min_max[0]
-        area = self.min_max[1] - self.min_max[0]
-        return lbound + area * np.random.random(size=(self.dim))
-
     def initialize_subpops(self):
         """
         Initializes some inheritor of FeaBaseAlgo to optimize over each factor.
+        Slightly altered to call domain differently.
         """
         ret = []
         for i, subpop in enumerate(self.factors):
@@ -126,6 +86,9 @@ class BsplineFEA(FEA):
         return ret
 
     def domain_restriction(self):
+        """
+        Ensures that each factor has its own domain in which its variables can move.
+        """
         self.domain = []
         for i, factor in enumerate(self.factors):
             factor.sort()
@@ -139,17 +102,3 @@ class BsplineFEA(FEA):
             else:
                 fact_dom[:,1] = self.context_variable[factor[-1]+1]
             self.domain.append(fact_dom)
-
-#    def diagnostic_plots(self):
-#        """
-#        Set up plots tracking solution convergence and variance over time.
-#        """
-#        plt.subplot(1, 2, 1)
-#        ret = plt.plot(range(0, self.niterations), self.convergences)
-#        plt.title("Convergence")
-#
-#        plt.subplot(1, 2, 2)
-#        plt.plot(range(0, self.niterations), self.solution_variance_in_total)
-#        plt.title("Solution Variance")
-#        return ret
-
