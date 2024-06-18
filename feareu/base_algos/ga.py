@@ -64,6 +64,7 @@ class GA:
         """
         part_to_be_deleted = np.arange(start = self.b*self.pop_size, stop = self.pop_size, dtype=int)
         self.pop = np.delete(self.pop, part_to_be_deleted, axis=0)
+        self.pop_eval = np.delete(self.pop_eval, part_to_be_deleted, axis=0)
     
     def crossover(self):
         """
@@ -89,15 +90,30 @@ class GA:
                     rand_value = random.uniform(-1*self.mutation_range, self.mutation_range)
                     child[i] += rand_value
         self.bounds_check(children)
-        self.pop = np.vstack((self.pop, children))
+        #print("pre: ", self.pop)
+        #print("size: ", np.size(self.pop))
+        for child in children:
+            inserted = False
+            ind_eval = self.func(child)
+            for i in range(len(self.pop_eval)):
+                if(self.pop_eval[i]>ind_eval):
+                    self.pop_eval = np.insert(self.pop_eval, i, ind_eval)
+                    #FIX
+                    self.pop = np.insert(self.pop, i, [child], axis=0)
+                    inserted=True
+                    break
+            if(inserted is False):
+                self.pop_eval = np.concatenate((self.pop_eval, [ind_eval]))
+                self.pop= np.concatenate((self.pop, [child]))
+        #print("size: ", np.size(self.pop))
     
     def update_bests(self):
         """
         Resorts the population and updates the evaluations.
         """
-        sorted_order = np.argsort([self.func(row) for row in self.pop])
+        """sorted_order = np.argsort([self.func(row) for row in self.pop])
         self.pop = self.pop[sorted_order]
-        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]"""
         self.best_position = self.pop[0]
         self.best_eval = self.pop_eval[0]
         
