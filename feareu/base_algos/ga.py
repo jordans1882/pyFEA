@@ -98,7 +98,6 @@ class GA:
             for i in range(len(self.pop_eval)):
                 if(self.pop_eval[i]>ind_eval):
                     self.pop_eval = np.insert(self.pop_eval, i, ind_eval)
-                    #FIX
                     self.pop = np.insert(self.pop, i, [child], axis=0)
                     inserted=True
                     break
