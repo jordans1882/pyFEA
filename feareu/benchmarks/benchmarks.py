@@ -21,7 +21,7 @@ def elliptic__(solution=None):
 
 @numba.jit
 def rastrigin__(solution=None):
-    return np.sum(solution**2 - 10 * np.cos(2 * np.pi * solution) + 10)
+    return np.sum(solution**2 - 10 * np.cos(2 * np.pi * solution) + 10) 
 
 
 @numba.jit
