@@ -13,7 +13,7 @@ class FeaGA(GA, FeaBaseAlgo):
         The method to retrieve a variable's value from the base algorithm.
         @param idx: the index of the variable to be retrieved.
         """
-        return self.best_position
+        return self.best_position[idx]
     
     
     def update_worst(self, context):
@@ -56,4 +56,5 @@ class FeaGA(GA, FeaBaseAlgo):
         """
         Reset the algorithm in preparation for another run.
         """
+        self.pop = self.init_pop()
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]

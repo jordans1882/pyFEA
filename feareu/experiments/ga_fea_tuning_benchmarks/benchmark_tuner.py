@@ -7,7 +7,7 @@ from feareu.benchmarks import *
 import numpy as np
 import pytest
 import time
-from feareu.base_algos import FeaGA
+from feareu.base_algos import FeaDE
 
 def linear_factorizer(fact_size, overlap, dim):
     smallest = 0
@@ -21,7 +21,7 @@ def linear_factorizer(fact_size, overlap, dim):
         factors.append([x for x in range(smallest, dim)])
     return factors
 
-def bayes_input(fact_size, overlap, generations, iterations, pop_size, mutation_rate, mutation_range, b):
+def bayes_input(fact_size, overlap, generations, iterations, pop_size, mutation_factor, crossover_rate):
     #print("reached bayes_input")
     fact_size = int(fact_size)
     overlap = int(overlap)
@@ -37,7 +37,7 @@ def bayes_input(fact_size, overlap, generations, iterations, pop_size, mutation_
     factors = linear_factorizer(fact_size, overlap, dim)
     #print("pre-constructor")
     #print(function)
-    fea = FEA(factors, function, iterations, dim, FeaGA, domain, pop_size=pop_size, generations=generations, mutation_rate=mutation_rate, mutation_range=mutation_range, b=b)
+    fea = FEA(factors, function, iterations, dim, FeaDE, domain, pop_size=pop_size, generations=generations, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
     ret = -fea.run()
     return ret
 
@@ -51,10 +51,8 @@ def bayes_run(init_points=5, n_iter=25):
                    "pop_size":(10,35), 
                    "fact_size": (1,5), 
                    "overlap": (0,3), 
-                   "mutation_rate":(0.1,1), 
-                   "b":(0.1,0.9),
-                   "mutation_range":(0.1,2)
-                   }
+                   "mutation_factor":(0.1,1), 
+                   "crossover_rate":(0.1,1)}
         optimizer = BayesianOptimization(bayes_input, pbounds)
         optimizer.maximize(init_points, n_iter)
         print(optimizer.max)
@@ -63,3 +61,4 @@ def bayes_run(init_points=5, n_iter=25):
         storage.close()
 
 bayes_run(2, 8)
+

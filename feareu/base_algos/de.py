@@ -47,6 +47,7 @@ class DE:
         for gen in range(self.generations):
             #print("generation: ", gen, "/", self.generations)
             self.mutate()
+            self.stay_in_domain()
             self.crossover()
             self.selection()
         return  self.best_solution
@@ -81,3 +82,11 @@ class DE:
                 self.pop[i,:] = np.copy(self.mutant_pop[i,:])
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval),:])
         self.best_eval = np.min(self.pop_eval)
+
+    def stay_in_domain(self):
+        """
+        Ensure that the mutated population doesn't move outside the domain of our function by projecting
+        them to the domain's boundary at that point.
+        """
+        self.mutant_pop = np.where(self.domain[:, 0] > self.mutant_pop, self.domain[:, 0], self.mutant_pop)
+        self.mutant_pop = np.where(self.domain[:, 1] < self.mutant_pop, self.domain[:, 1], self.mutant_pop)

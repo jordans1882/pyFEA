@@ -4,6 +4,21 @@ import numpy as np
 from feareu.base_algos import GA, FeaGA
 from feareu import Function
 
+"""children = [5, 3, 7, 1]
+pop = [2, 4, 6, 8, 10]
+pop_eval = [2, 4, 6, 8, 10]
+
+for child in children:
+    ind_eval = child
+    for i in range(len(pop_eval)):
+        if(pop_eval[i]>ind_eval):
+            #print(pop_eval, ", ", [i], ", ", ind_eval)
+            pop_eval = np.insert(pop_eval, [i], ind_eval)
+            pop = np.insert(pop, [i], child)
+            break
+print(pop)
+print(pop_eval)"""
+
 ndims = 5
 
 

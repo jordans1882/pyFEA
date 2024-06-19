@@ -66,6 +66,7 @@ class FeaPso(PSO, FeaBaseAlgo):
         """
         Reset velocities and fitness evaluations before the next run of the algorithm.
         """
+        self.pop = self.init_pop()
         self.velocities = super().init_velocities()
         self.reset_fitness()
     

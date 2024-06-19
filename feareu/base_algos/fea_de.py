@@ -52,6 +52,7 @@ class FeaDE(DE, FeaBaseAlgo):
         Reset the algorithm in preparation for another run. For this algorithm, 
         this is currently indistinguishable from an update_bests run.
         """
+        self.pop = self.init_pop()
         self.update_bests()
 
     def run(self):

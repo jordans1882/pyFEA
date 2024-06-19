@@ -5,7 +5,7 @@ from feareu.benchmarks import *
 import numpy as np
 import pytest
 import time
-from feareu.base_algos import FeaGA
+from feareu.base_algos import FeaDE
 
 function = benchmarks.rastrigin__
 
@@ -21,7 +21,7 @@ def linear_factorizer(fact_size, overlap, dim):
         factors.append([x for x in range(smallest, dim)])
     return factors
 
-def parameter_input(fact_size, overlap, generations, iterations, pop_size, mutation_rate, mutation_range, b):
+def parameter_input(fact_size, overlap, generations, iterations, pop_size, mutation_factor, crossover_rate):
     fact_size = int(fact_size)
     overlap = int(overlap)
     generations = int(generations)
@@ -34,7 +34,7 @@ def parameter_input(fact_size, overlap, generations, iterations, pop_size, mutat
     domain[:,0] = -5
     domain[:,1] = 5
     factors = linear_factorizer(fact_size, overlap, dim)
-    fea = FEA(factors, function, iterations, dim, FeaGA, domain, pop_size=pop_size, generations=generations, mutation_rate=mutation_rate, mutation_range=mutation_range, b=b)
+    fea = FEA(factors, function, iterations, dim, FeaDE, domain, pop_size=pop_size, generations=generations, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
     ret = fea.run()
     return ret
 
