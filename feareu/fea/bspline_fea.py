@@ -39,7 +39,7 @@ class BsplineFEA(FEA):
         """
         self.context_variable = self.init_full_global()
         self.context_variable.sort()
-        subpop_domains = self.domain_restriction()
+        subpop_domains = self.domain_evaluation()
         subpopulations = self.initialize_subpops(subpop_domains)
         for i in range(self.iterations):
             self.niterations += 1
@@ -62,8 +62,8 @@ class BsplineFEA(FEA):
         """
         super().compete(subpopulations)
         self.context_variable.sort()
-        subpop_domains = self.domain_restriction()
-        self.domain_usage(subpop_domains, subpopulations)
+        subpop_domains = self.domain_evaluation()
+        self.updating_subpop_domains(subpop_domains, subpopulations)
 
     def initialize_subpops(self, subpop_domains):
         """
@@ -77,7 +77,7 @@ class BsplineFEA(FEA):
             ret.append(self.base_algo.from_kwargs(fun, subpop_domains[i], self.base_algo_args))
         return ret
         
-    def domain_restriction(self):
+    def domain_evaluation(self):
         """
         Ensures that each factor has its own domain in which its variables can move.
         """
@@ -95,7 +95,7 @@ class BsplineFEA(FEA):
             subpop_domains.append(fact_dom)
         return subpop_domains
 
-    def domain_usage(self, subpop_domains, subpopulations):
+    def updating_subpop_domains(self, subpop_domains, subpopulations):
         """
         Updates each subpopulation to use the new domains from domain_restriction.
         @param subpop_domains: the domains from domain_restriction.
