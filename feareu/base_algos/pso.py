@@ -9,6 +9,7 @@ class PSO:
     """
     Particle Swarm Optimization
     """
+
     def __init__(
         self,
         function,
@@ -39,7 +40,7 @@ class PSO:
         self.phi_g = phi_g
         self.omega = omega
         self.pop = self.init_pop()
-        self.pbest = (self.pop)
+        self.pbest = self.pop
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.pbest_eval = deepcopy(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
@@ -50,12 +51,11 @@ class PSO:
         self.average_pop_eval = []
         self.gbest_evals = []
 
-    
     def init_pop(self):
         """
         Initialize random particles.
         """
-        #print(self.generations)
+        # print(self.generations)
         lbound = self.domain[:, 0]
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(self.pop_size, area.shape[0]))
@@ -64,7 +64,7 @@ class PSO:
         """
         Initialize random velocities.
         """
-        #print("hi")
+        # print("hi")
         area = self.domain[:, 1] - self.domain[:, 0]
         return 0.5 * area * np.random.random(size=(self.pop_size, area.shape[0]))
 
@@ -72,16 +72,12 @@ class PSO:
         """
         Run the algorithm.
         """
-        self._append_avg_velocities()
-        self._append_avg_evals()
-        self._append_gbest_evals()
+        self._track_values()
         self.generations_passed += 1
         for gen in range(self.generations):
-            #if(gen == 1):
-            #    print("velocity: ", np.average(self.velocities))
+            print("Generation: ", gen)
             self.update_velocities()
             self.pop = self.pop + self.velocities
-            #print("new pop: ", self.pop)
             self.stay_in_domain()
             self.update_bests()
             self._track_values()
@@ -121,7 +117,7 @@ class PSO:
                 if curr_eval < self.gbest_eval:
                     self.gbest = np.copy(self.pop[pidx, :])
                     self.gbest_eval = curr_eval
-        #self.worst = np.argmax(self.pop_eval)
+        # self.worst = np.argmax(self.pop_eval)
 
     def _track_values(self):
         """
@@ -130,7 +126,7 @@ class PSO:
         self.gbest_evals.append(self.gbest_eval)
         self.average_velocities.append(np.average(np.abs(self.velocities)))
         self.average_pop_eval.append(np.average(self.pop_eval))
-        
+
     def diagnostic_plots(self):
         """
         Plots the values tracked in _track_values().
@@ -147,7 +143,7 @@ class PSO:
         plt.plot(range(0, self.generations_passed), self.average_velocities)
         plt.title("Average Velocities")
         plt.tight_layout()
-        
+
         return ret
 
 
