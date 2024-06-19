@@ -64,6 +64,7 @@ class FeaDE(DE, FeaBaseAlgo):
         """
         Update the evaluation of the objective function after a context vector update.
         """
+        self.pop = self.init_pop()
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval), :])
         self.best_eval = np.min(self.pop_eval)

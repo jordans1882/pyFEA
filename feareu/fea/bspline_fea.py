@@ -1,6 +1,4 @@
 from feareu.fea import FEA
-from copy import deepcopy
-from operator import sub
 import matplotlib.pyplot as plt
 import numpy as np
 from feareu.function import Function
@@ -17,7 +15,7 @@ class BsplineFEA(FEA):
         @param iterations: the number of times that the FEA runs.
         @param dim: the number of dimensions our function optimizes over.
         @param base_algo_name: the base algorithm class that we optomize over. Should be a subclass of FeaBaseAlgo.
-        @param domain: the minimum and maximum possible values of our domain for any variable of the context vector.
+        @param domain: the minimum and maximum possible values of our domain for any variable of the context vector. It should be a tuple of size 2.
         @param **kwargs: parameters for the base algorithm.
         """
         self.domain = domain
@@ -46,13 +44,16 @@ class BsplineFEA(FEA):
         for i in range(self.iterations):
             self.niterations += 1
             for subpop in subpopulations:
-                subpop.base_reset()
-                subpop.run()
+                self.subpop_compute(subpop)
             self.compete(subpopulations)
             self.share(subpopulations)
             self.convergences.append(self.function(self.context_variable))
         return self.function(self.context_variable)
 
+    def subpop_compute(self, subpop):
+        subpop.base_reset()
+        subpop.run()
+    
     def compete(self, subpopulations):
         """
         Algorithm 1 from the Strasser et al. paper, altered to sort the context vector
@@ -75,7 +76,7 @@ class BsplineFEA(FEA):
             fun = Function(context=self.context_variable, function=self.function, factor=subpop)
             ret.append(self.base_algo.from_kwargs(fun, subpop_domains[i], self.base_algo_args))
         return ret
-
+        
     def domain_restriction(self):
         """
         Ensures that each factor has its own domain in which its variables can move.

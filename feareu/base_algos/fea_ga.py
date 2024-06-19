@@ -56,4 +56,5 @@ class FeaGA(GA, FeaBaseAlgo):
         """
         Reset the algorithm in preparation for another run.
         """
+        self.pop = self.init_pop()
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]

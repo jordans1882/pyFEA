@@ -73,6 +73,7 @@ class FeaPso(PSO, FeaBaseAlgo):
         """
         Reevaluate the fitness function over the entire population and update the fields accordingly.
         """
+        self.pop = self.init_pop()
         self.pbest = self.pop
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.pbest_eval = self.pop_eval
