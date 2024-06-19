@@ -75,7 +75,6 @@ class PSO:
         self._track_values()
         self.generations_passed += 1
         for gen in range(self.generations):
-            print("Generation: ", gen)
             self.update_velocities()
             self.pop = self.pop + self.velocities
             self.stay_in_domain()

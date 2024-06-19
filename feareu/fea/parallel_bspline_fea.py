@@ -31,15 +31,12 @@ class ParallelBsplineFEA(BsplineFEA):
         self.context_variable.sort()
         self.domain_evaluation()
         with Pool(self.process_count) as pool:
-            subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
+            subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)), chunksize=int(len(self.factors)/self.process_count))
         #subpopulations = self.initialize_subpops(self.subpop_domains)
         for i in range(self.iterations):
-            print("iteration: ", i)
             self.niterations += 1
-            for subpop in subpopulations:
-                self.subpop_compute(subpop)
             with Pool(self.process_count) as pool:
-                pool.map(self.subpop_compute, subpopulations)
+                pool.map(self.subpop_compute, subpopulations, chunksize=int(len(self.factors)/self.process_count))
             self.compete(subpopulations)
             self.share(subpopulations)
             self.convergences.append(self.function(self.context_variable))
