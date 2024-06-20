@@ -1,6 +1,7 @@
 from feareu.base_algos import FeaGA, parallel_eval
 import math
 import numpy as np
+import random
 
 class ParallelFeaGA(FeaGA):
 
