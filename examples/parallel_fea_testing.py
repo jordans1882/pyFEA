@@ -12,7 +12,8 @@ from numpy import cos, sqrt, pi, e, exp, sum
 
 @numba.jit
 def rastrigin__(solution = None):
-    #return sum(solution**2)
+    for i in range(10000):
+        sum(solution**2 - 10 * cos(2 * pi * solution) + 10)
     return sum(solution**2 - 10 * cos(2 * pi * solution) + 10)
 def linear_factorizer(fact_size, overlap, dim):
     smallest = 0
@@ -43,13 +44,9 @@ if __name__ == '__main__':
     # Pool better at 6000 factors with 5 factorspersubpo, 1 overlap, and 3 processes
     
     
-    factor_number = 1000
+    
+    factor_number = 10
     factors = linear_factorizer(2, 1, factor_number)
-    start = time.time()
-    fea1 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 10, dim = factor_number, base_algo_name=FeaPso, domain=(-5, 5), process_count=2, thread_count=2, generations= 5, pop_size=20)
-    fea1.run()
-    end = time.time()
-    print("parallel time: ", end-start)
     
     start = time.time()
     fea2 = BsplineFEA(factors=factors, function = rastrigin__, iterations = 10, dim = factor_number, base_algo_name=FeaPso, domain=(-5, 5), generations= 5, pop_size=20)
@@ -57,5 +54,13 @@ if __name__ == '__main__':
     end = time.time()
     print("non-parallel time: ", end-start)
     
+    start = time.time()
+    fea1 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 10, dim = factor_number, base_algo_name=FeaPso, domain=(-5, 5), process_count=3, thread_count=2, generations= 5, pop_size=20)
+    fea1.run()
+    end = time.time()
+    print("parallel time: ", end-start)
+    
+    
     daig_plt1 = fea1.diagnostic_plots()
+    daig_plt1 = fea2.diagnostic_plots()
     plt.show()

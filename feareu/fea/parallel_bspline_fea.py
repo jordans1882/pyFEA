@@ -1,11 +1,10 @@
+import multiprocessing
 from feareu.fea import BsplineFEA
 import matplotlib.pyplot as plt
 import numpy as np
 from feareu.function import Function
-#from multiprocessing import Pool
-#import dask
-from dask.distributed import Client
-import dask.bag as db
+from multiprocessing import Pool, Manager
+#from multiprocessing.sharedctypes import Array
 
 class ParallelBsplineFEA(BsplineFEA):
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al.
@@ -34,27 +33,23 @@ class ParallelBsplineFEA(BsplineFEA):
         self.context_variable = self.init_full_global()
         self.context_variable.sort()
         self.domain_evaluation()
-        client = Client(n_workers=self.process_count, threads_per_worker=self.thread_count)
-        bag = db.from_sequence(seq=np.arange(0, len(self.factors)), partition_size=int((len(self.factors))/10))
-        paired_data = bag.map(self.initialize_subpop)
-        subpopulations = paired_data.compute()
-        client.restart()
-        #with Pool(self.process_count) as pool:
-        #    subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)), chunksize=int(len(self.factors)/self.process_count))
-        #subpopulations = self.initialize_subpops(self.subpop_domains)
+        with Pool(self.process_count) as pool:
+            subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
         for i in range(self.iterations):
             self.niterations += 1
-            bag = db.from_sequence(seq=subpopulations, partition_size=100)
-            paired_data = bag.map(self.subpop_compute)
-            paired_data.compute()
-            client.restart()
-            #with Pool(self.process_count) as pool:
-            #    pool.map(self.subpop_compute, subpopulations, chunksize=int(len(self.factors)/self.process_count))
+            with Pool(self.process_count) as pool:
+                subpopulations = pool.map(self.subpop_compute, subpopulations)
+            """for subpop in subpopulations:
+               self.subpop_compute(subpop)"""
             self.compete(subpopulations)
             self.share(subpopulations)
             self.convergences.append(self.function(self.context_variable))
-        client.close()
         return self.function(self.context_variable)
+        
+    def subpop_compute(self, subpop):
+        subpop.base_reset()
+        subpop.run()
+        return subpop
         
     def domain_evaluation(self):
         """
@@ -114,18 +109,6 @@ class ParallelBsplineFEA(BsplineFEA):
         """
         for i, subpop in enumerate(subpopulations):
             subpop.domain = self.subpop_domains[i]
-
-    #def initialize_subpops(self):
-        """
-        Initializes some inheritor of FeaBaseAlgo to optimize over each factor.
-        Slightly altered to call domain differently.
-        @param subpop_domains: the domains from domain_restriction.
-        """
-        #ret = []
-        #for i, subpop in enumerate(self.factors):
-        #    fun = Function(context=self.context_variable, function=self.function, factor=subpop)
-        #    ret.append(self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args))
-        #return ret
         
     def initialize_subpop(self, i):
         """
@@ -135,4 +118,3 @@ class ParallelBsplineFEA(BsplineFEA):
         """
         fun = Function(context=self.context_variable, function=self.function, factor=self.factors[i])
         return self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args)
-    
