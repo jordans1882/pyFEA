@@ -2,13 +2,16 @@ from feareu.fea import BsplineFEA
 import matplotlib.pyplot as plt
 import numpy as np
 from feareu.function import Function
-from multiprocessing import Pool
+#from multiprocessing import Pool
+#import dask
+from dask.distributed import Client
+import dask.bag as db
 
 class ParallelBsplineFEA(BsplineFEA):
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al.
     Altered so that each factor has its own domain based on the context vector.
     Intended for use in BSpline knot selection problem."""
-    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, process_count, **kwargs):
+    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, process_count, thread_count, **kwargs):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -19,6 +22,7 @@ class ParallelBsplineFEA(BsplineFEA):
         @param **kwargs: parameters for the base algorithm.
         """
         self.process_count = process_count
+        self.thread_count = thread_count
         super().__init__(factors, function, iterations, dim, base_algo_name, domain, **kwargs)
         self.subpop_domains = []
         
@@ -30,16 +34,26 @@ class ParallelBsplineFEA(BsplineFEA):
         self.context_variable = self.init_full_global()
         self.context_variable.sort()
         self.domain_evaluation()
-        with Pool(self.process_count) as pool:
-            subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)), chunksize=int(len(self.factors)/self.process_count))
+        client = Client(n_workers=self.process_count, threads_per_worker=self.thread_count)
+        bag = db.from_sequence(seq=np.arange(0, len(self.factors)), partition_size=int((len(self.factors))/10))
+        paired_data = bag.map(self.initialize_subpop)
+        subpopulations = paired_data.compute()
+        client.restart()
+        #with Pool(self.process_count) as pool:
+        #    subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)), chunksize=int(len(self.factors)/self.process_count))
         #subpopulations = self.initialize_subpops(self.subpop_domains)
         for i in range(self.iterations):
             self.niterations += 1
-            with Pool(self.process_count) as pool:
-                pool.map(self.subpop_compute, subpopulations, chunksize=int(len(self.factors)/self.process_count))
+            bag = db.from_sequence(seq=subpopulations, partition_size=100)
+            paired_data = bag.map(self.subpop_compute)
+            paired_data.compute()
+            client.restart()
+            #with Pool(self.process_count) as pool:
+            #    pool.map(self.subpop_compute, subpopulations, chunksize=int(len(self.factors)/self.process_count))
             self.compete(subpopulations)
             self.share(subpopulations)
             self.convergences.append(self.function(self.context_variable))
+        client.close()
         return self.function(self.context_variable)
         
     def domain_evaluation(self):
@@ -121,3 +135,4 @@ class ParallelBsplineFEA(BsplineFEA):
         """
         fun = Function(context=self.context_variable, function=self.function, factor=self.factors[i])
         return self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args)
+    
