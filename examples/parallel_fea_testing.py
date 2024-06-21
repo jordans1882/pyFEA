@@ -1,6 +1,6 @@
 from multiprocessing import freeze_support
 from feareu import BsplineFEA, FEA, ParallelBsplineFEA
-from feareu.base_algos import FeaPso, FeaGA, FeaDE
+from feareu.base_algos import FeaPso, FeaGA, FeaDE, ParallelFeaPSO
 from feareu import Function
 import numpy as np
 import pytest
@@ -12,8 +12,9 @@ from numpy import cos, sqrt, pi, e, exp, sum
 
 @numba.jit
 def rastrigin__(solution = None):
-    for i in range(10000):
+    """for i in range(10000):
         sum(solution**2 - 10 * cos(2 * pi * solution) + 10)
+    """
     return sum(solution**2 - 10 * cos(2 * pi * solution) + 10)
 def linear_factorizer(fact_size, overlap, dim):
     smallest = 0
@@ -40,23 +41,19 @@ if __name__ == '__main__':
     #rand_factors = [np.random.choice(range(10), replace=False, size=3) for x in range(10)]
     fct1 = [[0],[0,1],[0,1,2],[1,2,3],[2,3,4],[3,4,5],[4,5,6],[5,6,7],[6,7,8],[7,8,9],[8,9],[9]]
     fct2 = [[0],[0,1],[0,1,2],[1,2,3],[2,3,4],[3,4,5],[4,5,6],[5,6,7],[6,7,8],[7,8,9],[8,9,10],[9,10,11],[10,11,12],[11,12,13],[12,13,14],[13,14],[14]]
-    # Pool better at 3500 factors with 2 factorspersubpop, 1 overlap, and 3 processes
-    # Pool better at 6000 factors with 5 factorspersubpo, 1 overlap, and 3 processes
-    
-    
     
     factor_number = 10
     factors = linear_factorizer(2, 1, factor_number)
     
     start = time.time()
-    fea2 = BsplineFEA(factors=factors, function = rastrigin__, iterations = 10, dim = factor_number, base_algo_name=FeaPso, domain=(-5, 5), generations= 5, pop_size=20)
-    fea2.run()
+    fea1 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=FeaPso, domain=(-5, 5), process_count=2, generations= 5, pop_size=20)
+    fea1.run()
     end = time.time()
     print("non-parallel time: ", end-start)
     
     start = time.time()
-    fea1 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 10, dim = factor_number, base_algo_name=FeaPso, domain=(-5, 5), process_count=3, thread_count=2, generations= 5, pop_size=20)
-    fea1.run()
+    fea2 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=ParallelFeaPSO, domain=(-5, 5), process_count=2, process=2, generations= 5, pop_size=20)
+    fea2.run()
     end = time.time()
     print("parallel time: ", end-start)
     

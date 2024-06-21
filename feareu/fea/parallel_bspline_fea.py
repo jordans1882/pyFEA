@@ -1,16 +1,17 @@
 import multiprocessing
+from xxlimited import new
 from feareu.fea import BsplineFEA
 import matplotlib.pyplot as plt
 import numpy as np
 from feareu.function import Function
-from multiprocessing import Pool, Manager
+from multiprocessing import Pool, Process, Queue
 #from multiprocessing.sharedctypes import Array
 
 class ParallelBsplineFEA(BsplineFEA):
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al.
     Altered so that each factor has its own domain based on the context vector.
     Intended for use in BSpline knot selection problem."""
-    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, process_count, thread_count, **kwargs):
+    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, process_count, **kwargs):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -21,7 +22,6 @@ class ParallelBsplineFEA(BsplineFEA):
         @param **kwargs: parameters for the base algorithm.
         """
         self.process_count = process_count
-        self.thread_count = thread_count
         super().__init__(factors, function, iterations, dim, base_algo_name, domain, **kwargs)
         self.subpop_domains = []
         
@@ -33,12 +33,45 @@ class ParallelBsplineFEA(BsplineFEA):
         self.context_variable = self.init_full_global()
         self.context_variable.sort()
         self.domain_evaluation()
-        with Pool(self.process_count) as pool:
-            subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
+        parallel_i = 0
+        subpopulations = []
+        while parallel_i<len(self.factors):
+            processes = []
+            result_queue = Queue()
+            for j in range(int(self.process_count)):
+                p = Process(target=self.initialize_subpop, args=(parallel_i, result_queue))
+                processes.append(p)
+                p.start()
+                parallel_i+=1
+                if(parallel_i>=(len(self.factors))):
+                    break
+            for p in processes:
+                p.join()
+                subpopulations.append(result_queue.get())
+        print("finished initialization")
+        #with Pool(self.process_count) as pool:
+        #    subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
         for i in range(self.iterations):
             self.niterations += 1
-            with Pool(self.process_count) as pool:
-                subpopulations = pool.map(self.subpop_compute, subpopulations)
+            parallel_i = 0
+            new_subpopulations = []
+            while parallel_i<len(subpopulations):
+                processes = []
+                result_queue = Queue()
+                for j in range(int(self.process_count)):
+                    p = Process(target=self.subpop_compute, args=(subpopulations[parallel_i], result_queue))
+                    processes.append(p)
+                    p.start()
+                    parallel_i+=1
+                    if(parallel_i>=len(subpopulations)):
+                        break
+                for p in processes:
+                    p.join()
+                    new_subpopulations.append(result_queue.get())
+            subpopulations = new_subpopulations
+            print("finished subpop_compute run")
+            #with Pool(self.process_count) as pool:
+            #    subpopulations = pool.map(self.subpop_compute, subpopulations)
             """for subpop in subpopulations:
                self.subpop_compute(subpop)"""
             self.compete(subpopulations)
@@ -46,10 +79,10 @@ class ParallelBsplineFEA(BsplineFEA):
             self.convergences.append(self.function(self.context_variable))
         return self.function(self.context_variable)
         
-    def subpop_compute(self, subpop):
+    def subpop_compute(self, subpop, result_queue):
         subpop.base_reset()
         subpop.run()
-        return subpop
+        result_queue.put(subpop)
         
     def domain_evaluation(self):
         """
@@ -110,11 +143,11 @@ class ParallelBsplineFEA(BsplineFEA):
         for i, subpop in enumerate(subpopulations):
             subpop.domain = self.subpop_domains[i]
         
-    def initialize_subpop(self, i):
+    def initialize_subpop(self, i, result_queue):
         """
         Initializes some inheritor of FeaBaseAlgo to optimize over each factor.
         Slightly altered to call domain differently.
         @param subpop_domains: the domains from domain_restriction.
         """
         fun = Function(context=self.context_variable, function=self.function, factor=self.factors[i])
-        return self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args)
+        result_queue.put(self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args))
