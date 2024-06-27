@@ -28,6 +28,8 @@ def linear_factorizer(fact_size, overlap, dim):
         factors.append([x for x in range(smallest, dim)])
     return factors
 
+
+
 array = np.zeros((10))
 array[0] = 1
 array[1] = 2
@@ -45,19 +47,20 @@ if __name__ == '__main__':
     factor_number = 10
     factors = linear_factorizer(2, 1, factor_number)
     
-    start = time.time()
-    fea1 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=FeaPso, domain=(-5, 5), process_count=2, generations= 5, pop_size=20)
-    fea1.run()
-    end = time.time()
-    print("non-parallel time: ", end-start)
+    for i in range(20):
+        start = time.time()
+        fea1 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=FeaPso, domain=(-5, 5), process_count=2, generations= 5, pop_size=20)
+        fea1.run()
+        end = time.time()
+        print("non-parallel time: ", end-start)
     
-    start = time.time()
+    """start = time.time()
     fea2 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=ParallelFeaPSO, domain=(-5, 5), process_count=2, process=2, generations= 5, pop_size=20)
     fea2.run()
     end = time.time()
     print("parallel time: ", end-start)
-    
+    """
     
     daig_plt1 = fea1.diagnostic_plots()
-    daig_plt1 = fea2.diagnostic_plots()
+    """daig_plt1 = fea2.diagnostic_plots()"""
     plt.show()

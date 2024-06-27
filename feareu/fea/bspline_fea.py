@@ -62,8 +62,17 @@ class BsplineFEA(FEA):
         """
         super().compete(subpopulations)
         self.context_variable.sort()
+
+    def share(self, subpopulations):
+        """
+        Algorithm 2 from the Strasser et al. paper.
+        @param subpopulations: the list of subpopulations initialized in initialize_subpops. 
+        """
         subpop_domains = self.domain_evaluation()
-        self.updating_subpop_domains(subpop_domains, subpopulations)
+        for i in range(len(subpopulations)):
+            subpopulations[i].domain = subpop_domains[i]
+            subpopulations[i].func.context = np.copy(self.context_variable)
+            subpopulations[i].update_bests()
 
     def initialize_subpops(self, subpop_domains):
         """
