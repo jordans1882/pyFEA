@@ -48,7 +48,7 @@ class ParallelBsplineFEA(BsplineFEA):
             for p in processes:
                 p.join()
                 subpopulations.append(result_queue.get())
-        print("finished initialization")
+        #print("finished initialization")
         #with Pool(self.process_count) as pool:
         #    subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
         for i in range(self.iterations):
