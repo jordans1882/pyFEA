@@ -1,5 +1,5 @@
-from feareu import FEA
-from feareu.base_algos import FeaDE, FeaGA
+from feareu import BsplineFEAPartialBool
+from feareu.base_algos import FeaPso, FeaDE, FeaGA
 from feareu import Function
 import numpy as np
 from feareu.benchmarks import rastrigin__
@@ -14,16 +14,31 @@ from numpy import cos, sqrt, pi, e, exp, sum
 domain = (-5,5)
 #rand_factors = [np.random.choice(range(10), replace=False, size=3) for x in range(10)]
 fct = [[0],[0,1],[0,1,2],[1,2,3],[2,3,4],[3,4,5],[4,5,6],[5,6,7],[6,7,8],[7,8,9],[8,9],[9]]
-fea = BsplineFEA(factors=fct, function = rastrigin__, iterations = 75, dim = 10, base_algo_name=FeaDE, domain=domain, generations= 5, pop_size=20)
-#fea.context_variable = fea.init_full_global()
-#fea.context_variable.sort()
-#print(fea.context_variable)
-#fea.domain_restriction()
-#for dom in fea.domain:
-#    print(dom)
 
-print(fea.run())
+fea1 = BsplineFEA(factors=fct, function = rastrigin__, iterations = 200, dim = 10, base_algo_name=FeaPso, domain=domain, generations= 5, pop_size=20)
+fea2 = BsplineFEAPartialBool(factors=fct, function = rastrigin__, iterations = 200, dim = 10, base_algo_name=FeaPso, domain=domain, generations= 5, pop_size=20)
 
-daig_plt1 = fea.diagnostic_plots()
+fea3 = BsplineFEA(factors=fct, function = rastrigin__, iterations = 200, dim = 10, base_algo_name=FeaDE, domain=domain, generations= 5, pop_size=20)
+fea4 = BsplineFEAPartialBool(factors=fct, function = rastrigin__, iterations = 200, dim = 10, base_algo_name=FeaDE, domain=domain, generations= 5, pop_size=20)
+
+fea5 = BsplineFEA(factors=fct, function = rastrigin__, iterations = 200, dim = 10, base_algo_name=FeaGA, domain=domain, generations= 5, pop_size=20, number_of_children=3)
+fea6 = BsplineFEAPartialBool(factors=fct, function = rastrigin__, iterations = 200, dim = 10, base_algo_name=FeaGA, domain=domain, generations= 5, pop_size=20, number_of_children=3)
+
+
+print(fea1.run())
+daig_plt1 = fea1.diagnostic_plots()
+print(fea2.run())
+daig_plt1 = fea2.diagnostic_plots()
+
+print(fea3.run())
+daig_plt1 = fea3.diagnostic_plots()
+print(fea4.run())
+daig_plt1 = fea4.diagnostic_plots()
+
+print(fea5.run())
+daig_plt1 = fea5.diagnostic_plots()
+print(fea6.run())
+daig_plt1 = fea6.diagnostic_plots()
+
 plt.show()
 

@@ -7,18 +7,20 @@ class GA:
         function,
         domain,
         pop_size = 20,
-        b = 0.7,
         mutation_rate = 0.05,
         generations = 100,
-        mutation_range = 0.5
+        mutation_range = 0.5,
+        tournament_options = 2,
+        number_of_children = 2
     ):
         self.pop_size = pop_size
-        self.b = b
         self.mutation_rate = mutation_rate
         self.func = function
         self.domain = domain
         self.pop = self.init_pop()
         self.ngenerations = 0
+        self.tournament_options = tournament_options
+        self.number_of_children = number_of_children
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.update_bests()
         self.generations = generations
@@ -50,34 +52,56 @@ class GA:
         """
         for gen in range(self.generations):
             self.ngenerations +=1
-            self.selection()
+            #self.selection()
             children = self.crossover()
             self.mutation(children)
             self._append_varaince()
             self.update_bests()
             self._append_avg_evals()
-        return self.pop[0]
+        return self.best_position
             
-    def selection(self):
-        """
+    """def selection(self):
+        
         Removes the poorest preforming (1-b)% of the population
-        """
+        
+        
         part_to_be_deleted = np.arange(start = self.b*self.pop_size, stop = self.pop_size, dtype=int)
         self.pop = np.delete(self.pop, part_to_be_deleted, axis=0)
-        self.pop_eval = np.delete(self.pop_eval, part_to_be_deleted, axis=0)
+        self.pop_eval = np.delete(self.pop_eval, part_to_be_deleted, axis=0)"""
     
     def crossover(self):
         """
         Returns an array of new values from combinations of the existing population.
         """
-        num_elements_to_be_added = self.pop_size - self.pop.shape[0]
-        last_gen_pop = self.pop.shape[0] - 1
-        children = np.zeros([num_elements_to_be_added, self.pop.shape[1]])
-        for i in range(num_elements_to_be_added):
-            parent1_index = random.randint(0, last_gen_pop)
-            parent2_index = random.randint(0, last_gen_pop)
-            new_point = (self.pop[parent1_index] + self.pop[parent2_index])/2
-            children[i] = (new_point)
+    
+        children = []
+        for c in range(self.number_of_children):
+            winner1 = 0
+            current_winner1 = np.Infinity
+            loser1 = 0
+            current_loser1 = 0
+            for i in range(self.tournament_options):
+                rand_pop_num = int(random.random() * self.pop_size)
+                if(self.pop_eval[rand_pop_num]<current_winner1):
+                    current_winner1 = self.pop_eval[rand_pop_num]
+                    winner1 = rand_pop_num
+                if(self.pop_eval[rand_pop_num]>current_loser1):
+                    current_loser1 = self.pop_eval[rand_pop_num]
+                    loser1 = rand_pop_num
+            winner2 = 0
+            current_winner2 = np.Infinity
+            for i in range(self.tournament_options):
+                rand_pop_num = int(random.random() * self.pop_size)
+                if(self.pop_eval[rand_pop_num]<current_winner2):
+                    current_winner2 = self.pop_eval[rand_pop_num]
+                    winner2 = rand_pop_num
+                if(self.pop_eval[rand_pop_num]>current_loser1):
+                    current_loser1 = self.pop_eval[rand_pop_num]
+                    loser1 = rand_pop_num
+            np.delete(self.pop, loser1)
+            np.delete(self.pop_eval, loser1)
+            new_point = (self.pop[winner1] + self.pop[winner2])/2
+            children.append(new_point)
         return children
     
     def mutation(self, children):
@@ -90,31 +114,16 @@ class GA:
                     rand_value = random.uniform(-1*self.mutation_range, self.mutation_range)
                     child[i] += rand_value
         self.bounds_check(children)
-        #print("pre: ", self.pop)
-        #print("size: ", np.size(self.pop))
         for child in children:
-            inserted = False
-            ind_eval = self.func(child)
-            for i in range(len(self.pop_eval)):
-                if(self.pop_eval[i]>ind_eval):
-                    self.pop_eval = np.insert(self.pop_eval, i, ind_eval)
-                    self.pop = np.insert(self.pop, i, [child], axis=0)
-                    inserted=True
-                    break
-            if(inserted is False):
-                self.pop_eval = np.concatenate((self.pop_eval, [ind_eval]))
+                self.pop_eval = np.concatenate((self.pop_eval, [self.func(child)]))
                 self.pop= np.concatenate((self.pop, [child]))
-        #print("size: ", np.size(self.pop))
     
     def update_bests(self):
         """
         Resorts the population and updates the evaluations.
         """
-        """sorted_order = np.argsort([self.func(row) for row in self.pop])
-        self.pop = self.pop[sorted_order]
-        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]"""
-        self.best_position = self.pop[0]
-        self.best_eval = self.pop_eval[0]
+        self.best_eval = np.min(self.pop_eval)
+        self.best_position = np.copy(self.pop[np.argmin(self.pop_eval), :])
         
     def bounds_check(self, children):
         children = np.where(self.domain[:, 0] > children, self.domain[:, 0], children)

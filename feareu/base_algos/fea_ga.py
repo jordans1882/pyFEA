@@ -15,6 +15,11 @@ class FeaGA(GA, FeaBaseAlgo):
         """
         return self.best_position[idx]
     
+    def reinitialize_population(self):
+        for particle in range(self.pop_size):
+            for p in range(len(self.pop[0])):
+                if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
+                    self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
     
     def update_worst(self, context):
         """
@@ -38,9 +43,10 @@ class FeaGA(GA, FeaBaseAlgo):
         kwargs = {
             "generations": 100,
             "pop_size": 20,
-            "b": 0.7,
             "mutation_rate": 0.05,
             "mutation_range": 0.5,
+            "tournament_options": 2,
+            "number_of_children": 2
         }
         kwargs.update(params)
         return cls(
@@ -48,13 +54,21 @@ class FeaGA(GA, FeaBaseAlgo):
             domain=domain,
             generations=kwargs["generations"],
             pop_size=kwargs["pop_size"],
-            b=kwargs["b"],
             mutation_rate=kwargs["mutation_rate"],
             mutation_range=kwargs["mutation_range"],
+            tournament_options=kwargs["tournament_options"],
+            number_of_children=kwargs["number_of_children"]
         )
     def base_reset(self):
         """
         Reset the algorithm in preparation for another run.
         """
         self.pop = self.init_pop()
+        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        
+    def partial_base_reset(self):
+        """
+        Reset the algorithm in preparation for another run.
+        """
+        self.reinitialize_population()
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]

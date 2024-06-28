@@ -68,3 +68,16 @@ class FeaDE(DE, FeaBaseAlgo):
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval), :])
         self.best_eval = np.min(self.pop_eval)
+
+    def reinitialize_population(self):
+        for particle in range(self.pop_size):
+            for p in range(len(self.pop[0])):
+                if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
+                    self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
+                    
+    def partial_base_reset(self):
+        """
+        Reset the algorithm in preparation for another run.
+        """
+        self.reinitialize_population()
+        self.update_bests()

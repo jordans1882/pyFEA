@@ -35,8 +35,8 @@ domain
 # function = Function(array, rastrigin__, [0, 1])
 
 function = Function(array, rastrigin__, [0, 1, 2, 3, 4])
-ga = GA(function = function, domain = domain, pop_size=20)
-feaga = FeaGA(function = function, domain = domain, pop_size=20)
+ga = GA(function = function, domain = domain, pop_size=20, generations=500)
+feaga = FeaGA(function = function, domain = domain, pop_size=20, generations=500)
 ga.run()
 feaga.run()
 diag_plots = feaga.diagnostic_plots()
