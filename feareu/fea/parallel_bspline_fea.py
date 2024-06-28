@@ -148,8 +148,4 @@ class ParallelBsplineFEA(BsplineFEA):
         @param subpop_domains: the domains from domain_restriction.
         """
         fun = Function(context=self.context_variable, function=self.function, factor=self.factors[i])
-<<<<<<< HEAD
-        result_queue.put(self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args))
-=======
         result_queue.put([i, self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args)])
->>>>>>> 965319549ab2cb25b4b8d83fef5d0b9cee915d4a
