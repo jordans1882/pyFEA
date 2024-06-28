@@ -80,3 +80,17 @@ class FeaPso(PSO, FeaBaseAlgo):
         #self.worst = np.argmax(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
+    
+    def reinitialize_population(self):
+        for particle in range(self.pop_size):
+            for p in range(len(self.pop[0])):
+                if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
+                    self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
+
+    def partial_base_reset(self):
+        """
+        Reset the algorithm in preparation for another run.
+        """
+        self.reinitialize_population()
+        self.velocities = super().init_velocities()
+        self.reset_fitness()
