@@ -47,13 +47,13 @@ class FeaDE(DE, FeaBaseAlgo):
             mutation_factor=kwargs["mutation_factor"],
             crossover_rate=kwargs["crossover_rate"],
         )
-    def base_reset(self):
-        """
+    """def base_reset(self):
+        
         Reset the algorithm in preparation for another run. For this algorithm, 
         this is currently indistinguishable from an update_bests run.
-        """
+        
         self.pop = self.init_pop()
-        self.update_bests()
+        self.update_bests()"""
 
     def run(self):
         """
@@ -75,7 +75,7 @@ class FeaDE(DE, FeaBaseAlgo):
                 if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
                     self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
                     
-    def partial_base_reset(self):
+    def base_reset(self):
         """
         Reset the algorithm in preparation for another run.
         """

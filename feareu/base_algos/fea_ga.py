@@ -59,14 +59,14 @@ class FeaGA(GA, FeaBaseAlgo):
             tournament_options=kwargs["tournament_options"],
             number_of_children=kwargs["number_of_children"]
         )
-    def base_reset(self):
-        """
+    """def base_reset(self):
+        
         Reset the algorithm in preparation for another run.
-        """
+        
         self.pop = self.init_pop()
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
-        
-    def partial_base_reset(self):
+        """
+    def base_reset(self):
         """
         Reset the algorithm in preparation for another run.
         """

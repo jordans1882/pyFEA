@@ -62,13 +62,13 @@ class FeaPso(PSO, FeaBaseAlgo):
             phi_g=kwargs["phi_g"],
             omega=kwargs["omega"],
         )
-    def base_reset(self):
-        """
+    """def base_reset(self):
+        
         Reset velocities and fitness evaluations before the next run of the algorithm.
-        """
+        
         self.pop = self.init_pop()
         self.velocities = super().init_velocities()
-        self.reset_fitness()
+        self.reset_fitness()"""
     
     def reset_fitness(self):
         """
@@ -87,7 +87,7 @@ class FeaPso(PSO, FeaBaseAlgo):
                 if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
                     self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
 
-    def partial_base_reset(self):
+    def base_reset(self):
         """
         Reset the algorithm in preparation for another run.
         """
