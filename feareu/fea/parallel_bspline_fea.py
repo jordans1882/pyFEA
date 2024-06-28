@@ -1,5 +1,3 @@
-import multiprocessing
-from xxlimited import new
 from feareu.fea import BsplineFEA
 import matplotlib.pyplot as plt
 import numpy as np

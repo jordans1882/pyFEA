@@ -25,6 +25,7 @@ class FEA:
         self.base_algo = base_algo_name
         self.dim = dim
         self.domain = domain
+        self.full_fit_func = 0
         self.context_variable = None
         self.base_algo_args = kwargs
         self.niterations = 0
@@ -68,11 +69,13 @@ class FEA:
         """
         cont_var = self.context_variable
         best_fit = self.function(self.context_variable)
+        self.full_fit_func+=1
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
             best_fit = self.function(cont_var)
+            self.full_fit_func+=1
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             solution_to_measure_variance = []
             for j in rand_pop_permutation:
@@ -81,6 +84,7 @@ class FEA:
                 cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
                 solution_to_measure_variance.append(subpopulations[s_j].get_solution_at_index(index))
                 current_fit = self.function(cont_var)
+                self.full_fit_func+=1
                 if current_fit < best_fit:
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
@@ -129,4 +133,5 @@ class FEA:
         plt.subplot(1, 2, 2)
         plt.plot(range(0, self.niterations), self.solution_variance_in_total)
         plt.title("Solution Variance")
+        
         return ret

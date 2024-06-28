@@ -42,6 +42,7 @@ class PSO:
         self.pop = self.init_pop()
         self.pbest = self.pop
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.fitness_functions = self.pop_size
         self.pbest_eval = deepcopy(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
@@ -109,6 +110,7 @@ class PSO:
         """
         for pidx in range(self.pop_size):
             curr_eval = self.func(self.pop[pidx, :])
+            self.fitness_functions+=1
             self.pop_eval[pidx] = curr_eval
             if curr_eval < self.pbest_eval[pidx]:
                 self.pbest[pidx, :] = np.copy(self.pop[pidx, :])

@@ -62,13 +62,6 @@ class FeaPso(PSO, FeaBaseAlgo):
             phi_g=kwargs["phi_g"],
             omega=kwargs["omega"],
         )
-    """def base_reset(self):
-        
-        Reset velocities and fitness evaluations before the next run of the algorithm.
-        
-        self.pop = self.init_pop()
-        self.velocities = super().init_velocities()
-        self.reset_fitness()"""
     
     def reset_fitness(self):
         """
@@ -76,6 +69,7 @@ class FeaPso(PSO, FeaBaseAlgo):
         """
         self.pbest = self.pop
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.fitness_functions+= self.pop_size
         self.pbest_eval = self.pop_eval
         #self.worst = np.argmax(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)

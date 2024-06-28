@@ -26,6 +26,7 @@ class DE:
         self.domain = domain
         self.pop = self.init_pop()
         self.pop_eval = [self.func(self.pop[i]) for i in range(self.pop_size)]
+        self.fitness_functions = self.pop_size
         self.best_eval = np.min(self.pop_eval)
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval),:])
         self.mutation_factor = mutation_factor
@@ -77,6 +78,7 @@ class DE:
         """
         for i in range(self.pop_size):
             fella_eval = self.func(self.mutant_pop[i,:])
+            self.fitness_functions+=1
             if fella_eval < self.pop_eval[i]:
                 self.pop_eval[i] = fella_eval
                 self.pop[i,:] = np.copy(self.mutant_pop[i,:])

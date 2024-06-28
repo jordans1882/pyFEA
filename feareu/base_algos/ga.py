@@ -18,10 +18,12 @@ class GA:
         self.func = function
         self.domain = domain
         self.pop = self.init_pop()
+        self.fitness_functions = 0
         self.ngenerations = 0
         self.tournament_options = tournament_options
         self.number_of_children = number_of_children
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.fitness_functions = self.pop_size
         self.update_bests()
         self.generations = generations
         self.mutation_range = mutation_range
@@ -116,6 +118,7 @@ class GA:
         self.bounds_check(children)
         for child in children:
                 self.pop_eval = np.concatenate((self.pop_eval, [self.func(child)]))
+                self.fitness_functions+=1
                 self.pop= np.concatenate((self.pop, [child]))
     
     def update_bests(self):

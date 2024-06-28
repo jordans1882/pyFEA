@@ -8,7 +8,7 @@ class BsplineFEA(FEA):
     Altered so that each factor has its own domain based on the context vector.
     Intended for use in BSpline knot selection problem."""
 
-    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, **kwargs):
+    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount, **kwargs):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -19,6 +19,9 @@ class BsplineFEA(FEA):
         @param **kwargs: parameters for the base algorithm.
         """
         self.domain = domain
+        self.diagnostic_amount = diagnostics_amount
+        self.full_fit_func_array = []
+        self.part_fit_func_array = []
         super().__init__(factors, function, iterations, dim, base_algo_name, self.domain, **kwargs)
         for factor in self.factors:
             factor.sort()
@@ -47,7 +50,8 @@ class BsplineFEA(FEA):
                 self.subpop_compute(subpop)
             self.compete(subpopulations)
             self.share(subpopulations)
-            self.convergences.append(self.function(self.context_variable))
+            if self.niterations % self.diagnostic_amount is 0:
+                self.update_plots(subpopulations)
         return self.function(self.context_variable)
 
     def subpop_compute(self, subpop):
@@ -62,6 +66,14 @@ class BsplineFEA(FEA):
         """
         super().compete(subpopulations)
         self.context_variable.sort()
+
+    def update_plots(self, subpopulations):
+        self.convergences.append(self.function(self.context_variable))
+        self.full_fit_func_array.append(self.full_fit_func)
+        tot_part_fit = 0
+        for subpop in subpopulations:
+            tot_part_fit += subpop.fitness_functions
+        self.part_fit_func_array.append(tot_part_fit)
 
     def share(self, subpopulations):
         """
@@ -112,3 +124,25 @@ class BsplineFEA(FEA):
         """
         for i, subpop in enumerate(subpopulations):
             subpop.domain = subpop_domains[i]
+            
+    def diagnostic_plots(self):
+        """
+        Set up plots tracking solution convergence and variance over time.
+        """
+        plt.subplot(1, 3, 1)
+        ret = plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.convergences)
+        plt.title("Convergence")
+
+        """
+        plt.subplot(1, 4, 2)
+        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.solution_variance_in_total)
+        plt.title("Solution Variance")
+        """
+        
+        plt.subplot(1, 3, 2)
+        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.full_fit_func_array)
+        plt.title("Full Fit Func")
+        
+        plt.subplot(1, 3, 3)
+        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.part_fit_func_array)
+        plt.title("Part Fit Func")

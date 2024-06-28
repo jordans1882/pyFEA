@@ -36,7 +36,7 @@ class FeaDE(DE, FeaBaseAlgo):
             "generations": 100,
             "pop_size": 20,
             "mutation_factor": 0.5,
-            "crossover_rate": 0.5
+            "crossover_rate": 0.5,
         }
         kwargs.update(params)
         return cls(
@@ -47,14 +47,7 @@ class FeaDE(DE, FeaBaseAlgo):
             mutation_factor=kwargs["mutation_factor"],
             crossover_rate=kwargs["crossover_rate"],
         )
-    """def base_reset(self):
         
-        Reset the algorithm in preparation for another run. For this algorithm, 
-        this is currently indistinguishable from an update_bests run.
-        
-        self.pop = self.init_pop()
-        self.update_bests()"""
-
     def run(self):
         """
         Run the base algorithm.
@@ -66,6 +59,7 @@ class FeaDE(DE, FeaBaseAlgo):
         Update the evaluation of the objective function after a context vector update.
         """
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.fitness_functions+= self.pop_size
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval), :])
         self.best_eval = np.min(self.pop_eval)
 
