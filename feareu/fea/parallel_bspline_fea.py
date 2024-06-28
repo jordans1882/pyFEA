@@ -34,7 +34,7 @@ class ParallelBsplineFEA(BsplineFEA):
         self.context_variable.sort()
         self.domain_evaluation()
         parallel_i = 0
-        subpopulations = []
+        subpopulations = {}
         while parallel_i<len(self.factors):
             processes = []
             result_queue = Queue()
@@ -47,19 +47,18 @@ class ParallelBsplineFEA(BsplineFEA):
                     break
             for p in processes:
                 p.join()
-                subpopulations.append(result_queue.get())
-        #print("finished initialization")
+                result = result_queue.get()
+                subpopulations.update({result[0]: result[1]})
         #with Pool(self.process_count) as pool:
         #    subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
         for i in range(self.iterations):
             self.niterations += 1
             parallel_i = 0
-            new_subpopulations = []
             while parallel_i<len(subpopulations):
                 processes = []
                 result_queue = Queue()
                 for j in range(int(self.process_count)):
-                    p = Process(target=self.subpop_compute, args=(subpopulations[parallel_i], result_queue))
+                    p = Process(target=self.subpop_compute, args=(parallel_i, subpopulations[parallel_i], result_queue))
                     processes.append(p)
                     p.start()
                     parallel_i+=1
@@ -67,8 +66,8 @@ class ParallelBsplineFEA(BsplineFEA):
                         break
                 for p in processes:
                     p.join()
-                    new_subpopulations.append(result_queue.get())
-            subpopulations = new_subpopulations
+                    result = result_queue.get()
+                    subpopulations[result[0]]=result[1]
             print("finished subpop_compute run")
             #with Pool(self.process_count) as pool:
             #    subpopulations = pool.map(self.subpop_compute, subpopulations)
@@ -79,10 +78,10 @@ class ParallelBsplineFEA(BsplineFEA):
             self.convergences.append(self.function(self.context_variable))
         return self.function(self.context_variable)
         
-    def subpop_compute(self, subpop, result_queue):
+    def subpop_compute(self, parallel_i, subpop, result_queue):
         subpop.base_reset()
         subpop.run()
-        result_queue.put(subpop)
+        result_queue.put([parallel_i, subpop])
         
     def domain_evaluation(self):
         """
@@ -131,17 +130,16 @@ class ParallelBsplineFEA(BsplineFEA):
         self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
         self.solution_variance_per_dim = []
         self.context_variable.sort()
-        self.domain_evaluation()
-        self.updating_subpop_domains(subpopulations)
-
-    def updating_subpop_domains(self, subpopulations):
+        
+    def share(self, subpopulations):
         """
-        Updates each subpopulation to use the new domains from domain_restriction.
-        @param subpop_domains: the domains from domain_restriction.
-        @param subpopulations: the base algorithms to update the domains of.
+        Algorithm 2 from the Strasser et al. paper.
+        @param subpopulations: the list of subpopulations initialized in initialize_subpops. 
         """
-        for i, subpop in enumerate(subpopulations):
-            subpop.domain = self.subpop_domains[i]
+        for i in range(len(subpopulations)):
+            subpopulations[i].domain = self.subpop_domains[i]
+            subpopulations[i].func.context = np.copy(self.context_variable)
+            subpopulations[i].update_bests()
         
     def initialize_subpop(self, i, result_queue):
         """
@@ -150,4 +148,8 @@ class ParallelBsplineFEA(BsplineFEA):
         @param subpop_domains: the domains from domain_restriction.
         """
         fun = Function(context=self.context_variable, function=self.function, factor=self.factors[i])
+<<<<<<< HEAD
         result_queue.put(self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args))
+=======
+        result_queue.put([i, self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args)])
+>>>>>>> 965319549ab2cb25b4b8d83fef5d0b9cee915d4a
