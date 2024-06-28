@@ -22,9 +22,9 @@ def linear_factorizer(fact_size, overlap, dim, **kwargs):
         factors.append([x for x in range(smallest, dim)])
     return factors
 
-def coevolution_factorizer(k, dim, **kwargs):
-    k_1 = dim % k
-    k_2 = k - k_1
+def coevolution_factorizer(fact_size, dim, **kwargs):
+    k_1 = dim % fact_size
+    k_2 = fact_size - k_1
     start = 0
     end = k_1
     factors = []

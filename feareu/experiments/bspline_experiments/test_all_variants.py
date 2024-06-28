@@ -4,17 +4,15 @@ import pickle
 import numpy as np
 import time
 import math
+from copy import deepcopy
 
 #set the number of processors and the chunksizes used by parallel base algorithms.
 processes=4
-chunksize=1
+chunksize=5
 
 #set the number of processes and threads used by a parallel FEA.
 process_count=4
-thread_count = 5
-
-#assign the fitness function you want to evaluate below.
-fitness = feareu.rastrigin__
+thread_count=16
 
 #set the bounds for your FEA's Bayesian run. 
 #IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
@@ -44,18 +42,16 @@ de_bounds = {
        "crossover_rate":(0.1,1),
         }
 
-#assign the base algorithm to test FEA on. 
-base_alg = feareu.FeaPso
-#add that algorithm's parameters to pbounds.
-pbounds.update(pso_bounds)
 
 #choose your factorizer.
 factorizer = feareu.linear_factorizer
 
 #set the kind of FEA you want to use.
-fea = feareu.BsplineFEA
+fea = feareu.ParallelBsplineFEA
 
-def bayes_input(
+def bayes_input_fea(
+                function,
+                base_alg,
                 fact_size=None,
                 overlap=1,
                 num_covers=2,
@@ -96,7 +92,7 @@ def bayes_input(
         feareu.clamp_factor_ends(dim, factors, num_clamps)
     objective = fea(
                     factors,
-                    fitness,
+                    function,
                     iterations,
                     dim,
                     base_alg,
@@ -117,12 +113,33 @@ def bayes_input(
     ret = -objective.run()
     return ret
 
-def bayes_run(init_points=5, n_iter=25):
-    optimizer = BayesianOptimization(bayes_input, pbounds)
+def bayes_run_fea(init_points=5, n_iter=25, bounds):
+    optimizer = BayesianOptimization(bayes_input, bounds)
     optimizer.maximize(init_points, n_iter)
     storage = open(f'results/{fitness}_{base_alg}','wb')
     pickle.dump(optimizer.max, storage)
     storage.close()
 
+def bayes_run_base(init_points=5, n_iter=25, bounds):
+    optimizer = BayesianOptimization(bayes_input_base, bounds)
+    optimizer.maximize(init_points, n_iter)
+    storage = open(f'results/{fitness}_{base_alg}','wb')
+    pickle.dump(optimizer.max, storage)
+    storage.close()
+
+
+#Stuff for B-spline experimentation in particular
+benchmarks = [feareu.big_spike, feareu.discontinuity, feareu.cliff, feareu.smooth_peak, feareu.second_smooth_peak, feareu.doppler]
+sample_sizes = np.around(np.geomspace(20, 200000, num=5)).astype(int)
+base_algo_types = [feareu.ParallelFeaPSO, feareu.ParallelFeaDE, feareu.ParallelFeaGA]
+search_types = [feareu.PSO, feareu.DE, feareu.GA]
+bounding = [pso_bounds, de_bounds, ga_bounds]
+
+#TODO: change this when we get a better bspline evaluation method
+bspline_eval_method = feareu.slow_bspline_eval
+
 if __name__ == '__main__':
-    bayes_run(2, 8)
+    for function in benchmarks:
+        for sample_size in sample_sizes:
+            x = np.random.random(sample_size)
+            y = function(x)
