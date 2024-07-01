@@ -60,6 +60,7 @@ if __name__ == '__main__':
     end = time.time()
     print("non-parallel time: ", end-start)"""
     
+    """
     start = time.time()
     fea2 = ParallelVectorBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=ParallelFeaPSO, domain=(-5, 5), diagnostics_amount=1, og_knot_points=og_knots, process_count=2, process=2, generations= 5, pop_size=10)
     fea2.run()
@@ -71,15 +72,22 @@ if __name__ == '__main__':
     fea3.run()
     end = time.time()
     print("parallel time DE: ", end-start)
-    
+    """
     start = time.time()
-    fea4 = ParallelVectorBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=ParallelFeaGA, domain=(-5, 5), diagnostics_amount=1, og_knot_points=og_knots, process_count=2, process=2, generations= 5, pop_size=10)
+    fea4 = ParallelBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=ParallelFeaGA, domain=(-5, 5), diagnostics_amount=1, og_knot_points=og_knots, process_count=2, process=2, generations= 5, pop_size=10)
     fea4.run()
     end = time.time()
     print("parallel time GA: ", end-start)
     
+    start = time.time()
+    fea5 = ParallelVectorBsplineFEA(factors=factors, function = rastrigin__, iterations = 3, dim = factor_number, base_algo_name=ParallelFeaGA, domain=(-5, 5), diagnostics_amount=1, og_knot_points=og_knots, process_count=2, process=2, generations= 5, pop_size=10)
+    fea5.run()
+    end = time.time()
+    print("parallel time GA: ", end-start)
+    
     #daig_plt1 = fea1.diagnostic_plots()
-    daig_plt1 = fea2.diagnostic_plots()
-    daig_plt1 = fea3.diagnostic_plots()
+    #daig_plt1 = fea2.diagnostic_plots()
+    #daig_plt1 = fea3.diagnostic_plots()
     daig_plt1 = fea4.diagnostic_plots()
+    #daig_plt1 = fea5.diagnostic_plots()
     plt.show()

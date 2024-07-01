@@ -68,7 +68,8 @@ class ParallelBsplineFEA(BsplineFEA):
                     subpopulations[result[0]]=result[1]
             self.compete(subpopulations)
             self.share(subpopulations)
-            self.convergences.append(self.function(self.context_variable))
+            if self.niterations % self.diagnostic_amount is 0:
+                self.update_plots(subpopulations)
         return self.function(self.context_variable)
         
     def subpop_compute(self, parallel_i, subpop, result_queue):
@@ -101,6 +102,7 @@ class ParallelBsplineFEA(BsplineFEA):
         """
         cont_var = self.context_variable
         best_fit = self.function(self.context_variable)
+        self.full_fit_func += 1
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
@@ -109,6 +111,7 @@ class ParallelBsplineFEA(BsplineFEA):
             temp_cont_var = np.sort(temp_cont_var)
             current_fit = self.function(temp_cont_var)
             best_fit = self.function(temp_cont_var)
+            self.full_fit_func += 2
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             solution_to_measure_variance = []
             for j in rand_pop_permutation:
@@ -119,6 +122,7 @@ class ParallelBsplineFEA(BsplineFEA):
                 temp_cont_var = np.copy(cont_var)
                 temp_cont_var = np.sort(temp_cont_var)
                 current_fit = self.function(temp_cont_var)
+                self.full_fit_func += 1
                 if current_fit < best_fit:
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit

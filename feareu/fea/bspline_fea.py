@@ -50,7 +50,7 @@ class BsplineFEA(FEA):
                 self.subpop_compute(subpop)
             self.compete(subpopulations)
             self.share(subpopulations)
-            if self.niterations % self.diagnostic_amount is 0:
+            if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
         return self.function(self.context_variable)
 
@@ -101,8 +101,8 @@ class BsplineFEA(FEA):
         self.convergences.append(self.function(self.context_variable))
         self.full_fit_func_array.append(self.full_fit_func)
         tot_part_fit = 0
-        for subpop in subpopulations:
-            tot_part_fit += subpop.fitness_functions
+        for s in range(len(subpopulations)):
+            tot_part_fit += subpopulations[s].fitness_functions
         self.part_fit_func_array.append(tot_part_fit)
 
     def share(self, subpopulations):

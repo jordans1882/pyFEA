@@ -78,7 +78,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
                     subpopulations[result[0]]=result[1]
             self.compete(subpopulations)
             self.share(subpopulations)
-            if self.niterations % self.diagnostic_amount is 0:
+            if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
         return self.function(self.context_variable)
         
