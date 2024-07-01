@@ -122,10 +122,10 @@ def bayes_input_fea(
     ret = -objective.run()
     return ret
 
-def bayes_run_fea(bounds, init_points=5, n_iter=25):
+def bayes_run_fea(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level = -1, func=-1):
     optimizer = BayesianOptimization(bayes_input_fea, bounds)
     optimizer.maximize(init_points, n_iter)
-    storage = open(f'results/{fitness}_{base_alg}','wb')
+    storage = open(f'results/function{func}_{base_alg}_sample{sample_size}_noise{noise_level}','wb')
     pickle.dump(optimizer.max, storage)
     storage.close()
 
@@ -161,10 +161,10 @@ def bayes_input_base(
     ret = -objective.run()
     return ret
 
-def bayes_run_base(bounds, init_points=5, n_iter=25):
+def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level=-1, func=-1):
     optimizer = BayesianOptimization(bayes_input_base, bounds)
     optimizer.maximize(init_points, n_iter)
-    storage = open(f'results/{fitness}_{base_alg}','wb')
+    storage = open(f'results/function{func}_{base_alg}_sample{sample_size}_noise{noise_level}','wb')
     pickle.dump(optimizer.max, storage)
     storage.close()
 
@@ -193,13 +193,13 @@ bspline_eval_class = feareu.SlowBsplineEval
 
 if __name__ == '__main__':
     global base_alg
-    for function in benchmarks:
+    for f, function in enumerate(benchmarks):
         for sample_size in sample_sizes:
             x = np.random.random(sample_size)
             y = function(x)
             func_width = np.max(y) - np.min(y)
-            noises = np.linspace(0,func_width/5,num=6)
-            for noise in noises:
+            noises = np.linspace(0,func_width/10,num=6)
+            for n, noise in enumerate(noises):
                 y = feareu.make_noisy(y, noise)
                 global fitness
                 fitness = bspline_eval_class(x, y)
@@ -208,10 +208,10 @@ if __name__ == '__main__':
                     bounds = deepcopy(pbounds)
                     bounds.update(bounding[i])
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: FEA", algo)
-                    bayes_run_fea(bounds, init_points=2, n_iter=8)
+                    bayes_run_fea(bounds, init_points=2, n_iter=8, sample_size=sample_size, noise_level = n, func = f)
                 for i, algo in enumerate(search_types):
                     base_alg = algo
                     bounds = deepcopy(base_bounds)
                     bounds.update(bounding[i])
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: ", algo)
-                    bayes_run_base(bounds, init_points=2, n_iter=8)
+                    bayes_run_base(bounds, init_points=2, n_iter=8, sample_size=sample_size, noise_level = n, func = f)
