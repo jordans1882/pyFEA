@@ -117,7 +117,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
-            temp_cont_var = np.copy(cont_var)
+            temp_cont_var = (cont_var)
             temp_cont_var = np.sort(temp_cont_var)
             best_fit = self.function(temp_cont_var)
             self.full_fit_func += 1
