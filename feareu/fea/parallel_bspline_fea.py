@@ -105,7 +105,10 @@ class ParallelBsplineFEA(BsplineFEA):
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
-            best_fit = self.function(cont_var)
+            temp_cont_var = np.copy(cont_var)
+            temp_cont_var = np.sort(temp_cont_var)
+            current_fit = self.function(temp_cont_var)
+            best_fit = self.function(temp_cont_var)
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             solution_to_measure_variance = []
             for j in rand_pop_permutation:
@@ -113,7 +116,9 @@ class ParallelBsplineFEA(BsplineFEA):
                 index = np.where(self.factors[s_j] == i)[0][0]
                 cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
                 solution_to_measure_variance.append(subpopulations[s_j].get_solution_at_index(index))
-                current_fit = self.function(cont_var)
+                temp_cont_var = np.copy(cont_var)
+                temp_cont_var = np.sort(temp_cont_var)
+                current_fit = self.function(temp_cont_var)
                 if current_fit < best_fit:
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
