@@ -1,15 +1,15 @@
-from feareu.fea import BsplineFEA
+from feareu.fea import VectorComparisonBsplineFEA
 import matplotlib.pyplot as plt
 import numpy as np
 from feareu.function import Function
 from multiprocessing import Pool, Process, Queue
 #from multiprocessing.sharedctypes import Array
 
-class ParallelBsplineFEA(BsplineFEA):
+class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al.
     Altered so that each factor has its own domain based on the context vector.
     Intended for use in BSpline knot selection problem."""
-    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount, process_count, **kwargs):
+    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, process_count, **kwargs):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -20,9 +20,19 @@ class ParallelBsplineFEA(BsplineFEA):
         @param **kwargs: parameters for the base algorithm.
         """
         self.process_count = process_count
-        super().__init__(factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount=diagnostics_amount, **kwargs)
+        self.full_fit_func = 0
+        super().__init__(factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, **kwargs)
         self.subpop_domains = []
         
+    def update_plots(self, subpopulations):
+        self.convergences.append(self.function(self.context_variable))
+        self.full_fit_func_array.append(self.full_fit_func)
+        self.dif_to_og.append(np.linalg.norm(self.og_knot_points - self.context_variable))
+        tot_part_fit = 0
+        for i in range(len(subpopulations)):
+            tot_part_fit += subpopulations[i].fitness_functions
+        self.part_fit_func_array.append(tot_part_fit)
+    
     def run(self):
         """
         Algorithm 3 from the Strasser et al. paper, altered to sort the context
@@ -68,7 +78,8 @@ class ParallelBsplineFEA(BsplineFEA):
                     subpopulations[result[0]]=result[1]
             self.compete(subpopulations)
             self.share(subpopulations)
-            self.convergences.append(self.function(self.context_variable))
+            if self.niterations % self.diagnostic_amount is 0:
+                self.update_plots(subpopulations)
         return self.function(self.context_variable)
         
     def subpop_compute(self, parallel_i, subpop, result_queue):
@@ -101,11 +112,13 @@ class ParallelBsplineFEA(BsplineFEA):
         """
         cont_var = self.context_variable
         best_fit = self.function(self.context_variable)
+        self.full_fit_func += 1
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
             best_fit = self.function(cont_var)
+            self.full_fit_func += 1
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
             solution_to_measure_variance = []
             for j in rand_pop_permutation:
@@ -114,6 +127,7 @@ class ParallelBsplineFEA(BsplineFEA):
                 cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
                 solution_to_measure_variance.append(subpopulations[s_j].get_solution_at_index(index))
                 current_fit = self.function(cont_var)
+                self.full_fit_func +=1
                 if current_fit < best_fit:
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
@@ -123,7 +137,7 @@ class ParallelBsplineFEA(BsplineFEA):
         self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
         self.solution_variance_per_dim = []
         self.context_variable.sort()
-        
+    
     def share(self, subpopulations):
         """
         Algorithm 2 from the Strasser et al. paper.

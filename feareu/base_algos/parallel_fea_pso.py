@@ -43,6 +43,7 @@ class ParallelFeaPSO(FeaPso):
         self.pop = self.init_pop()
         self.pbest = (self.pop)
         self.pop_eval = parallel_eval(self.func, self.pop, processes=self.processes, chunksize=self.chunksize)
+        self.fitness_functions = pop_size
         self.pbest_eval = deepcopy(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
@@ -57,6 +58,7 @@ class ParallelFeaPSO(FeaPso):
         Update the current personal and global best values based on the new positions of the particles.
         """
         self.pop_eval = parallel_eval(self.func, self.pop, processes=self.processes, chunksize=self.chunksize)
+        self.fitness_functions+=self.pop_size
         for pidx in range(self.pop_size):
             curr_eval = self.pop_eval[pidx]
             if curr_eval < self.pbest_eval[pidx]:
@@ -72,6 +74,7 @@ class ParallelFeaPSO(FeaPso):
         """
         self.pbest = self.pop
         self.pop_eval = parallel_eval(self.func, self.pop, processes=self.processes, chunksize=self.chunksize)
+        self.fitness_functions+=self.pop_size
         self.pbest_eval = self.pop_eval
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])

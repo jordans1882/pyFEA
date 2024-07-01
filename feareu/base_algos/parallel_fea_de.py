@@ -31,6 +31,7 @@ class ParallelFeaDE(FeaDE):
         self.chunksize = chunksize
         self.pop = self.init_pop()
         self.pop_eval = parallel_eval(self.func, self.pop, processes=self.processes, chunksize=self.chunksize)
+        self.fitness_functions = self.pop_size
         self.best_eval = np.min(self.pop_eval)
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval),:])
         self.mutation_factor = mutation_factor
@@ -43,6 +44,7 @@ class ParallelFeaDE(FeaDE):
         Consider implementing and testing more sophisticated selection algorithms.
         """
         mutant_pop_eval = parallel_eval(self.func, self.mutant_pop, processes=self.processes, chunksize=self.chunksize)
+        self.fitness_functions+=self.pop_size
         for i in range(self.pop_size):
             fella_eval = mutant_pop_eval[i]
             if fella_eval < self.pop_eval[i]:
@@ -56,5 +58,6 @@ class ParallelFeaDE(FeaDE):
         Update the evaluation of the objective function after a context vector update.
         """
         self.pop_eval = parallel_eval(self.func, self.pop, processes=self.processes, chunksize=self.chunksize)
+        self.fitness_functions+=self.pop_size
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval), :])
         self.best_eval = np.min(self.pop_eval)
