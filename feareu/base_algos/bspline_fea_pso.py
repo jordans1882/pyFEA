@@ -1,9 +1,9 @@
 import numpy as np
 
-from feareu.base_algos.pso import PSO
+from feareu.base_algos.pso import FeaPso
 
 
-class BSplinePSO(PSO):
+class BSplineFeaPSO(FeaPso):
 
     def init_pop(self):
         """
@@ -48,3 +48,4 @@ class BSplinePSO(PSO):
                 if curr_eval < self.gbest_eval:
                     self.gbest = np.copy(self.pop[pidx, :])
                     self.gbest_eval = curr_eval
+
