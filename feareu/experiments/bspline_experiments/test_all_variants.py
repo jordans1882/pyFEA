@@ -20,15 +20,21 @@ diagnostics_amount = 5
 #set the bounds for your FEA's Bayesian run. 
 #IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
-pbounds = {"generations":(10,35), 
-           "iterations":(10,50), 
+pbounds = {"generations":(3,10), 
+           "iterations":(2,8), 
            "pop_size":(10,35), 
            "fact_size": (1,5), 
            "overlap": (0,3),
            #"num_covers":(1,5),
            "num_clamps":(0,5),
-           "dim":(4,20)
+           "dim":(8,12)
            }
+
+base_bounds = {
+        "generations":(10,20),
+        "pop_size":(10,35),
+        "dim":(8,12)
+        }
 
 pso_bounds = {
        "phi_p":(0.8,3),
@@ -143,14 +149,14 @@ def bayes_input_base(
     domain[:,0] = 0
     domain[:,1] = 1
 
-    if base_alg is feareu.PSO:
-        objective = base_alg(generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega)
+    if base_alg is feareu.BsplineFeaPSO:
+        objective = base_alg(function=fitness, generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega)
 
-    elif base_alg is feareu.DE:
-        objective = base_alg(generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
+    elif base_alg is feareu.BsplineFeaDE:
+        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
 
-    elif base_alg is feareu.GA:
-        objective = base_alg(generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range)
+    elif base_alg is feareu.BsplineFeaGA:
+        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range)
 
     ret = -objective.run()
     return ret
@@ -166,9 +172,21 @@ def bayes_run_base(bounds, init_points=5, n_iter=25):
 #Stuff for B-spline experimentation in particular
 benchmarks = [feareu.big_spike, feareu.discontinuity, feareu.cliff, feareu.smooth_peak, feareu.second_smooth_peak, feareu.doppler]
 sample_sizes = np.around(np.geomspace(20, 200000, num=5)).astype(int)
-base_algo_types = [feareu.BsplineFeaPSO, feareu.BsplineFeaDE, feareu.BsplineFeaGA]
-search_types = [feareu.BsplineFeaPSO, feareu.BsplineFeaDE, feareu.BsplineFeaGA]
-bounding = [pso_bounds, de_bounds, ga_bounds]
+base_algo_types = [
+        feareu.BsplineFeaPSO,
+        feareu.BsplineFeaDE,
+        feareu.BsplineFeaGA
+        ]
+search_types = [
+        feareu.BsplineFeaPSO,
+        feareu.BsplineFeaDE,
+        feareu.BsplineFeaGA
+        ]
+bounding = [
+        pso_bounds,
+        de_bounds,
+        ga_bounds
+        ]
 
 #TODO: change this when we get a better bspline evaluation method
 bspline_eval_class = feareu.SlowBsplineEval
@@ -189,7 +207,11 @@ if __name__ == '__main__':
                     base_alg = algo
                     bounds = deepcopy(pbounds)
                     bounds.update(bounding[i])
+                    print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: FEA", algo)
                     bayes_run_fea(bounds, init_points=2, n_iter=8)
                 for i, algo in enumerate(search_types):
                     base_alg = algo
-                    bayes_run_base(bounding[i], init_points=2, n_iter=8)
+                    bounds = deepcopy(base_bounds)
+                    bounds.update(bounding[i])
+                    print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: ", algo)
+                    bayes_run_base(bounds, init_points=2, n_iter=8)

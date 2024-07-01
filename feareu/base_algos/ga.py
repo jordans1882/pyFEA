@@ -60,7 +60,7 @@ class GA:
             self._append_varaince()
             self.update_bests()
             self._append_avg_evals()
-        return self.best_position
+        return self.best_eval
             
     """def selection(self):
         
@@ -104,7 +104,7 @@ class GA:
             np.delete(self.pop_eval, loser1)
             new_point = (self.pop[winner1] + self.pop[winner2])/2
             children.append(new_point)
-        return children
+        return np.array(children)
     
     def mutation(self, children):
         """

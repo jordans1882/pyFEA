@@ -36,6 +36,7 @@ class BsplineFeaPSO(FeaPso):
         """
         Update the current personal and global best values based on the new positions of the particles.
         """
+        self.stay_in_domain()
         self.order_knots()
         for pidx in range(self.pop_size):
             curr_eval = self.func(self.pop[pidx, :])

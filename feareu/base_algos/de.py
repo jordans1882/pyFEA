@@ -51,7 +51,7 @@ class DE:
             self.stay_in_domain()
             self.crossover()
             self.selection()
-        return  self.best_solution
+        return  self.best_eval
 
     def mutate(self):
         """

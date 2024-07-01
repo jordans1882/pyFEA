@@ -82,7 +82,7 @@ class PSO:
             self.update_bests()
             self._track_values()
             self.generations_passed += 1
-        return self.gbest
+        return self.gbest_eval
 
     def stay_in_domain(self):
         """

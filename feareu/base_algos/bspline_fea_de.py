@@ -46,3 +46,26 @@ class BsplineFeaDE(FeaDE):
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval),:])
         self.best_eval = np.min(self.pop_eval)
 
+    def pop_domain_check(self):
+        area = self.domain[:, 1] - self.domain[:, 0]
+        self.pop = np.where(
+            self.domain[:, 0] > self.pop,
+            self.domain[:, 0] + 0.1 * area * np.random.random(),
+            self.pop,
+        )
+        self.pop = np.where(
+            self.domain[:, 1] < self.pop,
+            self.domain[:, 1] - 0.1 * area * np.random.random(),
+            self.pop,
+        )
+
+    def update_bests(self):
+        """
+        Update the evaluation of the objective function after a context vector update.
+        """
+        self.pop_domain_check()
+        self.pop.sort()
+        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.fitness_functions+= self.pop_size
+        self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval), :])
+        self.best_eval = np.min(self.pop_eval)
