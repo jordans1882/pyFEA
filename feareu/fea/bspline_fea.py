@@ -50,7 +50,7 @@ class BsplineFEA(FEA):
                 self.subpop_compute(subpop)
             self.compete(subpopulations)
             self.share(subpopulations)
-            if self.niterations % self.diagnostic_amount is 0:
+            if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
         return self.function(self.context_variable)
 
@@ -65,44 +65,36 @@ class BsplineFEA(FEA):
         @param subpopulations: the list of base algorithms, each with their own factor.
         """
         cont_var = self.context_variable
-        best_fit = self.function(self.context_variable)
-        self.full_fit_func+=1
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
-            temp_cont_var = np.copy(cont_var)
-            temp_cont_var = np.sort(temp_cont_var)
-            current_fit = self.function(temp_cont_var)
+            temp_cont_var = (cont_var)
+            np.sort(temp_cont_var)
             best_fit = self.function(temp_cont_var)
             self.full_fit_func+=1
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
-            solution_to_measure_variance = []
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
                 index = np.where(self.factors[s_j] == i)[0][0]
                 cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
-                solution_to_measure_variance.append(subpopulations[s_j].get_solution_at_index(index))
-                temp_cont_var = np.copy(cont_var)
-                temp_cont_var = np.sort(temp_cont_var)
+                temp_cont_var = (cont_var)
+                np.sort(temp_cont_var)
                 current_fit = self.function(temp_cont_var)
                 self.full_fit_func+=1
                 if current_fit < best_fit:
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
             cont_var[i] = np.copy(best_val)
-            self.solution_variance_per_dim.append(np.var(solution_to_measure_variance))
         self.context_variable = (cont_var)
-        self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
-        self.solution_variance_per_dim = []
         self.context_variable.sort()
 
     def update_plots(self, subpopulations):
         self.convergences.append(self.function(self.context_variable))
         self.full_fit_func_array.append(self.full_fit_func)
         tot_part_fit = 0
-        for subpop in subpopulations:
-            tot_part_fit += subpop.fitness_functions
+        for s in range(len(subpopulations)):
+            tot_part_fit += subpopulations[s].fitness_functions
         self.part_fit_func_array.append(tot_part_fit)
 
     def share(self, subpopulations):
@@ -162,12 +154,6 @@ class BsplineFEA(FEA):
         plt.subplot(1, 3, 1)
         ret = plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.convergences)
         plt.title("Convergence")
-
-        """
-        plt.subplot(1, 4, 2)
-        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.solution_variance_in_total)
-        plt.title("Solution Variance")
-        """
         
         plt.subplot(1, 3, 2)
         plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.full_fit_func_array)

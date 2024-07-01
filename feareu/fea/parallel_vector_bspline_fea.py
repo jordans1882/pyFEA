@@ -57,8 +57,6 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
                 p.join()
                 result = result_queue.get()
                 subpopulations.update({result[0]: result[1]})
-        #with Pool(self.process_count) as pool:
-        #    subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
         for i in range(self.iterations):
             self.niterations += 1
             parallel_i = 0
@@ -78,7 +76,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
                     subpopulations[result[0]]=result[1]
             self.compete(subpopulations)
             self.share(subpopulations)
-            if self.niterations % self.diagnostic_amount is 0:
+            if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
         return self.function(self.context_variable)
         
@@ -111,31 +109,28 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
         @param subpopulations: the list of base algorithms, each with their own factor.
         """
         cont_var = self.context_variable
-        best_fit = self.function(self.context_variable)
-        self.full_fit_func += 1
         rand_var_permutation = np.random.permutation(self.dim)
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
-            best_fit = self.function(cont_var)
+            temp_cont_var = (cont_var)
+            np.sort(temp_cont_var)
+            best_fit = self.function(temp_cont_var)
             self.full_fit_func += 1
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
-            solution_to_measure_variance = []
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
                 index = np.where(self.factors[s_j] == i)[0][0]
-                cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
-                solution_to_measure_variance.append(subpopulations[s_j].get_solution_at_index(index))
-                current_fit = self.function(cont_var)
+                cont_var[i]=np.copy(subpopulations[s_j].get_solution_at_index(index))
+                temp_cont_var = (cont_var)
+                np.sort(temp_cont_var)
+                current_fit = self.function(temp_cont_var)
                 self.full_fit_func +=1
                 if current_fit < best_fit:
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
             cont_var[i] = np.copy(best_val)
-            self.solution_variance_per_dim.append(np.var(solution_to_measure_variance))
         self.context_variable = (cont_var)
-        self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
-        self.solution_variance_per_dim = []
         self.context_variable.sort()
     
     def share(self, subpopulations):
