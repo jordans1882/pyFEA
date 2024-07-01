@@ -51,7 +51,7 @@ de_bounds = {
 factorizer = feareu.linear_factorizer
 
 #set the kind of FEA you want to use.
-fea = feareu.ParallelBsplineFEA
+fea = feareu.BsplineFEA
 
 def bayes_input_fea(
                 fact_size=None,
