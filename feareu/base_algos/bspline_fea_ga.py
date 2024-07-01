@@ -45,4 +45,3 @@ class BsplineFeaGA(FeaGA):
                 self.pop_eval = np.concatenate((self.pop_eval, [self.func(child)]))
                 self.fitness_functions+=1
                 self.pop= np.concatenate((self.pop, [child]))
-
