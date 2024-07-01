@@ -102,7 +102,13 @@ class GA:
                     loser1 = rand_pop_num
             np.delete(self.pop, loser1)
             np.delete(self.pop_eval, loser1)
-            new_point = (self.pop[winner1] + self.pop[winner2])/2
+            new_point = []
+            for i in range(len(self.pop[0])):
+                pick_parent = int(random.random() * 2)
+                if(int(pick_parent)==0):
+                    new_point.append(self.pop[winner1, i])
+                else:
+                    new_point.append(self.pop[winner2, i])
             children.append(new_point)
         return np.array(children)
     
