@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import examples.base_pso
-import examples.fea_debug
+import examples.FEATesting.fea_debug
 from examples.base_pso import PSO
 from examples.function import Function
 
