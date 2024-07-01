@@ -1,5 +1,6 @@
 from .automated_factors import *
 from .bspline_benchmarks import *
+from .slow_bspline_eval import SlowBsplineEval
 
 __all__ = [
         "linear_factorizer",
@@ -15,5 +16,6 @@ __all__ = [
         "doppler",
         "spline_curve",
         "generate_spline_params",
-        "make_noisy"
+        "make_noisy",
+        "SlowBsplineEval"
         ]
