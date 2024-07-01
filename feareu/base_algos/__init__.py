@@ -8,5 +8,8 @@ from .parallel_evaluation import parallel_eval
 from .parallel_fea_pso import ParallelFeaPSO
 from .parallel_fea_de import ParallelFeaDE
 from .parallel_fea_ga import ParallelFeaGA
+from .bspline_fea_pso import BsplineFeaPSO
+from .bspline_fea_ga import BsplineFeaGA
+from .bspline_fea_de import BsplineFeaDE
 
-__all__ = ["PSO", "FeaPso", "DE", "FeaDE", "GA", "FeaGA", "parallel_eval", "ParallelFeaPSO", "ParallelFeaDE", "ParallelFeaGA"]
+__all__ = ["PSO", "FeaPso", "DE", "FeaDE", "GA", "FeaGA", "parallel_eval", "ParallelFeaPSO", "ParallelFeaDE", "ParallelFeaGA", "BsplineFeaPSO", "BsplineFeaGA", "BsplineFeaDE"]
