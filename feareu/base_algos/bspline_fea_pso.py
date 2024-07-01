@@ -1,9 +1,9 @@
 import numpy as np
 
-from feareu.base_algos.pso import FeaPso
+from feareu.base_algos.fea_pso import FeaPso
 
 
-class BSplineFeaPSO(FeaPso):
+class BsplineFeaPSO(FeaPso):
 
     def init_pop(self):
         """
@@ -36,9 +36,7 @@ class BSplineFeaPSO(FeaPso):
         """
         Update the current personal and global best values based on the new positions of the particles.
         """
-        sort_idxs = self.pop.argsort()
-        self.pop = np.array([p[s] for p, s in zip(self.pop, sort_idxs))
-        self.velocities = np.array([v[s] for v, s in zip(self.velocities, sort_idxs))
+        self.order_knots()
         for pidx in range(self.pop_size):
             curr_eval = self.func(self.pop[pidx, :])
             self.pop_eval[pidx] = curr_eval
@@ -49,3 +47,16 @@ class BSplineFeaPSO(FeaPso):
                     self.gbest = np.copy(self.pop[pidx, :])
                     self.gbest_eval = curr_eval
 
+    def order_knots(self):
+        sort_idxs = self.pop.argsort()
+        self.pop = np.array([p[s] for p, s in zip(self.pop, sort_idxs)])
+        self.velocities = np.array([v[s] for v, s in zip(self.velocities, sort_idxs)])
+
+    def base_reset(self):
+        """
+        Reset the algorithm in preparation for another run.
+        """
+        self.reinitialize_population()
+        self.order_knots()
+        self.velocities = super().init_velocities()
+        self.reset_fitness()

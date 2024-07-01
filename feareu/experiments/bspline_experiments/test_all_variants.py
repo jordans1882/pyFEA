@@ -167,7 +167,7 @@ def bayes_run_base(bounds, init_points=5, n_iter=25):
 benchmarks = [feareu.big_spike, feareu.discontinuity, feareu.cliff, feareu.smooth_peak, feareu.second_smooth_peak, feareu.doppler]
 sample_sizes = np.around(np.geomspace(20, 200000, num=5)).astype(int)
 base_algo_types = [feareu.BsplineFeaPSO, feareu.BsplineFeaDE, feareu.BsplineFeaGA]
-search_types = [feareu.BsplinePSO, feareu.BsplineDE, feareu.BsplineGA]
+search_types = [feareu.BsplineFeaPSO, feareu.BsplineFeaDE, feareu.BsplineFeaGA]
 bounding = [pso_bounds, de_bounds, ga_bounds]
 
 #TODO: change this when we get a better bspline evaluation method

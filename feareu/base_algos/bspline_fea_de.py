@@ -1,5 +1,5 @@
 import numpy as np
-from feareu.base_algos.de import FeaDE
+from feareu.base_algos.fea_de import FeaDE
 
 class BsplineFeaDE(FeaDE):
 

@@ -1,5 +1,5 @@
 import numpy as np
-from feareu.base_algos.ga import FeaGA
+from feareu.base_algos.fea_ga import FeaGA
 
 class BsplineFeaGA(FeaGA):
 
