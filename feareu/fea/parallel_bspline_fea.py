@@ -1,15 +1,31 @@
-from feareu.fea import BsplineFEA
+from multiprocessing import Pool, Process, Queue
+
 import matplotlib.pyplot as plt
 import numpy as np
+
+from feareu.fea import BsplineFEA
 from feareu.function import Function
-from multiprocessing import Pool, Process, Queue
-#from multiprocessing.sharedctypes import Array
+
+# from multiprocessing.sharedctypes import Array
+
 
 class ParallelBsplineFEA(BsplineFEA):
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al.
     Altered so that each factor has its own domain based on the context vector.
     Intended for use in BSpline knot selection problem."""
-    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount, process_count, **kwargs):
+
+    def __init__(
+        self,
+        factors,
+        function,
+        iterations,
+        dim,
+        base_algo_name,
+        domain,
+        diagnostics_amount,
+        process_count,
+        **kwargs
+    ):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -20,9 +36,18 @@ class ParallelBsplineFEA(BsplineFEA):
         @param **kwargs: parameters for the base algorithm.
         """
         self.process_count = process_count
-        super().__init__(factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount=diagnostics_amount, **kwargs)
+        super().__init__(
+            factors,
+            function,
+            iterations,
+            dim,
+            base_algo_name,
+            domain,
+            diagnostics_amount=diagnostics_amount,
+            **kwargs
+        )
         self.subpop_domains = []
-        
+
     def run(self):
         """
         Algorithm 3 from the Strasser et al. paper, altered to sort the context
@@ -33,65 +58,68 @@ class ParallelBsplineFEA(BsplineFEA):
         self.domain_evaluation()
         parallel_i = 0
         subpopulations = {}
-        while parallel_i<len(self.factors):
+        while parallel_i < len(self.factors):
             processes = []
             result_queue = Queue()
             for j in range(int(self.process_count)):
                 p = Process(target=self.initialize_subpop, args=(parallel_i, result_queue))
                 processes.append(p)
                 p.start()
-                parallel_i+=1
-                if(parallel_i>=(len(self.factors))):
+                parallel_i += 1
+                if parallel_i >= (len(self.factors)):
                     break
             for p in processes:
                 p.join()
                 result = result_queue.get()
                 subpopulations.update({result[0]: result[1]})
-        #with Pool(self.process_count) as pool:
+        # with Pool(self.process_count) as pool:
         #    subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
         for i in range(self.iterations):
             self.niterations += 1
             parallel_i = 0
-            while parallel_i<len(subpopulations):
+            while parallel_i < len(subpopulations):
                 processes = []
                 result_queue = Queue()
                 for j in range(int(self.process_count)):
-                    p = Process(target=self.subpop_compute, args=(parallel_i, subpopulations[parallel_i], result_queue))
+                    p = Process(
+                        target=self.subpop_compute,
+                        args=(parallel_i, subpopulations[parallel_i], result_queue),
+                    )
                     processes.append(p)
                     p.start()
-                    parallel_i+=1
-                    if(parallel_i>=len(subpopulations)):
+                    parallel_i += 1
+                    if parallel_i >= len(subpopulations):
                         break
                 for p in processes:
                     p.join()
                     result = result_queue.get()
-                    subpopulations[result[0]]=result[1]
+                    subpopulations[result[0]] = result[1]
             self.compete(subpopulations)
             self.share(subpopulations)
-            if self.niterations % self.diagnostic_amount is 0:
+            if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
         return self.function(self.context_variable)
-        
+
     def subpop_compute(self, parallel_i, subpop, result_queue):
         subpop.base_reset()
         subpop.run()
         result_queue.put([parallel_i, subpop])
-        
+
     def domain_evaluation(self):
         """
         Ensures that each factor has its own domain in which its variables can move.
         """
         self.subpop_domains = []
         for i, factor in enumerate(self.factors):
-            fact_dom = np.zeros((len(factor),2))
+            fact_dom = np.zeros((len(factor), 2))
             if factor[0] == 0:
-                fact_dom[:,0] = self.domain[0]
+                fact_dom[:, 0] = self.domain[0]
             else:
-                fact_dom[:,0] = self.context_variable[factor[0]-1]
-            if factor[-1] == len(self.context_variable)-1:
-                fact_dom[:,1] = self.domain[1]
+                fact_dom[:, 0] = self.context_variable[factor[0] - 1]
+            if factor[-1] == len(self.context_variable) - 1:
+                fact_dom[:, 1] = self.domain[1]
             else:
-                fact_dom[:,1] = self.context_variable[factor[-1]+1]
+                fact_dom[:, 1] = self.context_variable[factor[-1] + 1]
             self.subpop_domains.append(fact_dom)
 
     def compete(self, subpopulations):
@@ -105,7 +133,7 @@ class ParallelBsplineFEA(BsplineFEA):
         for i in rand_var_permutation:
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
-            temp_cont_var = (cont_var)
+            temp_cont_var = cont_var
             temp_cont_var.sort()
             best_fit = self.function(temp_cont_var)
             self.full_fit_func += 1
@@ -114,7 +142,7 @@ class ParallelBsplineFEA(BsplineFEA):
                 s_j = overlapping_factors[j]
                 index = np.where(self.factors[s_j] == i)[0][0]
                 cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
-                temp_cont_var = (cont_var)
+                temp_cont_var = cont_var
                 temp_cont_var.sort()
                 current_fit = self.function(temp_cont_var)
                 self.full_fit_func += 1
@@ -122,25 +150,29 @@ class ParallelBsplineFEA(BsplineFEA):
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
             cont_var[i] = np.copy(best_val)
-        self.context_variable = (cont_var)
+        self.context_variable = cont_var
         self.context_variable.sort()
-        
+
     def share(self, subpopulations):
         """
         Algorithm 2 from the Strasser et al. paper.
-        @param subpopulations: the list of subpopulations initialized in initialize_subpops. 
+        @param subpopulations: the list of subpopulations initialized in initialize_subpops.
         """
         subpop_domains = self.domain_evaluation()
         for i in range(len(subpopulations)):
             subpopulations[i].domain = self.subpop_domains[i]
             subpopulations[i].func.context = np.copy(self.context_variable)
             subpopulations[i].update_bests()
-        
+
     def initialize_subpop(self, i, result_queue):
         """
         Initializes some inheritor of FeaBaseAlgo to optimize over each factor.
         Slightly altered to call domain differently.
         @param subpop_domains: the domains from domain_restriction.
         """
-        fun = Function(context=self.context_variable, function=self.function, factor=self.factors[i])
-        result_queue.put([i, self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args)])
+        fun = Function(
+            context=self.context_variable, function=self.function, factor=self.factors[i]
+        )
+        result_queue.put(
+            [i, self.base_algo.from_kwargs(fun, self.subpop_domains[i], self.base_algo_args)]
+        )
