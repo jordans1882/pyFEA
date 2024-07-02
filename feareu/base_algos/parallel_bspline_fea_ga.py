@@ -1,9 +1,9 @@
-from feareu.base_algos import FeaGA, parallel_eval
+from feareu.base_algos import BsplineFeaGA, parallel_eval
 import math
 import numpy as np
 import random
 
-class ParallelFeaGA(FeaGA):
+class ParallelBsplineFeaGA(BsplineFeaGA):
 
     def __init__( self,
         function,
@@ -44,7 +44,8 @@ class ParallelFeaGA(FeaGA):
                 if random.random() < self.mutation_rate:
                     rand_value = random.uniform(-1*self.mutation_range, self.mutation_range)
                     child[i] += rand_value
-        self.bounds_check(children)
+        children = self.bounds_check(children)
+        children.sort()
         child_evals = parallel_eval(self.func, children, processes=self.processes, chunksize=self.chunksize)
         self.pop_eval = np.concatenate((self.pop_eval, child_evals)]))
         self.fitness_functions+=children.shape[0]
@@ -54,6 +55,7 @@ class ParallelFeaGA(FeaGA):
         """
         Reset the algorithm in preparation for another run.
         """
-        self.pop = self.init_pop()
+        self.reinitialize_population()
+        self.pop.sort()
         self.pop_eval = parallel_eval(self.func, self.pop, processes=self.processes, chunksize=self.chunksize)
-        self.fitness_functions+=self.pop_size
+        self.fitness_functions+= self.pop_size

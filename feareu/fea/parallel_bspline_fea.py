@@ -106,7 +106,7 @@ class ParallelBsplineFEA(BsplineFEA):
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
             temp_cont_var = (cont_var)
-            np.sort(temp_cont_var)
+            temp_cont_var.sort()
             best_fit = self.function(temp_cont_var)
             self.full_fit_func += 1
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
@@ -115,7 +115,7 @@ class ParallelBsplineFEA(BsplineFEA):
                 index = np.where(self.factors[s_j] == i)[0][0]
                 cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
                 temp_cont_var = (cont_var)
-                np.sort(temp_cont_var)
+                temp_cont_var.sort()
                 current_fit = self.function(temp_cont_var)
                 self.full_fit_func += 1
                 if current_fit < best_fit:
@@ -130,6 +130,7 @@ class ParallelBsplineFEA(BsplineFEA):
         Algorithm 2 from the Strasser et al. paper.
         @param subpopulations: the list of subpopulations initialized in initialize_subpops. 
         """
+        subpop_domains = self.domain_evaluation()
         for i in range(len(subpopulations)):
             subpopulations[i].domain = self.subpop_domains[i]
             subpopulations[i].func.context = np.copy(self.context_variable)

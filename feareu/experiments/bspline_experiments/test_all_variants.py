@@ -208,10 +208,10 @@ if __name__ == '__main__':
                     bounds = deepcopy(pbounds)
                     bounds.update(bounding[i])
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: FEA", algo)
-                    bayes_run_fea(bounds, init_points=2, n_iter=8, sample_size=sample_size, noise_level = n, func = f)
+                    bayes_run_fea(bounds, init_points=1, n_iter=4, sample_size=sample_size, noise_level = n, func = f)
                 for i, algo in enumerate(search_types):
                     base_alg = algo
                     bounds = deepcopy(base_bounds)
                     bounds.update(bounding[i])
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: ", algo)
-                    bayes_run_base(bounds, init_points=2, n_iter=8, sample_size=sample_size, noise_level = n, func = f)
+                    bayes_run_base(bounds, init_points=1, n_iter=4, sample_size=sample_size, noise_level = n, func = f)
