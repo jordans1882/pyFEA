@@ -1,6 +1,7 @@
 import feareu
 from bayes_opt import BayesianOptimization
 import pickle
+from pathlib import Path
 import numpy as np
 import time
 import math
@@ -125,9 +126,15 @@ def bayes_input_fea(
 def bayes_run_fea(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level = -1, func=-1):
     optimizer = BayesianOptimization(bayes_input_fea, bounds)
     optimizer.maximize(init_points, n_iter)
-    storage = open(f'results/FEA_function{func}_{base_alg}_sample{sample_size}_noise{noise_level}','wb')
-    pickle.dump(optimizer.max, storage)
-    storage.close()
+    results_dir = Path('results')
+    results_dir.mkdir(parents=True, exist_ok=True)
+    filename = results_dir / f"FEA_function{func}_{base_alg.__name__}_sample{sample_size}_noise{noise_level}"
+    try:
+        with open(filename, 'wb') as storage:
+            pickle.dump(optimizer.max, storage)
+            storage.close()
+    except FileNotFoundError as e:
+        print(f"Error opening file: {e}")
 
 def bayes_input_base(
                 generations=20,
@@ -164,9 +171,15 @@ def bayes_input_base(
 def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level=-1, func=-1):
     optimizer = BayesianOptimization(bayes_input_base, bounds)
     optimizer.maximize(init_points, n_iter)
-    storage = open(f'results/function{func}_{base_alg}_sample{sample_size}_noise{noise_level}','wb')
-    pickle.dump(optimizer.max, storage)
-    storage.close()
+    results_dir = Path('results')
+    results_dir.mkdir(parents=True, exist_ok=True)
+    filename = results_dir / f"function{func}_{base_alg.__name__}_sample{sample_size}_noise{noise_level}"
+    try:
+        with open(filename,'wb') as storage:
+            pickle.dump(optimizer.max, storage)
+            storage.close()
+    except FileNotFoundError as e:
+        print(f"Error opening file: {e}")
 
 
 #Stuff for B-spline experimentation in particular
