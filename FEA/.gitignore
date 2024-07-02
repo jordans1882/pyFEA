@@ -1,9 +1,0 @@
-__pycache__/
-venv/
-*.pyc
-*.asv
-.idea/
-/results/
-/results/Knapsack/
-/results/prescriptions/
-FEA/factor_architecture_files/
