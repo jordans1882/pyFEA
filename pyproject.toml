@@ -6,7 +6,6 @@ authors = ["Eve Ginsberg", "Nicky Turk","Jordan Schupbach"]
 
 packages =  [
     { include = "feareu" },
-    { include = "FEA" }
 ]
 
 # [tool.poetry.scripts]
