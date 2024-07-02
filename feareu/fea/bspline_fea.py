@@ -70,7 +70,7 @@ class BsplineFEA(FEA):
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
             temp_cont_var = (cont_var)
-            np.sort(temp_cont_var)
+            temp_cont_var.sort()
             best_fit = self.function(temp_cont_var)
             self.full_fit_func+=1
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
@@ -79,7 +79,7 @@ class BsplineFEA(FEA):
                 index = np.where(self.factors[s_j] == i)[0][0]
                 cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
                 temp_cont_var = (cont_var)
-                np.sort(temp_cont_var)
+                temp_cont_var.sort()
                 current_fit = self.function(temp_cont_var)
                 self.full_fit_func+=1
                 if current_fit < best_fit:
