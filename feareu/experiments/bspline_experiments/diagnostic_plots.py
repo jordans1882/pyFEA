@@ -72,7 +72,7 @@ if __name__ == "__main__":
                                 y = feareu.make_noisy(y, noises[noise_level])
                                 fitness = bspline_eval_class(x, y)
                                 diag_plt = alg.diagnostic_plots()
-                                diag_dir = Path('ending diagnostics')
+                                diag_dir = Path('ending_diagnostics')
                                 diag_dir.mkdir(parents=True, exist_ok=True)
                                 filename = diag_dir / f"function{func}_{base_alg.__name__}_sample{sample_size}_noise{noise_level}.png"
                                 plt.savefig(filename)
@@ -157,7 +157,7 @@ if __name__ == "__main__":
                                 y = feareu.make_noisy(y, noises[noise_level])
                                 fitness = bspline_eval_class(x, y)
                                 diag_plt = alg.diagnostic_plots()
-                                diag_dir = Path('ending diagnostics')
+                                diag_dir = Path('ending_diagnostics')
                                 diag_dir.mkdir(parents=True, exist_ok=True)
                                 filename = diag_dir / f"FEA_function{func}_{base_alg.__name__}_sample{sample_size}_noise{noise_level}.png"
                                 plt.savefig(filename)
