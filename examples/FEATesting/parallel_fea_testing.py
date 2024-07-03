@@ -10,8 +10,8 @@ import numba
 import matplotlib.pyplot as plt
 from numpy import cos, sqrt, pi, e, exp, sum
 
-from feareu.base_algos.parallel_fea_de import ParallelFeaDE
-from feareu.base_algos.parallel_fea_ga import ParallelFeaGA
+from feareu.base_algos.traditional.parallel_fea_de import ParallelFeaDE
+from feareu.base_algos.traditional.parallel_fea_ga import ParallelFeaGA
 from feareu.fea import parallel_vector_bspline_fea
 from feareu.fea.vector_comparison_bspline_fea import VectorComparisonBsplineFEA
 

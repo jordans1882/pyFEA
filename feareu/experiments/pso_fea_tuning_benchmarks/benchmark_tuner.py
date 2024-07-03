@@ -7,7 +7,7 @@ from feareu.benchmarks import *
 import numpy as np
 import pytest
 import time
-from feareu.base_algos.fea_pso import FeaPso
+from feareu.base_algos.traditional.fea_pso import FeaPso
 
 function = benchmarks.rastrigin__
 

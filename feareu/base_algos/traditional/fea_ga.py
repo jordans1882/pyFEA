@@ -1,5 +1,5 @@
-from feareu.base_algos.fea_base_algo import FeaBaseAlgo
-from feareu.base_algos.ga import GA
+from feareu.base_algos.traditional.fea_base_algo import FeaBaseAlgo
+from feareu.base_algos.traditional.ga import GA
 import math
 import numpy as np
 

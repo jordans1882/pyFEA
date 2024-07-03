@@ -1,6 +1,6 @@
 import numpy as np
 
-from feareu.base_algos.pso import PSO
+from feareu.base_algos.traditional.pso import PSO
 
 
 class BSplinePSO(PSO):

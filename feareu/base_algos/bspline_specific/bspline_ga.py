@@ -1,5 +1,5 @@
 import numpy as np
-from feareu.base_algos.ga import GA
+from feareu.base_algos.traditional.ga import GA
 
 class BsplineGA(GA):
 

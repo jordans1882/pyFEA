@@ -1,7 +1,7 @@
 from feareu.base_algos import FeaPso, FeaDE, FeaGA
 from feareu import Function
 import numpy as np
-from feareu.base_algos.bspline_de import BsplineDE
+from feareu.base_algos.bspline_specific.bspline_de import BsplineDE
 from feareu.benchmarks import rastrigin__
 from feareu import BsplineFEA
 import time

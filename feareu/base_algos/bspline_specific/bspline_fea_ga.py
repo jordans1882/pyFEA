@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from feareu.base_algos.fea_ga import FeaGA
+from feareu.base_algos.traditional.fea_ga import FeaGA
 
 class BsplineFeaGA(FeaGA):
 

@@ -1,5 +1,5 @@
 import numpy as np
-from feareu.base_algos.bspline_fea_de import BsplineFeaDE
+from feareu.base_algos.bspline_specific.bspline_fea_de import BsplineFeaDE
 from feareu.base_algos import parallel_eval
 
 class ParallelBsplineFeaDE(BsplineFeaDE):

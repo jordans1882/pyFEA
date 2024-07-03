@@ -1,5 +1,5 @@
 from feareu.base_algos import DE
-from feareu.base_algos.fea_base_algo import FeaBaseAlgo
+from feareu.base_algos.traditional.fea_base_algo import FeaBaseAlgo
 import numpy as np
 
 class FeaDE(DE, FeaBaseAlgo):

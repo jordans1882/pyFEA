@@ -2,8 +2,8 @@ import numpy as np
 from copy import deepcopy
 import math
 
-from feareu.base_algos.bspline_fea_pso import BsplineFeaPSO
-from feareu.base_algos.parallel_evaluation import parallel_eval
+from feareu.base_algos.bspline_specific.bspline_fea_pso import BsplineFeaPSO
+from feareu.base_algos.traditional.parallel_evaluation import parallel_eval
 
 
 class ParallelBsplineFeaPSO(BsplineFeaPSO):

@@ -1,5 +1,5 @@
 import numpy as np
-from feareu.base_algos.de import DE
+from feareu.base_algos.traditional.de import DE
 
 class BsplineDE(DE):
 

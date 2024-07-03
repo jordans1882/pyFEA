@@ -1,6 +1,6 @@
 import numpy as np
 
-from feareu.base_algos.fea_pso import FeaPso
+from feareu.base_algos.traditional.fea_pso import FeaPso
 
 
 class BsplineFeaPSO(FeaPso):
