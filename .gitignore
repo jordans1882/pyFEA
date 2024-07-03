@@ -10,3 +10,5 @@ _build/
 .vscode/
 
 **/results/
+
+**/ending_diagnostics/
