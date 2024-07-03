@@ -15,11 +15,9 @@ class SlowBsplineEval:
         bsp = splipy.BSplineBasis(3, knots, -1)
         xmat = bsp.evaluate(self.x, 0, True, True)
         xt = xmat.transpose()
-        try:
-            theta = (splinalg.inv(xt @ xmat) @ xt) @ self.y
-        except:
-            return 1e10
-
+        LHS = xt @ xmat
+        RHS = xt @ self.y
+        theta, info  = sparse.linalg.bicgstab(LHS, RHS)
         yest = xmat @ theta
         mse = np.sum((self.y - yest)**2)/len(self.y)
         return mse
