@@ -91,9 +91,10 @@ class ParallelBsplineFEA(BsplineFEA):
                     if parallel_i >= len(subpopulations):
                         break
                 for p in processes:
-                    p.join()
                     result = result_queue.get()
                     subpopulations[result[0]] = result[1]
+                for p in processes:
+                    p.join()
             self.compete(subpopulations)
             self.share(subpopulations)
             if self.niterations % self.diagnostic_amount == 0:
