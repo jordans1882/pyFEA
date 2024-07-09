@@ -76,10 +76,12 @@ class FeaPso(PSO, FeaBaseAlgo):
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
     
     def reinitialize_population(self):
-        for particle in range(self.pop_size):
-            for p in range(len(self.pop[0])):
-                if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
-                    self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
+        self.pop = np.where(self.domain[:, 0] > self.pop, self.domain[:, 0]+(self.domain[:,1]-self.domain[:,0])*np.random.random(), self.pop)
+        self.pop = np.where(self.domain[:, 1] < self.pop, self.domain[:, 0]+(self.domain[:,1]-self.domain[:,0])*np.random.random(), self.pop)
+        #for particle in range(self.pop_size):
+        #    for p in range(len(self.pop[0])):
+        #        if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
+        #            self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
 
     def base_reset(self):
         """

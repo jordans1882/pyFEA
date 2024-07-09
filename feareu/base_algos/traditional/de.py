@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class DE:
     """Differential Evolution Algorithm."""
@@ -32,6 +33,9 @@ class DE:
         self.mutation_factor = mutation_factor
         self.crossover_rate = crossover_rate
         self.mutant_pop = np.zeros((self.pop_size, self.domain.shape[0]))
+        self.ngenerations = 0
+        self.average_pop_variance = []
+        self.average_pop_eval = []
 
     def init_pop(self):
         """
@@ -47,10 +51,13 @@ class DE:
         """
         for gen in range(self.generations):
             #print("generation: ", gen, "/", self.generations)
+            self.ngenerations += 1
             self.mutate()
             self.stay_in_domain()
             self.crossover()
             self.selection()
+            self._append_varaince()
+            self._append_avg_evals()
         return  self.best_eval
 
     def mutate(self):
@@ -92,3 +99,22 @@ class DE:
         """
         self.mutant_pop = np.where(self.domain[:, 0] > self.mutant_pop, self.domain[:, 0], self.mutant_pop)
         self.mutant_pop = np.where(self.domain[:, 1] < self.mutant_pop, self.domain[:, 1], self.mutant_pop)
+
+    def _append_avg_evals(self):
+        self.average_pop_eval.append(np.average(self.pop_eval))
+    
+    def _append_varaince(self):
+        self.average_pop_variance.append(np.average(np.var(self.pop, axis = 0)))
+        
+    def diagnostic_plots(self):
+        plt.subplot(1, 2, 1)
+        ret = plt.plot(range(0, self.ngenerations), self.average_pop_eval)
+        plt.title("Average pop evals")
+
+        plt.subplot(1, 2, 2)
+        plt.plot(range(0, self.ngenerations), self.average_pop_variance)
+        plt.title("Average Pop")
+        
+        plt.tight_layout()
+        
+        return ret

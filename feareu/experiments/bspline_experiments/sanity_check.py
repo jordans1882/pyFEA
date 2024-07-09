@@ -25,11 +25,11 @@ diagnostics_amount = 5
 # IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
 pbounds = {
-    "generations": (2, 20),
-    "iterations": (2, 20),
+    "generations": (2, 10),
+    "iterations": (2, 70),
     "pop_size": (10, 35),
-    "fact_size": (1, 5),
-    "overlap": (0, 3),
+    "fact_size": (1, 15),
+    "overlap": (0, 8),
     # "num_covers":(1,5),
     "num_clamps": (0, 5),
     "dim": (10, 30),
@@ -92,7 +92,7 @@ def bayes_input_fea(
     domain = (0, 1)
 
     factors = factorizer(fact_size=fact_size, overlap=overlap, dim=dim, num_covers=num_covers)
-    if factors is None:
+    if factors is None or fact_size > dim:
         return -999999999
     if num_clamps > 0:
         feareu.clamp_factor_ends(dim, factors, num_clamps)
@@ -125,10 +125,10 @@ def bayes_input_fea(
 def bayes_run_fea(bounds, init_points=5, n_iter=25):
     optimizer = BayesianOptimization(bayes_input_fea, bounds)
     optimizer.maximize(init_points, n_iter)
-    p = Path(f"results/sanity_check")
-    storage = open(p, "wb")
-    pickle.dump(optimizer.max, storage)
-    storage.close()
+    #p = Path(f"results/sanity_check")
+    #storage = open(p, "wb")
+    #pickle.dump(optimizer.max, storage)
+    #storage.close()
 
 
 # Stuff for B-spline experimentation in particular

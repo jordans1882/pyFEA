@@ -69,9 +69,10 @@ class ParallelBsplineFEA(BsplineFEA):
                 if parallel_i >= (len(self.factors)):
                     break
             for p in processes:
-                p.join()
                 result = result_queue.get()
                 subpopulations.update({result[0]: result[1]})
+            for p in processes:
+                p.join()
         # with Pool(self.process_count) as pool:
         #    subpopulations = pool.map(self.initialize_subpop, np.arange(0, len(self.factors)))
         for i in range(self.iterations):

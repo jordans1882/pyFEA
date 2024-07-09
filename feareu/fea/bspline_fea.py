@@ -87,7 +87,7 @@ class BsplineFEA(FEA):
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
             cont_var[i] = np.copy(best_val)
-        self.context_variable = (cont_var)
+        self.context_variable = np.copy(cont_var)
         self.context_variable.sort()
 
     def update_plots(self, subpopulations):

@@ -1,4 +1,6 @@
 import feareu
+import matplotlib.pyplot as plt
+import logging
 from bayes_opt import BayesianOptimization
 import pickle
 from pathlib import Path
@@ -6,6 +8,14 @@ import numpy as np
 import time
 import math
 from copy import deepcopy
+
+best = float("-inf")
+number_recorded = 0
+results_dir = Path('results')
+results_dir.mkdir(parents=True, exist_ok=True)
+filename = results_dir / f"logging_best.log"
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename=filename, encoding='utf-8', level=logging.DEBUG)
 
 #set the number of processors and the chunksizes used by parallel base algorithms.
 processes=4
@@ -26,7 +36,6 @@ pbounds = {"generations":(3,10),
            "pop_size":(10,35), 
            "fact_size": (1,5), 
            "overlap": (0,3),
-           #"num_covers":(1,5),
            "num_clamps":(0,5),
            "dim":(8,12)
            }
@@ -58,7 +67,7 @@ de_bounds = {
 factorizer = feareu.linear_factorizer
 
 #set the kind of FEA you want to use.
-fea = feareu.BsplineFEA
+fea = feareu.ParallelBsplineFEA
 
 def bayes_input_fea(
                 fact_size=None,
@@ -91,6 +100,9 @@ def bayes_input_fea(
     #domain[:,0] = -5
     #domain[:,1] = 5
 
+    global best
+    global number_recorded
+
     #code for generating domain on Bspline FEA. Comment out if you're working on normal FEA.
     domain = (0,1)
     
@@ -121,20 +133,39 @@ def bayes_input_fea(
                     processes=processes,
                     chunksize=chunksize)
     ret = -objective.run()
+    if ret > best:
+        best = ret
+        results_dir = Path('results')
+        results_dir.mkdir(parents=True, exist_ok=True)
+        filename = results_dir / f"FEA_function_{number_recorded}.png"
+        plt.figure()
+        objective.diagnostic_plots()
+        plt.savefig(filename)
+        logger.info(f'NEW BEST - NUMBER {number_recorded} ------------------------------------------------')
+        logger.info(f'fitness evaluation: {ret}')
+        logger.info(f'fact_size: {fact_size}')
+        logger.info(f'overlap: {overlap}')
+        logger.info(f'num_clamps: {num_clamps}')
+        logger.info(f'dim: {dim}')
+        logger.info(f'iterations: {iterations}')
+        logger.info(f'base_alg: {base_alg.__name__}')
+        logger.info(f'pop_size: {pop_size}')
+        logger.info(f'generations: {generations}')
+        logger.info(f'mutation_factor: {mutation_factor}')
+        logger.info(f'crossover_rate: {crossover_rate}')
+        logger.info(f'mutation_rate: {mutation_rate}')
+        logger.info(f'mutation_range: {mutation_range}')
+        logger.info(f'phi_p: {phi_p}')
+        logger.info(f'phi_g: {phi_g}')
+        logger.info(f'omega: {omega}')
+        number_recorded += 1
     return ret
 
 def bayes_run_fea(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level = -1, func=-1):
+    global best
+    best = float('-inf')
     optimizer = BayesianOptimization(bayes_input_fea, bounds)
     optimizer.maximize(init_points, n_iter)
-    results_dir = Path('results')
-    results_dir.mkdir(parents=True, exist_ok=True)
-    filename = results_dir / f"FEA_function{func}_{base_alg.__name__}_sample{sample_size}_noise{noise_level}"
-    try:
-        with open(filename, 'wb') as storage:
-            pickle.dump(optimizer.max, storage)
-            storage.close()
-    except FileNotFoundError as e:
-        print(f"Error opening file: {e}")
 
 def bayes_input_base(
                 generations=20,
@@ -156,30 +187,79 @@ def bayes_input_base(
     domain[:,0] = 0
     domain[:,1] = 1
 
+    global best
+    global number_recorded
+
     if base_alg is feareu.BsplineFeaPSO:
         objective = base_alg(function=fitness, generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega)
+        ret = -objective.run()
+        if ret > best:
+            best = ret
+            results_dir = Path('results')
+            results_dir.mkdir(parents=True, exist_ok=True)
+            filename = results_dir / f"Function_{number_recorded}.png"
+            plt.figure()
+            objective.diagnostic_plots()
+            plt.savefig(filename)
+            logger.info(f'NEW BEST - NUMBER {number_recorded} ------------------------------------------------')
+            logger.info(f'fitness evaluation: {ret}')
+            logger.info(f'dim: {dim}')
+            logger.info(f'base_alg: {base_alg.__name__}')
+            logger.info(f'pop_size: {pop_size}')
+            logger.info(f'generations: {generations}')
+            logger.info(f'phi_p: {phi_p}')
+            logger.info(f'phi_g: {phi_g}')
+            logger.info(f'omega: {omega}')
 
     elif base_alg is feareu.BsplineFeaDE:
         objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
+        ret = -objective.run()
+        if ret > best:
+            best = ret
+            results_dir = Path('results')
+            results_dir.mkdir(parents=True, exist_ok=True)
+            filename = results_dir / f"Function_{number_recorded}.png"
+            plt.figure()
+            objective.diagnostic_plots()
+            plt.savefig(filename)
+            logger.info(f'NEW BEST - NUMBER {number_recorded} ------------------------------------------------')
+            logger.info(f'fitness evaluation: {ret}')
+            logger.info(f'dim: {dim}')
+            logger.info(f'base_alg: {base_alg.__name__}')
+            logger.info(f'pop_size: {pop_size}')
+            logger.info(f'generations: {generations}')
+            logger.info(f'mutation_factor: {mutation_factor}')
+            logger.info(f'crossover_rate: {crossover_rate}')
 
     elif base_alg is feareu.BsplineFeaGA:
         objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range)
+        ret = -objective.run()
+        if ret > best:
+            best = ret
+            results_dir = Path('results')
+            results_dir.mkdir(parents=True, exist_ok=True)
+            filename = results_dir / f"Function_{number_recorded}.png"
+            plt.figure()
+            objective.diagnostic_plots()
+            plt.savefig(filename)
+            logger.info(f'NEW BEST - NUMBER {number_recorded} ------------------------------------------------')
+            logger.info(f'fitness evaluation: {ret}')
+            logger.info(f'dim: {dim}')
+            logger.info(f'base_alg: {base_alg.__name__}')
+            logger.info(f'pop_size: {pop_size}')
+            logger.info(f'generations: {generations}')
+            logger.info(f'mutation_rate: {mutation_rate}')
+            logger.info(f'mutation_range: {mutation_range}')
 
-    ret = -objective.run()
+
+    number_recorded += 1
     return ret
 
 def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level=-1, func=-1):
+    global best
+    best = float('-inf')
     optimizer = BayesianOptimization(bayes_input_base, bounds)
     optimizer.maximize(init_points, n_iter)
-    results_dir = Path('results')
-    results_dir.mkdir(parents=True, exist_ok=True)
-    filename = results_dir / f"function{func}_{base_alg.__name__}_sample{sample_size}_noise{noise_level}"
-    try:
-        with open(filename,'wb') as storage:
-            pickle.dump(optimizer.max, storage)
-            storage.close()
-    except FileNotFoundError as e:
-        print(f"Error opening file: {e}")
 
 
 #Stuff for B-spline experimentation in particular
@@ -228,3 +308,4 @@ if __name__ == '__main__':
                     bounds.update(bounding[i])
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: ", algo)
                     bayes_run_base(bounds, init_points=1, n_iter=4, sample_size=sample_size, noise_level = n, func = f)
+
