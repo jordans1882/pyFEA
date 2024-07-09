@@ -47,7 +47,7 @@ class ParallelBsplineFeaGA(BsplineFeaGA):
         children = self.bounds_check(children)
         children.sort()
         child_evals = parallel_eval(self.func, children, processes=self.processes, chunksize=self.chunksize)
-        self.pop_eval = np.concatenate((self.pop_eval, child_evals)]))
+        self.pop_eval = np.concatenate((self.pop_eval, child_evals))
         self.fitness_functions+=children.shape[0]
         self.pop= np.concatenate((self.pop, children))
 

@@ -12,5 +12,7 @@ from .bspline_specific.bspline_fea_pso import BsplineFeaPSO
 from .bspline_specific.bspline_fea_ga import BsplineFeaGA
 from .bspline_specific.bspline_fea_de import BsplineFeaDE
 from .bspline_specific.parallel_bspline_fea_pso import ParallelBsplineFeaPSO
+from .bspline_specific.parallel_bspline_fea_de import ParallelBsplineFeaDE
+from .bspline_specific.parallel_bspline_fea_ga import ParallelBsplineFeaGA
 
-__all__ = ["PSO", "FeaPso", "DE", "FeaDE", "GA", "FeaGA", "parallel_eval", "ParallelFeaPSO", "ParallelFeaDE", "ParallelFeaGA", "BsplineFeaPSO", "BsplineFeaGA", "BsplineFeaDE", "ParallelBsplineFeaPSO"]
+__all__ = ["PSO", "FeaPso", "DE", "FeaDE", "GA", "FeaGA", "parallel_eval", "ParallelFeaPSO", "ParallelFeaDE", "ParallelFeaGA", "BsplineFeaPSO", "BsplineFeaGA", "BsplineFeaDE", "ParallelBsplineFeaPSO", "ParallelBsplineFeaDE", "ParallelBsplineFeaGA"]

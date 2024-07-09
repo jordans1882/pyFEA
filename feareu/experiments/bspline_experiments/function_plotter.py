@@ -13,8 +13,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 
 
-process_count = 5
-thread_count = 12
+process_count = 8
+thread_count = 16
 diagnostics_amount = 1
 processes = 10
 chunksize=30
@@ -33,7 +33,7 @@ y = feareu.make_noisy(ytrue, 0.1)
 
 dim = 200
 fact_size = 50
-overlap = 25
+overlap = 20
 num_clamps = 0
 factors = feareu.linear_factorizer(fact_size=fact_size, overlap=overlap, dim=dim)
 feareu.clamp_factor_ends(dim, factors, num_clamps)

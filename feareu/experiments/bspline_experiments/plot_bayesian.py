@@ -19,26 +19,28 @@ logging.basicConfig(filename=filename, encoding='utf-8', level=logging.DEBUG)
 
 #set the number of processors and the chunksizes used by parallel base algorithms.
 processes=4
-chunksize=5
+chunksize=1
 
 #set the number of processes and threads used by a parallel FEA.
-process_count=4
+process_count=8
 thread_count=16
 
 #set the number of iterations at which we record data to be printed.
-diagnostics_amount = 5
+diagnostics_amount = 2
 
 #set the bounds for your FEA's Bayesian run. 
 #IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
-pbounds = {"generations":(3,10), 
-           "iterations":(2,8), 
-           "pop_size":(10,35), 
-           "fact_size": (1,5), 
-           "overlap": (0,3),
-           "num_clamps":(0,5),
-           "dim":(8,12)
-           }
+pbounds = {
+    "generations": (2, 30),
+    "iterations": (2, 70),
+    "pop_size": (30, 100),
+    "fact_size": (1, 50),
+    "overlap": (0, 30),
+    # "num_covers":(1,5),
+    #"num_clamps": (0, 5),
+    "dim": (10, 200),
+}
 
 base_bounds = {
         "generations":(10,20),
@@ -49,7 +51,7 @@ base_bounds = {
 pso_bounds = {
        "phi_p":(0.8,3),
        "phi_g":(0.8,3),
-       "omega":(0.01,0.99)
+       "omega":(0.00000001,0.99)
         }
 
 ga_bounds = {
@@ -190,8 +192,8 @@ def bayes_input_base(
     global best
     global number_recorded
 
-    if base_alg is feareu.BsplineFeaPSO:
-        objective = base_alg(function=fitness, generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega)
+    if base_alg is feareu.ParallelBsplineFeaPSO:
+        objective = base_alg(function=fitness, generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega, processes=processes, chunksize=chunksize)
         ret = -objective.run()
         if ret > best:
             best = ret
@@ -211,8 +213,8 @@ def bayes_input_base(
             logger.info(f'phi_g: {phi_g}')
             logger.info(f'omega: {omega}')
 
-    elif base_alg is feareu.BsplineFeaDE:
-        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
+    elif base_alg is feareu.ParallelBsplineFeaDE:
+        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate, processes=processes, chunksize=chunksize)
         ret = -objective.run()
         if ret > best:
             best = ret
@@ -231,8 +233,8 @@ def bayes_input_base(
             logger.info(f'mutation_factor: {mutation_factor}')
             logger.info(f'crossover_rate: {crossover_rate}')
 
-    elif base_alg is feareu.BsplineFeaGA:
-        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range)
+    elif base_alg is feareu.ParallelBsplineFeaGA:
+        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range, processes=processes, chunksize=chunksize)
         ret = -objective.run()
         if ret > best:
             best = ret
@@ -266,14 +268,14 @@ def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level
 benchmarks = [feareu.big_spike, feareu.discontinuity, feareu.cliff, feareu.smooth_peak, feareu.second_smooth_peak, feareu.doppler]
 sample_sizes = np.around(np.geomspace(20, 200000, num=5)).astype(int)
 base_algo_types = [
-        feareu.BsplineFeaPSO,
-        feareu.BsplineFeaDE,
-        feareu.BsplineFeaGA
+        feareu.ParallelBsplineFeaPSO,
+        feareu.ParallelBsplineFeaDE,
+        feareu.ParallelBsplineFeaGA
         ]
 search_types = [
-        feareu.BsplineFeaPSO,
-        feareu.BsplineFeaDE,
-        feareu.BsplineFeaGA
+        feareu.ParallelBsplineFeaPSO,
+        feareu.ParallelBsplineFeaDE,
+        feareu.ParallelBsplineFeaGA
         ]
 bounding = [
         pso_bounds,
@@ -301,11 +303,11 @@ if __name__ == '__main__':
                     bounds = deepcopy(pbounds)
                     bounds.update(bounding[i])
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: FEA", algo)
-                    bayes_run_fea(bounds, init_points=1, n_iter=4, sample_size=sample_size, noise_level = n, func = f)
+                    bayes_run_fea(bounds, init_points=20, n_iter=100, sample_size=sample_size, noise_level = n, func = f)
                 for i, algo in enumerate(search_types):
                     base_alg = algo
                     bounds = deepcopy(base_bounds)
                     bounds.update(bounding[i])
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: ", algo)
-                    bayes_run_base(bounds, init_points=1, n_iter=4, sample_size=sample_size, noise_level = n, func = f)
+                    bayes_run_base(bounds, init_points=20, n_iter=100, sample_size=sample_size, noise_level = n, func = f)
 
