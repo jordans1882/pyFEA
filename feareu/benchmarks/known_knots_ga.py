@@ -3,23 +3,24 @@ import splipy
 import matplotlib.pyplot as plt
 import math
 from feareu.experiments.general_fea_experiments.slow_bspline_eval import SlowBsplineEval
-from feareu.base_algos.bspline_specific.known_knot_bspline_fea_pso import KnownKnotBsplineFeaPSO
+from feareu.base_algos.bspline_specific.known_knot_bspline_fea_ga import KnownKnotBsplineFeaGA
 from feareu.experiments.general_fea_experiments.automated_factors import linear_factorizer
 
 # random.seed(42)
 # np.random.seed(42)
 
-class KnownKnotsPso():
-    def __init__(self, number_of_knots, number_of_points, max_error, delta, overlap, factor_size, diagnostics_amount, pop_size, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega=1 / math.sqrt(2)):
+class KnownKnotsGa():
+    def __init__(self, number_of_knots, number_of_points, max_error, delta, overlap, factor_size, diagnostics_amount, pop_size, mutation_rate = 0.05,mutation_range = 0.5,tournament_options = 2,number_of_children = 2):
         self.number_of_knots = number_of_knots
         self.number_of_points = number_of_points
         self.max_error = max_error
         self.delta = delta
         self.diagnostics_amount = diagnostics_amount
         self.pop_size = pop_size
-        self.phi_p = phi_p
-        self.phi_g = phi_g
-        self.omega = omega
+        self.mutation_range=mutation_range
+        self.mutation_rate=mutation_rate
+        self.tournament_options=tournament_options
+        self.number_of_children=number_of_children
         self.factor_size = factor_size
         self.overlap = overlap
     def run(self):
@@ -47,7 +48,7 @@ class KnownKnotsPso():
         fact_dom = np.zeros((self.number_of_knots,2))
         fact_dom[:,0] = 0
         fact_dom[:,1] = 1
-        testing = KnownKnotBsplineFeaPSO(function = scatter_plot, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, domain=fact_dom, pop_size=self.pop_size, phi_p = self.phi_p, phi_g = self.phi_g, omega = self.omega)
+        testing = KnownKnotBsplineFeaGA(function = scatter_plot, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, domain=fact_dom, pop_size=self.pop_size, mutation_range=self.mutation_range, mutation_rate=self.mutation_rate, tournament_options=self.tournament_options, number_of_children=self.number_of_children)
         testing.run()
         testing.diagnostic_plots()
         plt.show()

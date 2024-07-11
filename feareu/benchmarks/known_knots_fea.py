@@ -31,11 +31,11 @@ class KnownKnotsFea():
         true_y = xmat @ thetas
         y = true_y + epsilon
         true_yseq = xseq_mat @ thetas
-        plt.scatter(x, y)
+        """plt.scatter(x, y)
         plt.ylim(-2.0, 2.0)
         plt.plot(xseq, true_yseq, color = 'red')
         plt.plot(knots, [-2] * (self.number_of_knots+6), '|', markersize=20)
-        plt.show()
+        plt.show()"""
         # MSE at this solution.
         scatter_plot = SlowBsplineEval(x, y)
         print(scatter_plot(knots))

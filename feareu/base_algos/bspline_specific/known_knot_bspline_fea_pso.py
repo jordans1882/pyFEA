@@ -18,8 +18,9 @@ class KnownKnotBsplineFeaPSO(BsplineFeaPSO):
             self.update_bests()
             self._track_values()
             self.generations_passed += 1
-            print("gen: ", self.generations_passed)
-            print("best eval: ", self.gbest_eval)
+            if self.generations_passed%5==0:
+                print("gen: ", self.generations_passed)
+                print("best eval: ", self.gbest_eval)
         return self.gbest_eval
     def _track_values(self):
         """
