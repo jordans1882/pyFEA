@@ -18,6 +18,7 @@ class SlowBsplineEval:
         LHS = xt @ xmat
         RHS = xt @ self.y
         theta, info  = sparse.linalg.bicgstab(LHS, RHS)
+        #print("theta: ", theta)
         yest = xmat @ theta
         mse = np.sum((self.y - yest)**2)/len(self.y)
         return mse
