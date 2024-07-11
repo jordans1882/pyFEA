@@ -55,6 +55,7 @@ class ParallelBsplineFeaPSO(BsplineFeaPSO):
         self.average_velocities = []
         self.average_pop_eval = []
         self.gbest_evals = []
+        self.fitness_list = []
 
     def update_bests(self):
         """

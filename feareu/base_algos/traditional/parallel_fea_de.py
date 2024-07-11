@@ -37,6 +37,11 @@ class ParallelFeaDE(FeaDE):
         self.mutation_factor = mutation_factor
         self.crossover_rate = crossover_rate
         self.mutant_pop = np.zeros((self.pop_size, self.domain.shape[0]))
+        self.ngenerations = 0
+        self.average_pop_variance = []
+        self.average_pop_eval = []
+        self.fitness_list = []
+        self.best_answers = []
 
     def selection(self):
         """

@@ -15,24 +15,24 @@ processes = 4
 chunksize = 5
 
 # set the number of processes and threads used by a parallel FEA.
-process_count = 4
+process_count = 8
 thread_count = 16
 
 # set the number of iterations at which we record data to be printed.
-diagnostics_amount = 5
+diagnostics_amount = 2
 
 # set the bounds for your FEA's Bayesian run.
 # IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
 pbounds = {
-    "generations": (2, 10),
+    "generations": (2, 30),
     "iterations": (2, 70),
-    "pop_size": (10, 35),
-    "fact_size": (1, 15),
-    "overlap": (0, 8),
+    "pop_size": (30, 100),
+    "fact_size": (1, 50),
+    "overlap": (0, 30),
     # "num_covers":(1,5),
-    "num_clamps": (0, 5),
-    "dim": (10, 30),
+    #"num_clamps": (0, 5),
+    "dim": (10, 200),
 }
 
 base_bounds = {"generations": (10, 20), "pop_size": (10, 35), "dim": (8, 12)}
@@ -133,8 +133,8 @@ def bayes_run_fea(bounds, init_points=5, n_iter=25):
 
 # Stuff for B-spline experimentation in particular
 benchmark = feareu.doppler
-sample_size = 500
-base_algo_type = feareu.BsplineFeaPSO
+sample_size = 20000
+base_algo_type = feareu.ParallelBsplineFeaPSO
 bounding = pso_bounds
 
 # TODO: change this when we get a better bspline evaluation method

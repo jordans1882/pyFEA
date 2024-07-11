@@ -34,6 +34,8 @@ class ParallelBsplineFeaGA(BsplineFeaGA):
         self.mutation_range = mutation_range
         self.average_pop_eval = []
         self.average_pop_variance = []
+        self.fitness_list = []
+        self.best_answers = []
 
     def mutation(self, children):
         """
@@ -47,7 +49,7 @@ class ParallelBsplineFeaGA(BsplineFeaGA):
         children = self.bounds_check(children)
         children.sort()
         child_evals = parallel_eval(self.func, children, processes=self.processes, chunksize=self.chunksize)
-        self.pop_eval = np.concatenate((self.pop_eval, child_evals)]))
+        self.pop_eval = np.concatenate((self.pop_eval, child_evals))
         self.fitness_functions+=children.shape[0]
         self.pop= np.concatenate((self.pop, children))
 

@@ -40,6 +40,7 @@ class BsplineFeaPSO(FeaPso):
         self.order_knots()
         for pidx in range(self.pop_size):
             curr_eval = self.func(self.pop[pidx, :])
+            self.fitness_functions+=1
             self.pop_eval[pidx] = curr_eval
             if curr_eval < self.pbest_eval[pidx]:
                 self.pbest[pidx, :] = np.copy(self.pop[pidx, :])

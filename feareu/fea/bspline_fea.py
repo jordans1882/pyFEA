@@ -23,6 +23,7 @@ class BsplineFEA(FEA):
         self.diagnostic_amount = diagnostics_amount
         self.full_fit_func_array = []
         self.part_fit_func_array = []
+        self.all_fit_funcs = []
         super().__init__(factors, function, iterations, dim, base_algo_name, self.domain, **kwargs)
         for factor in self.factors:
             factor.sort()
@@ -75,10 +76,12 @@ class BsplineFEA(FEA):
             best_fit = self.function(temp_cont_var)
             self.full_fit_func+=1
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
+            solution_to_measure_variance = []
             for j in rand_pop_permutation:
                 s_j = overlapping_factors[j]
                 index = np.where(self.factors[s_j] == i)[0][0]
                 cont_var[i] = np.copy(subpopulations[s_j].get_solution_at_index(index))
+                solution_to_measure_variance.append(subpopulations[s_j].get_solution_at_index(index))
                 temp_cont_var = np.copy(cont_var)
                 temp_cont_var.sort()
                 current_fit = self.function(temp_cont_var)
@@ -87,6 +90,9 @@ class BsplineFEA(FEA):
                     best_val = np.copy(subpopulations[s_j].get_solution_at_index(index))
                     best_fit = current_fit
             cont_var[i] = np.copy(best_val)
+            self.solution_variance_per_dim.append(np.var(solution_to_measure_variance))
+        self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
+        self.solution_variance_per_dim = []
         self.context_variable = np.copy(cont_var)
         self.context_variable.sort()
 
@@ -97,6 +103,7 @@ class BsplineFEA(FEA):
         for s in range(len(subpopulations)):
             tot_part_fit += subpopulations[s].fitness_functions
         self.part_fit_func_array.append(tot_part_fit)
+        self.all_fit_funcs.append(self.part_fit_func_array[-1] + self.full_fit_func_array[-1])
 
     def share(self, subpopulations):
         """
@@ -151,16 +158,21 @@ class BsplineFEA(FEA):
     def diagnostic_plots(self):
         """
         Set up plots tracking solution convergence and variance over time.
+        track:
+        best fitness evaluation
+        average population diversity
         """
-        plt.subplot(1, 3, 1)
-        ret = plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.convergences)
-        plt.title("Convergence")
-        
-        plt.subplot(1, 3, 2)
-        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.full_fit_func_array)
-        plt.title("Full Fit Func")
-        
-        plt.subplot(1, 3, 3)
-        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.part_fit_func_array)
-        plt.title("Part Fit Func")
-        return ret
+        fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2)
+
+        ax1.plot(self.all_fit_funcs, self.solution_variance_in_total)
+        ax1.set_xlabel('# of fitness evaluations', fontsize=10)
+        ax1.set_ylabel('solution variance', fontsize=10)
+        ax1.set_title('Population Diversity', fontsize=10)
+
+        ax2.plot(self.all_fit_funcs, self.convergences)
+        ax2.set_xlabel('# of fitness evaluations', fontsize=10)
+        ax2.set_ylabel('MSE', fontsize=10)
+        ax2.set_title('Solution Fitness', fontsize=10)
+
+        fig.suptitle(f"FEA: {100 * self.part_fit_func_array[-1]/self.all_fit_funcs[-1]}% of fitness functions are partial")
+        fig.tight_layout()
