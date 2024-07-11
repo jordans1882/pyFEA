@@ -49,6 +49,7 @@ class PSO:
         self.velocities = self.init_velocities()
         self.generations_passed = 0
         self.average_velocities = []
+        self.average_pop_variance = []
         self.average_pop_eval = []
         self.gbest_evals = []
         self.fitness_list = []
@@ -74,8 +75,6 @@ class PSO:
         """
         Run the algorithm.
         """
-        self._track_values()
-        self.generations_passed += 1
         for gen in range(self.generations):
             self.update_velocities()
             self.pop = self.pop + self.velocities
@@ -127,6 +126,7 @@ class PSO:
         """
         self.gbest_evals.append(self.gbest_eval)
         self.average_velocities.append(np.average(np.abs(self.velocities)))
+        self.average_pop_variance.append(np.average(np.var(self.pop, axis = 0)))
         self.average_pop_eval.append(np.average(self.pop_eval))
         self.fitness_list.append(self.fitness_functions)
 
@@ -136,10 +136,15 @@ class PSO:
         """
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3)
 
-        ax1.plot(self.fitness_list, self.average_velocities)
+        ax1.plot(self.fitness_list, self.average_pop_variance)
         ax1.set_xlabel('# fitness evaluations', fontsize=10)
-        ax1.set_ylabel('average velocities', fontsize=10)
+        ax1.set_ylabel('population variance', fontsize=10)
         ax1.set_title('Population Diversity', fontsize=10)
+
+        #ax1.plot(self.fitness_list, self.average_velocities)
+        #ax1.set_xlabel('# fitness evaluations', fontsize=10)
+        #ax1.set_ylabel('average velocities', fontsize=10)
+        #ax1.set_title('Population Diversity', fontsize=10)
 
         ax2.plot(self.fitness_list, self.average_pop_eval)
         ax2.set_xlabel('# fitness evaluations', fontsize=10)

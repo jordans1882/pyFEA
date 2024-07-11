@@ -91,7 +91,8 @@ class BsplineFEA(FEA):
                     best_fit = current_fit
             cont_var[i] = np.copy(best_val)
             self.solution_variance_per_dim.append(np.var(solution_to_measure_variance))
-        self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
+        if self.niterations % self.diagnostic_amount == 0:
+            self.solution_variance_in_total.append(np.average(self.solution_variance_per_dim))
         self.solution_variance_per_dim = []
         self.context_variable = np.copy(cont_var)
         self.context_variable.sort()

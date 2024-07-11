@@ -16,8 +16,6 @@ from scipy.stats import gaussian_kde
 
 best = float("-inf")
 number_recorded = 0
-x = []
-y = []
 
 results_dir = Path('results')
 results_dir.mkdir(parents=True, exist_ok=True)
@@ -35,30 +33,30 @@ process_count=8
 thread_count=16
 
 #set the number of iterations at which we record data to be printed.
-diagnostics_amount = 2
+diagnostics_amount = 1
 
 #set the bounds for your FEA's Bayesian run. 
 #IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
 iterations = 100
-generations = 1000
+generations = 100000
 pop_size = 300
 
 pbounds = {
-    "generations": (2, 30),
+    "generations": (2, 40),
     #"iterations": (2, 70),
-    "pop_size": (30, 100),
+    "pop_size": (30, 200),
     "fact_size": (1, 50),
     "overlap": (0, 30),
     # "num_covers":(1,5),
     #"num_clamps": (0, 5),
-    "dim": (5, 200),
+    "dim": (5, 500),
 }
 
 base_bounds = {
         #"generations":(5,200),
         #"pop_size":(30,100),
-        "dim":(5,200)
+        "dim":(5,500)
         }
 
 pso_bounds = {
@@ -152,7 +150,7 @@ def bayes_input_fea(
         best = ret
         results_dir = Path('results')
         results_dir.mkdir(parents=True, exist_ok=True)
-        filename = results_dir / f"FEA_function_{number_recorded}.png"
+        filename = results_dir / f"{number_recorded}_Function_FEA_{base_alg.__name__}.png"
         plt.figure()
         objective.diagnostic_plots()
         plt.savefig(filename)
@@ -173,6 +171,8 @@ def bayes_input_fea(
         logger.info(f'phi_p: {phi_p}')
         logger.info(f'phi_g: {phi_g}')
         logger.info(f'omega: {omega}')
+        knots = objective.context_variable
+        plot_results(knots, fea)
         number_recorded += 1
     return ret
 
@@ -206,13 +206,13 @@ def bayes_input_base(
     global number_recorded
 
     if base_alg is feareu.ParallelBsplineFeaPSO:
-        objective = base_alg(function=fitness, generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega, processes=processes, chunksize=chunksize)
+        objective = base_alg(function=fitness, generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega, processes=processes, chunksize=chunksize, fitness_terminate=True)
         ret = -objective.run()
         if ret > best:
             best = ret
             results_dir = Path('results')
             results_dir.mkdir(parents=True, exist_ok=True)
-            filename = results_dir / f"Function_{number_recorded}.png"
+            filename = results_dir / f"{number_recorded}_Function_{base_alg.__name__}.png"
             plt.figure()
             objective.diagnostic_plots()
             plt.savefig(filename)
@@ -226,15 +226,17 @@ def bayes_input_base(
             logger.info(f'phi_g: {phi_g}')
             logger.info(f'omega: {omega}')
             knots = base_alg.best_position
+            plot_results(knots, base_alg)
+            number_recorded += 1
 
     elif base_alg is feareu.ParallelBsplineFeaDE:
-        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate, processes=processes, chunksize=chunksize)
+        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate, processes=processes, chunksize=chunksize, fitness_terminate=True)
         ret = -objective.run()
         if ret > best:
             best = ret
             results_dir = Path('results')
             results_dir.mkdir(parents=True, exist_ok=True)
-            filename = results_dir / f"Function_{number_recorded}.png"
+            filename = results_dir / f"{number_recorded}_Function_{base_alg.__name__}.png"
             plt.figure()
             objective.diagnostic_plots()
             plt.savefig(filename)
@@ -247,15 +249,17 @@ def bayes_input_base(
             logger.info(f'mutation_factor: {mutation_factor}')
             logger.info(f'crossover_rate: {crossover_rate}')
             knots = base_alg.best_position
+            plot_results(knots, base_alg)
+            number_recorded += 1
 
     elif base_alg is feareu.ParallelBsplineFeaGA:
-        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range, processes=processes, chunksize=chunksize)
+        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range, processes=processes, chunksize=chunksize, fitness_terminate=True)
         ret = -objective.run()
         if ret > best:
             best = ret
             results_dir = Path('results')
             results_dir.mkdir(parents=True, exist_ok=True)
-            filename = results_dir / f"Function_{number_recorded}.png"
+            filename = results_dir / f"{number_recorded}_Function_{base_alg.__name__}.png"
             plt.figure()
             objective.diagnostic_plots()
             plt.savefig(filename)
@@ -268,8 +272,9 @@ def bayes_input_base(
             logger.info(f'mutation_rate: {mutation_rate}')
             logger.info(f'mutation_range: {mutation_range}')
             knots = base_alg.best_position
+            plot_results(knots, base_alg)
+            number_recorded += 1
 
-    number_recorded += 1
     return ret
 
 def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level=-1, func=-1):
@@ -279,6 +284,7 @@ def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level
     optimizer.maximize(init_points, n_iter)
 
 def plot_results(knots, alg):
+    knots = feareu.bspline_clamp(knots, 3)
     bsp = splipy.BSplineBasis(3, knots, -1)
     xmat = bsp.evaluate(x, 0, True, True)
     xseq = np.linspace(0,1,len(y))
@@ -294,13 +300,15 @@ def plot_results(knots, alg):
 
     results_dir = Path('results')
     results_dir.mkdir(parents=True, exist_ok=True)
-    filename = results_dir / f"Baseline_{function.__name__}_noise_{n}_sample_size_{sample_size}"
+    filename = results_dir / f"{number_recorded}_Function_est_{alg.__name__}"
 
     plt.figure()
     plt.plot(xseq,yest_seq,'y')
     plt.scatter(x,y,s=5)
     plt.scatter(knots,knot_y,color='orange', s=5)
     plt.savefig(filename)
+
+    filename = results_dir / f"{number_recorded}_Knot_density_{alg.__name__}"
 
     density = gaussian_kde(knots)
     xs = np.linspace(0,1,200)
@@ -310,13 +318,7 @@ def plot_results(knots, alg):
     plt.plot(xs,density(xs))
     upper = np.max(density(xs))
     plt.ylim((0,upper))
-    plt.savefig('results/doppler_ga_density.png')
-
-    plt.figure()
-    pso_alg.diagnostic_plots()
-    plt.savefig('results/doppler_diagnostic_ga.png')
-
-
+    plt.savefig(filename)
 
 #Stuff for B-spline experimentation in particular
 benchmarks = [feareu.big_spike, feareu.discontinuity, feareu.cliff, feareu.smooth_peak, feareu.second_smooth_peak, feareu.doppler]
@@ -349,7 +351,7 @@ if __name__ == '__main__':
             x = np.random.random(sample_size)
             y = function(x)
             func_width = np.max(y) - np.min(y)
-            noises = np.linspace(func_width/100,func_width/20,num=5)
+            noises = np.linspace(func_width/100,func_width/20,num=3)
             for n, noise in enumerate(noises):
                 y = feareu.make_noisy(y, noise)
                 global fitness
@@ -359,10 +361,11 @@ if __name__ == '__main__':
                 xseq = np.linspace(0,1,100000)
                 yseq = function(xseq)
                 plt.figure()
-                plt.scatter(x,y,'b')
+                plt.scatter(x,y)
                 plt.plot(xseq,yseq,'k')
                 plt.savefig(filename)
                 fitness = bspline_eval_class(x, y)
+                before = time.time()
                 for i, algo in enumerate(base_algo_types):
                     base_alg = algo
                     bounds = deepcopy(pbounds)
@@ -376,3 +379,5 @@ if __name__ == '__main__':
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: ", algo)
                     bayes_run_base(bounds, init_points=20, n_iter=100, sample_size=sample_size, noise_level = n, func = f)
 
+                after = time.time()
+                print("Time to run one Bayesian optimizer per algorithm: ", after - before)

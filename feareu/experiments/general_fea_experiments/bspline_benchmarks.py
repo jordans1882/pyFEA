@@ -51,3 +51,7 @@ def generate_spline_params(num_knots, degree=None):
 
 def make_noisy(x, sigma):
     return x + np.random.normal(scale=sigma, size=len(x))
+
+def bspline_clamp(knots, order):
+    new_knots = np.concatenate((np.zeros(order), knots, np.ones(order)))
+    return new_knots

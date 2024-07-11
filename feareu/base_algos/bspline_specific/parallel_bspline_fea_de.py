@@ -13,7 +13,8 @@ class ParallelBsplineFeaDE(BsplineFeaDE):
         mutation_factor = 0.5,
         crossover_rate = 0.9,
         processes = 4,
-        chunksize = 4
+        chunksize = 4,
+        fitness_terminate = False
     ):
         """
         @param function: the objective function to be minimized.
@@ -24,6 +25,7 @@ class ParallelBsplineFeaDE(BsplineFeaDE):
         @param mutation_factor: the scalar factor used in the mutation step.
         @param crossover_rate: the probability of taking a mutated value during the crossover step.
         """
+        self.fitness_terminate = fitness_terminate
         self.generations = generations
         self.pop_size = pop_size
         self.func = function
@@ -43,6 +45,22 @@ class ParallelBsplineFeaDE(BsplineFeaDE):
         self.average_pop_eval = []
         self.fitness_list = []
         self.best_answers = []
+
+    def run(self):
+        """
+        Run the minimization algorithm.
+        """
+        if self.fitness_terminate:
+            while self.fitness_functions < self.generations:
+                self.ngenerations += 1
+                self.mutate()
+                self.stay_in_domain()
+                self.crossover()
+                self.selection()
+                self._track_vals()
+        else:
+            super().run()
+        return  self.best_eval
 
     def selection(self):
         """

@@ -5,6 +5,7 @@ import scipy.sparse as sparse
 import splipy
 import math
 import scipy.sparse.linalg as splinalg
+from feareu.experiments.general_fea_experiments import bspline_clamp
 
 class SlowBsplineEval:
     def __init__(self, x, y):
@@ -12,6 +13,7 @@ class SlowBsplineEval:
         self.y = y
 
     def __call__(self, knots):
+        all_knots = bspline_clamp(knots, 3)
         bsp = splipy.BSplineBasis(3, knots, -1)
         xmat = bsp.evaluate(self.x, 0, True, True)
         xt = xmat.transpose()

@@ -5,7 +5,7 @@ import random
 
 class ParallelBsplineFeaGA(BsplineFeaGA):
 
-    def __init__( self,
+    def __init__(self,
         function,
         domain,
         pop_size = 20,
@@ -15,7 +15,8 @@ class ParallelBsplineFeaGA(BsplineFeaGA):
         tournament_options = 2,
         number_of_children = 2,
         processes = 4,
-        chunksize = 4
+        chunksize = 4,
+        fitness_terminate = False
     ):
         self.pop_size = pop_size
         self.mutation_rate = mutation_rate
@@ -36,7 +37,22 @@ class ParallelBsplineFeaGA(BsplineFeaGA):
         self.average_pop_variance = []
         self.fitness_list = []
         self.best_answers = []
+        self.fitness_terminate = fitness_terminate
 
+    def run(self):
+        if self.fitness_terminate:
+            while self.fitness_functions < self.generations:
+                self.ngenerations +=1
+                #self.selection()
+                children = self.crossover()
+                self.mutation(children)
+                self.update_bests()
+                self._track_vals()
+        else:
+            super().run()
+
+        return self.best_eval
+                
     def mutation(self, children):
         """
         Mutates children through swapping and recombines that with the parent population.
