@@ -1,11 +1,12 @@
 import numpy as np
 import splipy
 import matplotlib.pyplot as plt
-from feareu.experiments.general_fea_experiments.slow_bspline_eval import SlowBsplineEval
+from feareu import SlowBsplineEval
 from feareu import VectorComparisonBsplineFEA, rastrigin__
 from feareu import BsplineFeaPSO
 import random
 from feareu import linear_factorizer
+from feareu import BsplineFEA
 
 random.seed(42)
 np.random.seed(42)
@@ -41,7 +42,7 @@ plt.show()
 scatter_plot = SlowBsplineEval(x, y)
 print(scatter_plot(knots))
 fct = linear_factorizer(3, 1, number_of_knots)
-testing = VectorComparisonBsplineFEA(factors=fct, function = scatter_plot, true_error=scatter_plot(knots), delta = 0.01, og_knot_points = interior_knots, dim = number_of_knots, base_algo_name=BsplineFeaPSO, domain=(0, 1), diagnostics_amount = 1, generations= 20, pop_size=20)
+testing = VectorComparisonBsplineFEA(factors=fct, function = scatter_plot, true_error=scatter_plot(knots), delta = 0.01, og_knot_points = interior_knots, dim = number_of_knots, base_algo_name=BsplineFeaPSO, domain=(0, 1), diagnostics_amount = 1, generations= 5, pop_size=15)
 testing.run()
 diag_plt = testing.diagnostic_plots()
 plt.show()

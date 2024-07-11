@@ -36,7 +36,7 @@ class VectorComparisonBsplineFEA(BsplineFEA):
         self.context_variable = None
         self.base_algo_args = kwargs
         self.niterations = 0
-        self.iterations = 0
+        self.cur_iterations = 0
         self.convergences = []
         self.solution_variance_per_dim = []
         self.solution_variance_in_total = []
@@ -62,11 +62,12 @@ class VectorComparisonBsplineFEA(BsplineFEA):
             self.share(subpopulations)
             if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
-            self.iterations +=1
+            self.cur_iterations +=1
             print("delta: ", self.stopping_point)
             print("current func eval: ", self.function(self.context_variable))
             print("full fit func: ", self.full_fit_func)
             print("part fit func: ", self.part_fit_func_array[len(self.part_fit_func_array)-1])
+            print("iters: ", self.cur_iterations)
         return self.function(self.context_variable)
     
     def update_plots(self, subpopulations):
