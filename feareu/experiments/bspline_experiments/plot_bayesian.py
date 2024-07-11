@@ -38,8 +38,8 @@ diagnostics_amount = 1
 #set the bounds for your FEA's Bayesian run. 
 #IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
-iterations = 3
-generations = 100
+iterations = 100
+generations = 100000
 pop_size = 300
 
 pbounds = {
@@ -150,7 +150,7 @@ def bayes_input_fea(
         best = ret
         results_dir = Path('results')
         results_dir.mkdir(parents=True, exist_ok=True)
-        filename = results_dir / f"FEA_function_{number_recorded}.png"
+        filename = results_dir / f"{number_recorded}_Function_FEA_{base_alg.__name__}.png"
         plt.figure()
         objective.diagnostic_plots()
         plt.savefig(filename)
@@ -206,13 +206,13 @@ def bayes_input_base(
     global number_recorded
 
     if base_alg is feareu.ParallelBsplineFeaPSO:
-        objective = base_alg(function=fitness, generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega, processes=processes, chunksize=chunksize)
+        objective = base_alg(function=fitness, generations=generations, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega, processes=processes, chunksize=chunksize, fitness_terminate=True)
         ret = -objective.run()
         if ret > best:
             best = ret
             results_dir = Path('results')
             results_dir.mkdir(parents=True, exist_ok=True)
-            filename = results_dir / f"Function_{number_recorded}.png"
+            filename = results_dir / f"{number_recorded}_Function_{base_alg.__name__}.png"
             plt.figure()
             objective.diagnostic_plots()
             plt.savefig(filename)
@@ -230,13 +230,13 @@ def bayes_input_base(
             number_recorded += 1
 
     elif base_alg is feareu.ParallelBsplineFeaDE:
-        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate, processes=processes, chunksize=chunksize)
+        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate, processes=processes, chunksize=chunksize, fitness_terminate=True)
         ret = -objective.run()
         if ret > best:
             best = ret
             results_dir = Path('results')
             results_dir.mkdir(parents=True, exist_ok=True)
-            filename = results_dir / f"Function_{number_recorded}.png"
+            filename = results_dir / f"{number_recorded}_Function_{base_alg.__name__}.png"
             plt.figure()
             objective.diagnostic_plots()
             plt.savefig(filename)
@@ -253,13 +253,13 @@ def bayes_input_base(
             number_recorded += 1
 
     elif base_alg is feareu.ParallelBsplineFeaGA:
-        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range, processes=processes, chunksize=chunksize)
+        objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range, processes=processes, chunksize=chunksize, fitness_terminate=True)
         ret = -objective.run()
         if ret > best:
             best = ret
             results_dir = Path('results')
             results_dir.mkdir(parents=True, exist_ok=True)
-            filename = results_dir / f"Function_{number_recorded}.png"
+            filename = results_dir / f"{number_recorded}_Function_{base_alg.__name__}.png"
             plt.figure()
             objective.diagnostic_plots()
             plt.savefig(filename)
@@ -300,7 +300,7 @@ def plot_results(knots, alg):
 
     results_dir = Path('results')
     results_dir.mkdir(parents=True, exist_ok=True)
-    filename = results_dir / f"Function_est_{alg.__name__}_{number_recorded}"
+    filename = results_dir / f"{number_recorded}_Function_est_{alg.__name__}"
 
     plt.figure()
     plt.plot(xseq,yest_seq,'y')
@@ -308,7 +308,7 @@ def plot_results(knots, alg):
     plt.scatter(knots,knot_y,color='orange', s=5)
     plt.savefig(filename)
 
-    filename = results_dir / f"Knot_density_{alg.__name__}_{number_recorded}"
+    filename = results_dir / f"{number_recorded}_Knot_density_{alg.__name__}"
 
     density = gaussian_kde(knots)
     xs = np.linspace(0,1,200)
