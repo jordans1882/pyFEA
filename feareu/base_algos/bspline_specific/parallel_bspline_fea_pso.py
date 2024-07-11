@@ -55,6 +55,7 @@ class ParallelBsplineFeaPSO(BsplineFeaPSO):
         self.generations_passed = 0
         self.average_velocities = []
         self.average_pop_eval = []
+        self.average_pop_variance = []
         self.gbest_evals = []
         self.fitness_list = []
         self.fitness_terminate = fitness_terminate

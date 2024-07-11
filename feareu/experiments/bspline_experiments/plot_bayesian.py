@@ -16,8 +16,6 @@ from scipy.stats import gaussian_kde
 
 best = float("-inf")
 number_recorded = 0
-x = []
-y = []
 
 results_dir = Path('results')
 results_dir.mkdir(parents=True, exist_ok=True)
@@ -35,13 +33,13 @@ process_count=8
 thread_count=16
 
 #set the number of iterations at which we record data to be printed.
-diagnostics_amount = 2
+diagnostics_amount = 1
 
 #set the bounds for your FEA's Bayesian run. 
 #IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
-iterations = 100
-generations = 100000
+iterations = 3
+generations = 100
 pop_size = 300
 
 pbounds = {
@@ -286,6 +284,7 @@ def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level
     optimizer.maximize(init_points, n_iter)
 
 def plot_results(knots, alg):
+    knots = feareu.bspline_clamp(knots, 3)
     bsp = splipy.BSplineBasis(3, knots, -1)
     xmat = bsp.evaluate(x, 0, True, True)
     xseq = np.linspace(0,1,len(y))
@@ -352,7 +351,7 @@ if __name__ == '__main__':
             x = np.random.random(sample_size)
             y = function(x)
             func_width = np.max(y) - np.min(y)
-            noises = np.linspace(func_width/100,func_width/20,num=5)
+            noises = np.linspace(func_width/100,func_width/20,num=3)
             for n, noise in enumerate(noises):
                 y = feareu.make_noisy(y, noise)
                 global fitness
@@ -362,10 +361,11 @@ if __name__ == '__main__':
                 xseq = np.linspace(0,1,100000)
                 yseq = function(xseq)
                 plt.figure()
-                plt.scatter(x,y,'b')
+                plt.scatter(x,y)
                 plt.plot(xseq,yseq,'k')
                 plt.savefig(filename)
                 fitness = bspline_eval_class(x, y)
+                before = time.time()
                 for i, algo in enumerate(base_algo_types):
                     base_alg = algo
                     bounds = deepcopy(pbounds)
@@ -379,3 +379,5 @@ if __name__ == '__main__':
                     print("function: ", function, "\nsample size: ", sample_size, "\nnoise: ", noise, "\nalgorithm: ", algo)
                     bayes_run_base(bounds, init_points=20, n_iter=100, sample_size=sample_size, noise_level = n, func = f)
 
+                after = time.time()
+                print("Time to run one Bayesian optimizer per algorithm: ", after - before)

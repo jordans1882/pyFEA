@@ -48,7 +48,7 @@ de_alg.run()
 print(de_alg.pop)
 print("done running")
 knots = de_alg.best_solution
-knots = feareu.bspline_clamp(knots, order)
+knots = feareu.bspline_clamp(knots, 3)
 bsp = splipy.BSplineBasis(3, knots, -1)
 xmat = bsp.evaluate(x, 0, True, True)
 xmat_seq = bsp.evaluate(xseq,0,True,True)

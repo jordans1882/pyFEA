@@ -63,6 +63,7 @@ pso_alg = base_alg(
         )
 pso_alg.run()
 knots = pso_alg.best_position
+knots = feareu.bspline_clamp(knots, 3)
 bsp = splipy.BSplineBasis(3, knots, -1)
 xmat = bsp.evaluate(x, 0, True, True)
 xmat_seq = bsp.evaluate(xseq,0,True,True)
@@ -114,6 +115,7 @@ alg = fea(
         )
 alg.run()
 knots = alg.context_variable
+knots = feareu.bspline_clamp(knots, 3)
 bsp = splipy.BSplineBasis(3, knots, -1)
 xmat = bsp.evaluate(x, 0, True, True)
 xmat_seq = bsp.evaluate(xseq,0,True,True)
