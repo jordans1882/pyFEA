@@ -17,5 +17,6 @@ __all__ = [
         "spline_curve",
         "generate_spline_params",
         "make_noisy",
-        "SlowBsplineEval"
+        "SlowBsplineEval",
+        "bspline_clamp"
         ]

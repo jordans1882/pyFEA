@@ -37,13 +37,15 @@ plt.savefig('results/doppler.png')
 func = bspline_eval_class(x,y)
 de_alg = base_alg(
         generations=1200,
-        pop_size=200,
+        pop_size=100,
         function=func,
         domain=dom,
         processes=processes,
         chunksize=chunksize
         )
+print(de_alg.pop)
 de_alg.run()
+print(de_alg.pop)
 print("done running")
 knots = de_alg.best_solution
 bsp = splipy.BSplineBasis(3, knots, -1)

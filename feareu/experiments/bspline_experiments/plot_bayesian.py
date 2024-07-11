@@ -41,24 +41,24 @@ diagnostics_amount = 2
 #IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
 iterations = 100
-generations = 1000
+generations = 100000
 pop_size = 300
 
 pbounds = {
-    "generations": (2, 30),
+    "generations": (2, 40),
     #"iterations": (2, 70),
-    "pop_size": (30, 100),
+    "pop_size": (30, 200),
     "fact_size": (1, 50),
     "overlap": (0, 30),
     # "num_covers":(1,5),
     #"num_clamps": (0, 5),
-    "dim": (5, 200),
+    "dim": (5, 500),
 }
 
 base_bounds = {
         #"generations":(5,200),
         #"pop_size":(30,100),
-        "dim":(5,200)
+        "dim":(5,500)
         }
 
 pso_bounds = {
@@ -173,6 +173,8 @@ def bayes_input_fea(
         logger.info(f'phi_p: {phi_p}')
         logger.info(f'phi_g: {phi_g}')
         logger.info(f'omega: {omega}')
+        knots = objective.context_variable
+        plot_results(knots, fea)
         number_recorded += 1
     return ret
 
@@ -226,6 +228,8 @@ def bayes_input_base(
             logger.info(f'phi_g: {phi_g}')
             logger.info(f'omega: {omega}')
             knots = base_alg.best_position
+            plot_results(knots, base_alg)
+            number_recorded += 1
 
     elif base_alg is feareu.ParallelBsplineFeaDE:
         objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate, processes=processes, chunksize=chunksize)
@@ -247,6 +251,8 @@ def bayes_input_base(
             logger.info(f'mutation_factor: {mutation_factor}')
             logger.info(f'crossover_rate: {crossover_rate}')
             knots = base_alg.best_position
+            plot_results(knots, base_alg)
+            number_recorded += 1
 
     elif base_alg is feareu.ParallelBsplineFeaGA:
         objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range, processes=processes, chunksize=chunksize)
@@ -268,8 +274,9 @@ def bayes_input_base(
             logger.info(f'mutation_rate: {mutation_rate}')
             logger.info(f'mutation_range: {mutation_range}')
             knots = base_alg.best_position
+            plot_results(knots, base_alg)
+            number_recorded += 1
 
-    number_recorded += 1
     return ret
 
 def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level=-1, func=-1):
@@ -294,13 +301,15 @@ def plot_results(knots, alg):
 
     results_dir = Path('results')
     results_dir.mkdir(parents=True, exist_ok=True)
-    filename = results_dir / f"Baseline_{function.__name__}_noise_{n}_sample_size_{sample_size}"
+    filename = results_dir / f"Function_est_{alg.__name__}_{number_recorded}"
 
     plt.figure()
     plt.plot(xseq,yest_seq,'y')
     plt.scatter(x,y,s=5)
     plt.scatter(knots,knot_y,color='orange', s=5)
     plt.savefig(filename)
+
+    filename = results_dir / f"Knot_density_{alg.__name__}_{number_recorded}"
 
     density = gaussian_kde(knots)
     xs = np.linspace(0,1,200)
@@ -310,13 +319,7 @@ def plot_results(knots, alg):
     plt.plot(xs,density(xs))
     upper = np.max(density(xs))
     plt.ylim((0,upper))
-    plt.savefig('results/doppler_ga_density.png')
-
-    plt.figure()
-    pso_alg.diagnostic_plots()
-    plt.savefig('results/doppler_diagnostic_ga.png')
-
-
+    plt.savefig(filename)
 
 #Stuff for B-spline experimentation in particular
 benchmarks = [feareu.big_spike, feareu.discontinuity, feareu.cliff, feareu.smooth_peak, feareu.second_smooth_peak, feareu.doppler]

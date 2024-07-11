@@ -18,7 +18,8 @@ class ParallelBsplineFeaPSO(BsplineFeaPSO):
         phi_g=math.sqrt(2),
         omega=1 / math.sqrt(2),
         processes = 4,
-        chunksize = 4
+        chunksize = 4,
+        fitness_terminate = False
     ):
         """
         @param function: the objective function to be minimized.
@@ -56,6 +57,23 @@ class ParallelBsplineFeaPSO(BsplineFeaPSO):
         self.average_pop_eval = []
         self.gbest_evals = []
         self.fitness_list = []
+        self.fitness_terminate = fitness_terminate
+
+    def run(self):
+        """
+        Run the algorithm.
+        """
+        if self.fitness_terminate:
+            while self.fitness_functions < self.generations:
+                self.update_velocities()
+                self.pop = self.pop + self.velocities
+                self.stay_in_domain()
+                self.update_bests()
+                self._track_values()
+                self.generations_passed += 1
+        else:
+            super().run()
+        return self.gbest_eval
 
     def update_bests(self):
         """
