@@ -34,6 +34,8 @@ class ParallelBsplineFeaGA(BsplineFeaGA):
         self.mutation_range = mutation_range
         self.average_pop_eval = []
         self.average_pop_variance = []
+        self.fitness_list = []
+        self.best_answers = []
 
     def mutation(self, children):
         """

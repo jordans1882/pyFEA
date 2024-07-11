@@ -44,12 +44,12 @@ if __name__ == "__main__":
     benchmarks = [feareu.big_spike, feareu.discontinuity, feareu.cliff, feareu.smooth_peak, feareu.second_smooth_peak, feareu.doppler]
     for func, benchmark in enumerate(benchmarks):
         for sample_size in sample_sizes:
-            for noise_level in range(6):
+            for noise_level in range(5):
                 for base_alg in alg_list:
                     x = np.random.random(sample_size)
                     y = benchmark(x)
                     func_width = np.max(y) - np.min(y)
-                    noises = np.linspace(0,func_width/10,num=6)
+                    noises = np.linspace(func_width/100,func_width/20,num=5)
                     y = feareu.make_noisy(y, noises[noise_level])
                     global fitness
                     fitness = bspline_eval_class(x, y)

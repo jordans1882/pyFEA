@@ -22,7 +22,7 @@ chunksize=30
 sample_size = 20000
 
 fea = feareu.ParallelBsplineFEA
-base_alg = feareu.ParallelBsplineFeaPSO
+base_alg = feareu.ParallelBsplineFeaGA
 
 bspline_eval_class = feareu.SlowBsplineEval
 
@@ -32,16 +32,16 @@ ytrue = feareu.doppler(x)
 y = feareu.make_noisy(ytrue, 0.1)
 
 dim = 200
-fact_size = 50
-overlap = 20
+fact_size = 80
+overlap = 40
 num_clamps = 0
 factors = feareu.linear_factorizer(fact_size=fact_size, overlap=overlap, dim=dim)
 feareu.clamp_factor_ends(dim, factors, num_clamps)
 print(factors)
 domain = (0,1)
-pop_size = 300
-generations=10
-iterations=30
+pop_size = 30
+generations=7
+iterations=10
 dom = np.zeros((dim,2))
 dom[:,1]=1
 
@@ -54,7 +54,7 @@ plt.savefig('results/doppler.png')
 
 func = bspline_eval_class(x,y)
 pso_alg = base_alg(
-        generations=60,
+        generations=1000,
         pop_size=300,
         function=func,
         domain=dom,
@@ -62,7 +62,7 @@ pso_alg = base_alg(
         chunksize=chunksize
         )
 pso_alg.run()
-knots = pso_alg.gbest
+knots = pso_alg.best_position
 bsp = splipy.BSplineBasis(3, knots, -1)
 xmat = bsp.evaluate(x, 0, True, True)
 xmat_seq = bsp.evaluate(xseq,0,True,True)
@@ -79,7 +79,7 @@ plt.figure()
 plt.plot(xseq,yest_seq,'y')
 plt.scatter(x,y,s=5)
 plt.scatter(knots,knot_y,color='orange', s=5)
-plt.savefig('results/doppler_pso_est.png')
+plt.savefig('results/doppler_ga_est.png')
 
 density = gaussian_kde(knots)
 xs = np.linspace(0,1,200)
@@ -89,13 +89,13 @@ plt.figure()
 plt.plot(xs,density(xs))
 upper = np.max(density(xs))
 plt.ylim((0,upper))
-plt.savefig('results/doppler_pso_density.png')
+plt.savefig('results/doppler_ga_density.png')
 
 plt.figure()
 pso_alg.diagnostic_plots()
-plt.savefig('results/doppler_diagnostic_pso.png')
+plt.savefig('results/doppler_diagnostic_ga.png')
 
-print("ran pso")
+print("ran de")
 
 alg = fea(
         factors,

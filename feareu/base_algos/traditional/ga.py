@@ -29,6 +29,8 @@ class GA:
         self.mutation_range = mutation_range
         self.average_pop_eval = []
         self.average_pop_variance = []
+        self.fitness_list = []
+        self.best_answers = []
         
         """
         @param function: the objective function to be minimized.
@@ -57,9 +59,8 @@ class GA:
             #self.selection()
             children = self.crossover()
             self.mutation(children)
-            self._append_varaince()
             self.update_bests()
-            self._append_avg_evals()
+            self._track_vals()
         return self.best_eval
             
     """def selection(self):
@@ -137,22 +138,30 @@ class GA:
     def bounds_check(self, children):
         children = np.where(self.domain[:, 0] > children, self.domain[:, 0], children)
         children = np.where(self.domain[:, 1] < children, self.domain[:, 1], children)
-        
-    def _append_avg_evals(self):
+
+    def _track_vals(self):
         self.average_pop_eval.append(np.average(self.pop_eval))
-    
-    def _append_varaince(self):
         self.average_pop_variance.append(np.average(np.var(self.pop, axis = 0)))
+        self.fitness_list.append(self.fitness_functions)
+        self.best_answers.append(self.best_eval)
         
     def diagnostic_plots(self):
-        plt.subplot(1, 2, 1)
-        ret = plt.plot(range(0, self.ngenerations), self.average_pop_eval)
-        plt.title("Average pop evals")
+        fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3)
 
-        plt.subplot(1, 2, 2)
-        plt.plot(range(0, self.ngenerations), self.average_pop_variance)
-        plt.title("Average Pop")
-        
-        plt.tight_layout()
-        
-        return ret
+        ax1.plot(self.fitness_list, self.average_pop_variance)
+        ax1.set_xlabel('# fitness evaluations', fontsize=10)
+        ax1.set_ylabel('population variance', fontsize=10)
+        ax1.set_title('Population Diversity', fontsize=10)
+
+        ax2.plot(self.fitness_list, self.average_pop_eval)
+        ax2.set_xlabel('# fitness evaluations', fontsize=10)
+        ax2.set_ylabel('average MSE', fontsize=10)
+        ax2.set_title('Average Solution Fitness', fontsize=10)
+
+        ax3.plot(self.fitness_list, self.best_answers)
+        ax3.set_xlabel('# fitness evaluations', fontsize=10)
+        ax3.set_ylabel('best MSE', fontsize=10)
+        ax3.set_title('Best Solution Fitness', fontsize=10)
+
+        fig.suptitle("GA")
+        fig.tight_layout()

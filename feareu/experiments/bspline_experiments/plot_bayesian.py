@@ -8,14 +8,23 @@ import numpy as np
 import time
 import math
 from copy import deepcopy
+from types import NoneType
+import splipy
+import scipy.sparse.linalg as splinalg
+import scipy.sparse as sparse
+from scipy.stats import gaussian_kde
 
 best = float("-inf")
 number_recorded = 0
+x = []
+y = []
+
 results_dir = Path('results')
 results_dir.mkdir(parents=True, exist_ok=True)
 filename = results_dir / f"logging_best.log"
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename=filename, encoding='utf-8', level=logging.DEBUG)
+
 
 #set the number of processors and the chunksizes used by parallel base algorithms.
 processes=4
@@ -31,21 +40,25 @@ diagnostics_amount = 2
 #set the bounds for your FEA's Bayesian run. 
 #IMPORTANT: Only set the variables you want to use as hyperparameters. Comment out the others.
 
+iterations = 100
+generations = 1000
+pop_size = 300
+
 pbounds = {
     "generations": (2, 30),
-    "iterations": (2, 70),
+    #"iterations": (2, 70),
     "pop_size": (30, 100),
     "fact_size": (1, 50),
     "overlap": (0, 30),
     # "num_covers":(1,5),
     #"num_clamps": (0, 5),
-    "dim": (10, 200),
+    "dim": (5, 200),
 }
 
 base_bounds = {
-        "generations":(10,20),
-        "pop_size":(10,35),
-        "dim":(8,12)
+        #"generations":(5,200),
+        #"pop_size":(30,100),
+        "dim":(5,200)
         }
 
 pso_bounds = {
@@ -77,7 +90,7 @@ def bayes_input_fea(
                 num_covers=2,
                 num_clamps=0,
                 generations=20,
-                iterations=100,
+                iterations=iterations,
                 pop_size=20,
                 mutation_factor=0.5,
                 crossover_rate=0.9,
@@ -170,8 +183,8 @@ def bayes_run_fea(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level 
     optimizer.maximize(init_points, n_iter)
 
 def bayes_input_base(
-                generations=20,
-                pop_size=20,
+                generations=generations,
+                pop_size=pop_size,
                 mutation_factor=0.5,
                 crossover_rate=0.9,
                 mutation_rate=0.05,
@@ -212,6 +225,7 @@ def bayes_input_base(
             logger.info(f'phi_p: {phi_p}')
             logger.info(f'phi_g: {phi_g}')
             logger.info(f'omega: {omega}')
+            knots = base_alg.best_position
 
     elif base_alg is feareu.ParallelBsplineFeaDE:
         objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate, processes=processes, chunksize=chunksize)
@@ -232,6 +246,7 @@ def bayes_input_base(
             logger.info(f'generations: {generations}')
             logger.info(f'mutation_factor: {mutation_factor}')
             logger.info(f'crossover_rate: {crossover_rate}')
+            knots = base_alg.best_position
 
     elif base_alg is feareu.ParallelBsplineFeaGA:
         objective = base_alg(function = fitness, generations=generations, domain=domain, pop_size=pop_size, mutation_rate=mutation_rate, mutation_range=mutation_range, processes=processes, chunksize=chunksize)
@@ -252,7 +267,7 @@ def bayes_input_base(
             logger.info(f'generations: {generations}')
             logger.info(f'mutation_rate: {mutation_rate}')
             logger.info(f'mutation_range: {mutation_range}')
-
+            knots = base_alg.best_position
 
     number_recorded += 1
     return ret
@@ -263,10 +278,49 @@ def bayes_run_base(bounds, init_points=5, n_iter=25, sample_size=-1, noise_level
     optimizer = BayesianOptimization(bayes_input_base, bounds)
     optimizer.maximize(init_points, n_iter)
 
+def plot_results(knots, alg):
+    bsp = splipy.BSplineBasis(3, knots, -1)
+    xmat = bsp.evaluate(x, 0, True, True)
+    xseq = np.linspace(0,1,len(y))
+    xmat_seq = bsp.evaluate(xseq,0,True,True)
+    xt = xmat.transpose()
+    LHS = xt @ xmat
+    RHS = xt @ y
+    theta, info  = sparse.linalg.bicgstab(LHS, RHS)
+    yest_seq = xmat_seq @ theta
+    yest = xmat @ theta
+    knot_y = np.zeros(knots.shape)
+    knot_y[:] = np.min(y) - 0.2
+
+    results_dir = Path('results')
+    results_dir.mkdir(parents=True, exist_ok=True)
+    filename = results_dir / f"Baseline_{function.__name__}_noise_{n}_sample_size_{sample_size}"
+
+    plt.figure()
+    plt.plot(xseq,yest_seq,'y')
+    plt.scatter(x,y,s=5)
+    plt.scatter(knots,knot_y,color='orange', s=5)
+    plt.savefig(filename)
+
+    density = gaussian_kde(knots)
+    xs = np.linspace(0,1,200)
+    density.covariance_factor = lambda : .1
+    density._compute_covariance()
+    plt.figure()
+    plt.plot(xs,density(xs))
+    upper = np.max(density(xs))
+    plt.ylim((0,upper))
+    plt.savefig('results/doppler_ga_density.png')
+
+    plt.figure()
+    pso_alg.diagnostic_plots()
+    plt.savefig('results/doppler_diagnostic_ga.png')
+
+
 
 #Stuff for B-spline experimentation in particular
 benchmarks = [feareu.big_spike, feareu.discontinuity, feareu.cliff, feareu.smooth_peak, feareu.second_smooth_peak, feareu.doppler]
-sample_sizes = np.around(np.geomspace(20, 200000, num=5)).astype(int)
+sample_sizes = np.around(np.geomspace(2000, 200000, num=3)).astype(int)
 base_algo_types = [
         feareu.ParallelBsplineFeaPSO,
         feareu.ParallelBsplineFeaDE,
@@ -287,16 +341,27 @@ bounding = [
 bspline_eval_class = feareu.SlowBsplineEval
 
 if __name__ == '__main__':
+    global x
+    global y
     global base_alg
     for f, function in enumerate(benchmarks):
         for sample_size in sample_sizes:
             x = np.random.random(sample_size)
             y = function(x)
             func_width = np.max(y) - np.min(y)
-            noises = np.linspace(0,func_width/10,num=6)
+            noises = np.linspace(func_width/100,func_width/20,num=5)
             for n, noise in enumerate(noises):
                 y = feareu.make_noisy(y, noise)
                 global fitness
+                results_dir = Path('results')
+                results_dir.mkdir(parents=True, exist_ok=True)
+                filename = results_dir / f"Baseline_{function.__name__}_noise_{n}_sample_size_{sample_size}"
+                xseq = np.linspace(0,1,100000)
+                yseq = function(xseq)
+                plt.figure()
+                plt.scatter(x,y,'b')
+                plt.plot(xseq,yseq,'k')
+                plt.savefig(filename)
                 fitness = bspline_eval_class(x, y)
                 for i, algo in enumerate(base_algo_types):
                     base_alg = algo
