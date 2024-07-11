@@ -13,7 +13,7 @@ class SlowBsplineEval:
         self.y = y
 
     def __call__(self, knots):
-        all_knots = bspline_clamp(knots, order)
+        all_knots = bspline_clamp(knots, 3)
         bsp = splipy.BSplineBasis(3, knots, -1)
         xmat = bsp.evaluate(self.x, 0, True, True)
         xt = xmat.transpose()
