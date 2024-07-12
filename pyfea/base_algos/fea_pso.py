@@ -2,8 +2,8 @@ import math
 
 import numpy as np
 
-from pyfea.base_algos.traditional.fea_base_algo import FeaBaseAlgo
-from pyfea.base_algos.traditional.pso import PSO
+from pyfea.base_algos.fea_base_algo import FeaBaseAlgo
+from pyfea.base_algos.pso import PSO
 
 
 class FeaPso(PSO, FeaBaseAlgo):

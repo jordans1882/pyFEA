@@ -2,8 +2,8 @@ import math
 
 import numpy as np
 
-from pyfea.base_algos.traditional.fea_base_algo import FeaBaseAlgo
-from pyfea.base_algos.traditional.ga import GA
+from pyfea.base_algos.fea_base_algo import FeaBaseAlgo
+from pyfea.base_algos.ga import GA
 
 
 class FeaGA(GA, FeaBaseAlgo):
@@ -76,4 +76,3 @@ class FeaGA(GA, FeaBaseAlgo):
         self.reinitialize_population()
         self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.fitness_functions += self.pop_size
-

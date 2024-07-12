@@ -1,7 +1,7 @@
 import numpy as np
 
 from pyfea.base_algos import DE
-from pyfea.base_algos.traditional.fea_base_algo import FeaBaseAlgo
+from pyfea.base_algos.fea_base_algo import FeaBaseAlgo
 
 
 class FeaDE(DE, FeaBaseAlgo):
@@ -84,4 +84,3 @@ class FeaDE(DE, FeaBaseAlgo):
         """
         self.reinitialize_population()
         self.update_bests()
-

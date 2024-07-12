@@ -9,7 +9,6 @@ __name__ = "pyfea"
 from ._version import __version__
 from .base_algos import *
 from .benchmarks import *
-from .experiments import *
 from .fea import *
 from .matrix import Matrix
 from .template import Template
