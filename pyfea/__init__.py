@@ -11,7 +11,6 @@ from .base_algos import *
 from .benchmarks import *
 from .experiments import *
 from .fea import *
-from .function import Function
 from .matrix import Matrix
 from .template import Template
 

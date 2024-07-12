@@ -1,7 +1,16 @@
+# from .bspline_fea import BsplineFEA
 from .fea import FEA
-from .bspline_fea import BsplineFEA
-from .parallel_bspline_fea import ParallelBsplineFEA
-from .vector_comparison_bspline_fea import VectorComparisonBsplineFEA
-from .parallel_vector_bspline_fea import ParallelVectorBsplineFEA
+from .function import Function
 
-__all__ = ["FEA", "BsplineFEA", "ParallelBsplineFEA", "VectorComparisonBsplineFEA", "ParallelVectorBsplineFEA"]
+# from .parallel_bspline_fea import ParallelBsplineFEA
+# from .parallel_vector_bspline_fea import ParallelVectorBsplineFEA
+# from .vector_comparison_bspline_fea import VectorComparisonBsplineFEA
+
+__all__ = [
+    # "BsplineFEA",
+    "FEA",
+    "Function",
+    # "ParallelBsplineFEA",
+    # "ParallelVectorBsplineFEA",
+    # "VectorComparisonBsplineFEA",
+]

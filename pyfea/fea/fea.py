@@ -4,7 +4,7 @@ from operator import sub
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pyfea.function import Function
+from pyfea.fea.function import Function
 
 
 class FEA:
