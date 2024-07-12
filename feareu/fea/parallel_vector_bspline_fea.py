@@ -9,7 +9,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al.
     Altered so that each factor has its own domain based on the context vector.
     Intended for use in BSpline knot selection problem."""
-    def __init__(self, factors, function, true_error, delta, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, process_count, **kwargs):
+    def __init__(self, factors, early_stop, function, true_error, delta, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, process_count, **kwargs):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -21,7 +21,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
         """
         self.process_count = process_count
         self.full_fit_func = 0
-        super().__init__(factors, function, true_error, delta, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, **kwargs)
+        super().__init__(factors, early_stop, function, true_error, delta, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, **kwargs)
         self.subpop_domains = []
         
     def update_plots(self, subpopulations):
@@ -48,6 +48,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
             result_queue = Queue()
             for j in range(int(self.process_count)):
                 p = Process(target=self.initialize_subpop, args=(parallel_i, result_queue))
+                print("helllooo")
                 processes.append(p)
                 p.start()
                 parallel_i+=1
@@ -66,6 +67,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
                 for j in range(int(self.process_count)):
                     p = Process(target=self.subpop_compute, args=(parallel_i, subpopulations[parallel_i], result_queue))
                     processes.append(p)
+                    print("in loop")
                     p.start()
                     parallel_i+=1
                     if(parallel_i>=len(subpopulations)):
@@ -78,6 +80,9 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
             self.share(subpopulations)
             if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
+            if self.niterations > self.early_stop:
+                print("FEA ", self.base_algo, " early_stopped")
+                break
             print("current func eval: ", self.function(self.context_variable))
             print("full fit func: ", self.full_fit_func)
             print("part fit func: ", self.part_fit_func_array[len(self.part_fit_func_array)-1])
