@@ -45,22 +45,25 @@ de_bounds = {
        "crossover_rate":(0.1,1),
         }
 
-def create_scatter_data(number_of_knots, number_of_points):
-    thetas = np.random.normal(0.0, 1.0, number_of_knots+3) # coefficients for the curve
-    interior_knots = np.sort(np.random.uniform(0.0, 1.0, number_of_knots)) # knot locations
-    knots = np.concatenate(([0.0, 0.0, 0.0],  interior_knots,  [1.0, 1.0, 1.0]))
-    bspline_basis = splipy.BSplineBasis(3, knots, -1) # bspline basis
-    x = np.random.uniform(0.0, 1.0, number_of_points) # x locations for data
-    xmat = bspline_basis(x)
-    epsilon = np.random.normal(0.0, 0.1, number_of_points)
-    true_y = xmat @ thetas
-    y = true_y + epsilon
+number_of_knots = 12
+number_of_points = 1000
+base_alg = "pso"
 
-    scatter_plot = SlowBsplineEval(x, y)
-    return [scatter_plot, knots]
+thetas = np.random.normal(0.0, 1.0, number_of_knots+3) # coefficients for the curve
+interior_knots = np.sort(np.random.uniform(0.0, 1.0, number_of_knots)) # knot locations
+knots = np.concatenate(([0.0, 0.0, 0.0],  interior_knots,  [1.0, 1.0, 1.0]))
+bspline_basis = splipy.BSplineBasis(3, knots, -1) # bspline basis
+x = np.random.uniform(0.0, 1.0, number_of_points) # x locations for data
+xmat = bspline_basis(x)
+epsilon = np.random.normal(0.0, 0.1, number_of_points)
+true_y = xmat @ thetas
+y = true_y + epsilon
 
-def bayes_algo_input_base(base_alg,
-            scatter_data,
+scatter_plot = SlowBsplineEval(x, y)
+scatter_data = [scatter_plot, knots]
+
+def bayes_algo_input_base(base_alg = base_alg,
+            scatter_data = scatter_data,
             number_of_knots=12, 
             delta=0.01,
             generations=20,
@@ -99,8 +102,8 @@ def bayes_algo_input_base(base_alg,
     return ret
     
 def bayes_algo_input_fea(
-            base_alg,
-            scatter_data,
+            base_alg = base_alg,
+            scatter_data = scatter_data,
             number_of_knots=12, 
             delta=0.01,
             factor_size=3,
@@ -145,17 +148,18 @@ def bayes_algo_input_fea(
     ret = -objective.run()
     return ret
     
-def base_optimizer(bounds, base_alg, scatter_data, init_points, n_iter):
-    optimizer = BayesianOptimization(bayes_algo_input_base(base_alg=base_alg, scatter_data=scatter_data), bounds)
+def base_optimizer(bounds, init_points, n_iter):
+    optimizer = BayesianOptimization(bayes_algo_input_base(), bounds)
     optimizer.maximize(init_points, n_iter)
     return optimizer.max
-def fea_optimizer(bounds, base_alg, scatter_data, init_points, n_iter):
-    optimizer = BayesianOptimization(bayes_algo_input_fea(base_alg=base_alg, scatter_data=scatter_data), bounds)
+def fea_optimizer(bounds, init_points, n_iter):
+    optimizer = BayesianOptimization(bayes_algo_input_fea(), bounds)
     optimizer.maximize(init_points, n_iter)
     return optimizer.max
 
-scd = create_scatter_data(12, 1000)
-print(base_optimizer(bounds=pso_bounds, base_alg="pso", scatter_data=scd, init_points=1, n_iter=5))
+if __name__ == '__main__':
+    base_alg = "pso"
+    print(base_optimizer(bounds=pso_bounds, init_points=1, n_iter=5))
 
 """create_single_full_set()
 create_single_full_set()"""
