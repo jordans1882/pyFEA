@@ -6,7 +6,7 @@ from pyfea.base_algos.fea_base_algo import FeaBaseAlgo
 from pyfea.base_algos.pso import PSO
 
 
-class FeaPso(PSO, FeaBaseAlgo):
+class FeaPSO(PSO, FeaBaseAlgo):
     """
     The PSO algorithm adapted to be run in an FEA.
     """

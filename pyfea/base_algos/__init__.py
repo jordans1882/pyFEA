@@ -1,7 +1,7 @@
 from .de import DE
 from .fea_de import FeaDE
 from .fea_ga import FeaGA
-from .fea_pso import FeaPso
+from .fea_pso import FeaPSO
 from .ga import GA
 from .parallel_evaluation import parallel_eval
 from .parallel_fea_de import ParallelFeaDE
@@ -13,7 +13,7 @@ __all__ = [
     "DE",
     "FeaDE",
     "FeaGA",
-    "FeaPso",
+    "FeaPSO",
     "GA",
     "PSO",
     "ParallelFeaDE",

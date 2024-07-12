@@ -3,10 +3,10 @@ from copy import deepcopy
 
 import numpy as np
 
-from pyfea.base_algos import FeaPso, parallel_eval
+from pyfea.base_algos import FeaPSO, parallel_eval
 
 
-class ParallelFeaPSO(FeaPso):
+class ParallelFeaPSO(FeaPSO):
     def __init__(
         self,
         function,
