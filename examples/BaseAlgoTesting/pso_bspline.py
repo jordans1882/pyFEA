@@ -12,7 +12,7 @@ import scipy.sparse.linalg as splinalg
 import seaborn as sns
 import splipy
 
-from feareu.base_algos.bspline_specific.bspline_pso import BSplinePSO
+from pyfea.base_algos.bspline_specific.bspline_pso import BSplinePSO
 
 
 # Doppler function

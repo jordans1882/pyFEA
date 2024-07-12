@@ -1,4 +1,4 @@
-name: feareu
+name: pyfea
 channels:
   - default
   - conda-forge

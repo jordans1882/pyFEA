@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "feareu"
+name = "pyfea"
 version = "0.0.1"
 description = ""
 authors = ["Eve Ginsberg", "Nicky Turk","Jordan Schupbach"]
 
 packages =  [
-    { include = "feareu" },
+    { include = "pyfea" },
 ]
 
 # [tool.poetry.scripts]

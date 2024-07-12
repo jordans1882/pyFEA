@@ -1,3 +1,4 @@
-# template-python
+# pyFEA
 
-A template to start a new python project.
+Implementation of Factored Evolutionary Algorithms (Strasser et. al 2017).
+

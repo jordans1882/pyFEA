@@ -1,0 +1,29 @@
+import math
+
+import matplotlib.pyplot as plt
+import numpy as np
+import numpy.typing as npt
+import scipy.sparse as sparse
+import scipy.sparse.linalg as splinalg
+import splipy
+
+from pyfea.experiments.general_fea_experiments import bspline_clamp
+
+
+class SlowBsplineEval:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __call__(self, knots):
+        all_knots = bspline_clamp(knots, 3)
+        bsp = splipy.BSplineBasis(3, knots, -1)
+        xmat = bsp.evaluate(self.x, 0, True, True)
+        xt = xmat.transpose()
+        LHS = xt @ xmat
+        RHS = xt @ self.y
+        theta, info = sparse.linalg.bicgstab(LHS, RHS)
+        # print("theta: ", theta)
+        yest = xmat @ theta
+        mse = np.sum((self.y - yest) ** 2) / len(self.y)
+        return mse

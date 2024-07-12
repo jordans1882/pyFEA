@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "feareu"
+project = "pyFEA"
 copyright = "2024, Eve Ginsberg, Jordan Schupbach, Nicky Turk"
 author = "Eve Ginsberg, Jordan Schupbach, Nicky Turk"
 release = "0.0.1"

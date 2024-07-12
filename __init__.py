@@ -1,8 +1,10 @@
 """from . import FEA
-from . import feareu"""
-from . import feareu, tests
-import sys
+from . import pyfea"""
+
 import os
+import sys
+
+from . import pyfea, tests
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-__all__ = ["feareu", "tests"]
+__all__ = ["pyfea", "tests"]

@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
-#from feareu.experiments.general_fea_experiments import big_spike, cliff, discontinuity, doppler, smooth_peak, second_smooth_peak
-from feareu import big_spike, cliff, discontinuity, doppler, smooth_peak, second_smooth_peak
 import numpy as np
+
+# from pyfea.experiments.general_fea_experiments import big_spike, cliff, discontinuity, doppler, smooth_peak, second_smooth_peak
+from pyfea import big_spike, cliff, discontinuity, doppler, second_smooth_peak, smooth_peak
 
 num_points = 500
 irange = np.arange(0, num_points)
@@ -31,7 +32,7 @@ for i in irange:
 plt.scatter(irange, doppler_ys)
 """
 
-peak_range = np.arange(-num_points/2, num_points/2)
+peak_range = np.arange(-num_points / 2, num_points / 2)
 """
 smooth_peak_ys = []
 for i in peak_range:
@@ -46,3 +47,4 @@ plt.scatter(peak_range, second_smooth_peak_ys)
 """
 plt.grid(True)
 plt.show()
+

@@ -4,7 +4,7 @@ Includes test of constructor.
 Includes test of identity function.
 """
 
-from feareu.template import Template
+from pyfea.template import Template
 
 
 def test_template_attributes():

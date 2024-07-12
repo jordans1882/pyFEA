@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from feareu.base_algos import GA, FeaGA
-from feareu import Function
+from pyfea import Function
+from pyfea.base_algos import GA, FeaGA
 
 """children = [5, 3, 7, 1]
 pop = [2, 4, 6, 8, 10]
@@ -35,10 +35,11 @@ domain
 # function = Function(array, rastrigin__, [0, 1])
 
 function = Function(array, rastrigin__, [0, 1, 2, 3, 4])
-ga = GA(function = function, domain = domain, pop_size=20, generations=500)
-feaga = FeaGA(function = function, domain = domain, pop_size=20, generations=500)
+ga = GA(function=function, domain=domain, pop_size=20, generations=500)
+feaga = FeaGA(function=function, domain=domain, pop_size=20, generations=500)
 ga.run()
 feaga.run()
 diag_plots = feaga.diagnostic_plots()
 diag_plots = ga.diagnostic_plots()
 plt.show()
+

@@ -4,11 +4,9 @@ API
 .. autosummary::
    :toctree: generated
 
-   feareu
-   feareu.template
-   feareu.template.Template
-   feareu.matrix
-   feareu.matrix.Matrix
-   FEA
-   FEA.FEA
+   pyfea
+   pyfea.template
+   pyfea.template.Template
+   pyfea.matrix
+   pyfea.matrix.Matrix
 
