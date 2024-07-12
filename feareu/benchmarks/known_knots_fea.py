@@ -9,7 +9,7 @@ from feareu.experiments.general_fea_experiments.automated_factors import linear_
 # np.random.seed(42)
 
 class KnownKnotsFea():
-    def __init__(self, number_of_knots, number_of_points, max_error, delta, base_algo, diagnostics_amount, generations, pop_size):
+    def __init__(self, number_of_knots, number_of_points, max_error, overlap, factor_size, delta, base_algo, diagnostics_amount, generations, pop_size):
         self.number_of_knots = number_of_knots
         self.number_of_points = number_of_points
         self.max_error = max_error
@@ -18,6 +18,8 @@ class KnownKnotsFea():
         self.diagnostics_amount = diagnostics_amount
         self.generations = generations
         self.pop_size = pop_size
+        self.overlap = overlap
+        self.factor_size = factor_size
     def run(self):
         thetas = np.random.normal(0.0, 1.0, self.number_of_knots+3) # coefficients for the curve
         interior_knots = np.sort(np.random.uniform(0.0, 1.0, self.number_of_knots)) # knot locations
@@ -39,8 +41,8 @@ class KnownKnotsFea():
         # MSE at this solution.
         scatter_plot = SlowBsplineEval(x, y)
         print(scatter_plot(knots))
-        fct = linear_factorizer(3, 1, self.number_of_knots)
-        testing = VectorComparisonBsplineFEA(factors=fct, function = scatter_plot, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, dim = self.number_of_knots, base_algo_name=self.base_algo, domain=(0, 1), diagnostics_amount = self.diagnostics_amount, generations= self.generations, pop_size=self.pop_size)
+        fct = linear_factorizer(self.factor_size, self.overlap, self.number_of_knots)
+        testing = VectorComparisonBsplineFEA(factors=fct, early_stop = 50, function = scatter_plot, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, dim = self.number_of_knots, base_algo_name=self.base_algo, domain=(0, 1), diagnostics_amount = self.diagnostics_amount, generations= self.generations, pop_size=self.pop_size)
         testing.run()
         testing.diagnostic_plots()
         plt.show()

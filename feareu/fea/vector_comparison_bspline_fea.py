@@ -8,7 +8,7 @@ class VectorComparisonBsplineFEA(BsplineFEA):
     Altered so that each factor has its own domain based on the context vector.
     Intended for use in BSpline knot selection problem."""
 
-    def __init__(self, factors, function, true_error, delta, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, **kwargs):
+    def __init__(self, factors, early_stop, function, true_error, delta, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, **kwargs):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -20,6 +20,7 @@ class VectorComparisonBsplineFEA(BsplineFEA):
         """
         self.og_knot_points = og_knot_points
         self.dif_to_og = []
+        self.early_stop = early_stop
         self.domain = domain
         self.stopping_point = delta + true_error
         self.diagnostic_amount = diagnostics_amount
@@ -63,7 +64,9 @@ class VectorComparisonBsplineFEA(BsplineFEA):
             if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
             self.cur_iterations +=1
-            print("delta: ", self.stopping_point)
+            if self.cur_iterations > self.early_stop:
+                print("FEA ", self.base_algo, " early_stopped")
+                break
             print("current func eval: ", self.function(self.context_variable))
             print("full fit func: ", self.full_fit_func)
             print("part fit func: ", self.part_fit_func_array[len(self.part_fit_func_array)-1])
@@ -86,18 +89,18 @@ class VectorComparisonBsplineFEA(BsplineFEA):
         Set up plots tracking solution convergence and variance over time.
         """
         plt.subplot(1, 4, 1)
-        ret = plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.convergences)
+        ret = plt.plot(range(0, int(self.niterations/self.diagnostic_amount)), self.convergences)
         plt.title("Convergence")
         
         plt.subplot(1, 4, 2)
-        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.full_fit_func_array)
+        plt.plot(range(0, int(self.niterations/self.diagnostic_amount)), self.full_fit_func_array)
         plt.title("Full Fit Func")
         
         plt.subplot(1, 4, 3)
-        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.part_fit_func_array)
+        plt.plot(range(0, int(self.niterations/self.diagnostic_amount)), self.part_fit_func_array)
         plt.title("Part Fit Func")
         
         plt.subplot(1, 4, 4)
-        plt.plot(range(0, int(self.iterations/self.diagnostic_amount)), self.dif_to_og)
+        plt.plot(range(0, int(self.niterations/self.diagnostic_amount)), self.dif_to_og)
         plt.title("Dif to OG Knots")
         return ret

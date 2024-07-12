@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 class KnownKnotBsplineFeaDE(BsplineFeaDE):
-    def __init__(self, function, domain, delta, true_error, og_knot_points, pop_size=20, mutation_factor = 0.5, crossover_rate = 0.9):
+    def __init__(self, function, early_stop, domain, delta, true_error, og_knot_points, pop_size=20, mutation_factor = 0.5, crossover_rate = 0.9):
         super().__init__(function=function, domain=domain, pop_size=pop_size, mutation_factor=mutation_factor, crossover_rate=crossover_rate)
         self.stopping_point = true_error + delta
+        self.early_stop = early_stop
         self.og_knot_points = og_knot_points
         self.dif_from_og = []
     def run(self):
@@ -23,6 +24,9 @@ class KnownKnotBsplineFeaDE(BsplineFeaDE):
             if self.ngenerations%5==0:
                 print("gen: ", self.ngenerations)
                 print("best eval: ", self.best_eval)
+            if self.ngenerations > self.early_stop:
+                print("DE early_stopped")
+                break
         return  self.best_eval
     def _track_vals(self):
         self.average_pop_eval.append(np.average(self.pop_eval))

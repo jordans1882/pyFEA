@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 class KnownKnotBsplineFeaGA(BsplineFeaGA):
-    def __init__(self, function, domain, delta, true_error, og_knot_points, pop_size=20, mutation_rate = 0.05,mutation_range = 0.5,tournament_options = 2,number_of_children = 2):
+    def __init__(self, function, early_stop, domain, delta, true_error, og_knot_points, pop_size=20, mutation_rate = 0.05,mutation_range = 0.5,tournament_options = 2,number_of_children = 2):
         super().__init__(function=function, domain=domain, pop_size=pop_size, mutation_range=mutation_range, mutation_rate=mutation_rate, tournament_options=tournament_options, number_of_children=number_of_children)
         self.stopping_point = true_error + delta
         self.og_knot_points = og_knot_points
+        self.early_stop = early_stop
         self.dif_from_og = []
     def run(self):
         while self.stopping_point < self.best_eval:
@@ -19,6 +20,9 @@ class KnownKnotBsplineFeaGA(BsplineFeaGA):
             if self.ngenerations%50==0:
                 print("gen: ", self.ngenerations)
                 print("best eval: ", self.best_eval)
+            if self.ngenerations > self.early_stop:
+                print("PSO early_stopped")
+                break
         return self.best_eval
     def _track_vals(self):
         self.average_pop_eval.append(np.average(self.pop_eval))

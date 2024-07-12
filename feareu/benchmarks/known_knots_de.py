@@ -46,7 +46,7 @@ class KnownKnotsDe():
         fact_dom = np.zeros((self.number_of_knots,2))
         fact_dom[:,0] = 0
         fact_dom[:,1] = 1
-        testing = KnownKnotBsplineFeaDE(function = scatter_plot, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, domain=fact_dom, pop_size=self.pop_size, mutation_factor = self.mutation_factor, crossover_rate = self.crossover_rate)
+        testing = KnownKnotBsplineFeaDE(function = scatter_plot, early_stop=500, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, domain=fact_dom, pop_size=self.pop_size, mutation_factor = self.mutation_factor, crossover_rate = self.crossover_rate)
         testing.run()
         testing.diagnostic_plots()
         plt.show()

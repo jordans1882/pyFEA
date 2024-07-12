@@ -48,7 +48,7 @@ class KnownKnotsGa():
         fact_dom = np.zeros((self.number_of_knots,2))
         fact_dom[:,0] = 0
         fact_dom[:,1] = 1
-        testing = KnownKnotBsplineFeaGA(function = scatter_plot, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, domain=fact_dom, pop_size=self.pop_size, mutation_range=self.mutation_range, mutation_rate=self.mutation_rate, tournament_options=self.tournament_options, number_of_children=self.number_of_children)
+        testing = KnownKnotBsplineFeaGA(function = scatter_plot, early_stop =500, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, domain=fact_dom, pop_size=self.pop_size, mutation_range=self.mutation_range, mutation_rate=self.mutation_rate, tournament_options=self.tournament_options, number_of_children=self.number_of_children)
         testing.run()
         testing.diagnostic_plots()
         plt.show()

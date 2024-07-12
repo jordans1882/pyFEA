@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 class KnownKnotBsplineFeaPSO(BsplineFeaPSO):
-    def __init__(self, function, domain, delta, true_error, og_knot_points, pop_size=20, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega=1 / math.sqrt(2)):
+    def __init__(self, function, early_stop, domain, delta, true_error, og_knot_points, pop_size=20, phi_p=math.sqrt(2), phi_g=math.sqrt(2), omega=1 / math.sqrt(2)):
         super().__init__(function=function, domain=domain, pop_size=pop_size, phi_p=phi_p, phi_g=phi_g, omega=omega)
         self.stopping_point = true_error + delta
+        self.early_stop = early_stop
         self.og_knot_points = og_knot_points
         self.dif_from_og = []
     def run(self):
@@ -21,6 +22,9 @@ class KnownKnotBsplineFeaPSO(BsplineFeaPSO):
             if self.generations_passed%5==0:
                 print("gen: ", self.generations_passed)
                 print("best eval: ", self.gbest_eval)
+            if self.generations_passed > self.early_stop:
+                print("PSO early_stopped")
+                break
         return self.gbest_eval
     def _track_values(self):
         """

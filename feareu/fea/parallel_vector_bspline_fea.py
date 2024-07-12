@@ -9,7 +9,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al.
     Altered so that each factor has its own domain based on the context vector.
     Intended for use in BSpline knot selection problem."""
-    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, process_count, **kwargs):
+    def __init__(self, factors, function, true_error, delta, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, process_count, **kwargs):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -21,7 +21,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
         """
         self.process_count = process_count
         self.full_fit_func = 0
-        super().__init__(factors, function, iterations, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, **kwargs)
+        super().__init__(factors, function, true_error, delta, dim, base_algo_name, domain, diagnostics_amount, og_knot_points, **kwargs)
         self.subpop_domains = []
         
     def update_plots(self, subpopulations):
@@ -57,7 +57,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
                 p.join()
                 result = result_queue.get()
                 subpopulations.update({result[0]: result[1]})
-        for i in range(self.iterations):
+        while self.stopping_point < self.function(self.context_variable):
             self.niterations += 1
             parallel_i = 0
             while parallel_i<len(subpopulations):
@@ -78,6 +78,10 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
             self.share(subpopulations)
             if self.niterations % self.diagnostic_amount == 0:
                 self.update_plots(subpopulations)
+            print("current func eval: ", self.function(self.context_variable))
+            print("full fit func: ", self.full_fit_func)
+            print("part fit func: ", self.part_fit_func_array[len(self.part_fit_func_array)-1])
+            print("iters: ", self.cur_iterations)
         return self.function(self.context_variable)
         
     def subpop_compute(self, parallel_i, subpop, result_queue):

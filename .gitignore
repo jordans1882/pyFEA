@@ -12,3 +12,5 @@ _build/
 **/results/
 
 **/ending_diagnostics/
+
+**/known_knots_ending_diagnostics/

@@ -47,7 +47,7 @@ class KnownKnotsPso():
         fact_dom = np.zeros((self.number_of_knots,2))
         fact_dom[:,0] = 0
         fact_dom[:,1] = 1
-        testing = KnownKnotBsplineFeaPSO(function = scatter_plot, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, domain=fact_dom, pop_size=self.pop_size, phi_p = self.phi_p, phi_g = self.phi_g, omega = self.omega)
+        testing = KnownKnotBsplineFeaPSO(function = scatter_plot, early_stop=500, true_error=scatter_plot(knots), delta = self.delta, og_knot_points = interior_knots, domain=fact_dom, pop_size=self.pop_size, phi_p = self.phi_p, phi_g = self.phi_g, omega = self.omega)
         testing.run()
         testing.diagnostic_plots()
         plt.show()
