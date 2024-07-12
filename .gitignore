@@ -14,3 +14,5 @@ _build/
 **/ending_diagnostics/
 
 **/known_knots_ending_diagnostics/
+
+**/parallel_known_knots_ending_diagnostics/
