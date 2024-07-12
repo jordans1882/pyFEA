@@ -17,8 +17,10 @@ class Function:
         print("args shape: ", len(arg))
         print("args: ", arg)"""
         self.context[self.factor] = arg
+        temp_cont_var = np.copy(self.context)
+        temp_cont_var.sort()
         #print(self.context)
-        return self.function(self.context)
+        return self.function(temp_cont_var)
 
 
 #     def _construct_wrapper_fun(partial_ctx, remaining_context):

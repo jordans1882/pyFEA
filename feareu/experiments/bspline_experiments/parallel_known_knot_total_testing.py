@@ -50,30 +50,6 @@ def create_single_parallel_full_set():
     knot_string = knot_string[:-1]
     print("knot_string: ", knot_string)
     
-    #FEAs
-    factors = linear_factorizer(factor_size, overlap, number_of_knots)
-    psoFEA = ParallelVectorBsplineFEA(factors=factors, function=scatter_plot, early_stop = fea_early_stop, true_error=scatter_plot(knots), delta=delta, dim=number_of_knots, base_algo_name=BsplineFeaPSO, domain=(0,1), diagnostics_amount=diagnostics_amount, og_knot_points=interior_knots, generations = 5, pop_size = fea_pop_size, process_count=2)
-    psoFEA.run()
-    diag_plt = psoFEA.diagnostic_plots()
-    filename = diag_dir / f"_fea_pso_knot_vector{knot_string}.png"
-    print("knot_string: ", knot_string)
-    plt.savefig(filename)
-    plt.clf()
-    
-    gaFEA = ParallelVectorBsplineFEA(factors=factors, function=scatter_plot, early_stop = fea_early_stop, true_error=scatter_plot(knots), delta=delta, dim=number_of_knots, base_algo_name=BsplineFeaGA, domain=(0,1), diagnostics_amount=diagnostics_amount, og_knot_points=interior_knots, generations = 5, pop_size = fea_pop_size, process_count=2)
-    gaFEA.run()
-    diag_plt = gaFEA.diagnostic_plots()
-    filename = diag_dir / f"_fea_ga_knot_vector{knot_string}.png"
-    plt.savefig(filename)
-    plt.clf()
-    
-    deFEA = ParallelVectorBsplineFEA(factors=factors, function=scatter_plot, early_stop = fea_early_stop, true_error=scatter_plot(knots), delta=delta, dim=number_of_knots, base_algo_name=BsplineFeaDE, domain=(0,1), diagnostics_amount=diagnostics_amount, og_knot_points=interior_knots, generations = 5, pop_size = fea_pop_size, process_count=2)
-    deFEA.run()
-    diag_plt = deFEA.diagnostic_plots()
-    filename = diag_dir / f"_fea_de_knot_vector{knot_string}.png"
-    plt.savefig(filename)
-    plt.clf()
-    
     #Base Algos
     fact_dom = np.zeros((number_of_knots,2))
     fact_dom[:,0] = 0
@@ -98,8 +74,33 @@ def create_single_parallel_full_set():
     filename = diag_dir / f"_de_knot_vector{knot_string}.png"
     plt.savefig(filename)
     plt.clf()
+    
+    #FEAs
+    factors = linear_factorizer(factor_size, overlap, number_of_knots)
+    psoFEA = ParallelVectorBsplineFEA(factors=factors, function=scatter_plot, early_stop = fea_early_stop, true_error=scatter_plot(knots), delta=delta, dim=number_of_knots, base_algo_name=BsplineFeaPSO, domain=(0,1), diagnostics_amount=diagnostics_amount, og_knot_points=interior_knots, generations = 5, pop_size = fea_pop_size, process_count=1)
+    psoFEA.run()
+    diag_plt = psoFEA.diagnostic_plots()
+    filename = diag_dir / f"_fea_pso_knot_vector{knot_string}.png"
+    print("knot_string: ", knot_string)
+    plt.savefig(filename)
+    plt.clf()
+    
+    gaFEA = ParallelVectorBsplineFEA(factors=factors, function=scatter_plot, early_stop = fea_early_stop, true_error=scatter_plot(knots), delta=delta, dim=number_of_knots, base_algo_name=BsplineFeaGA, domain=(0,1), diagnostics_amount=diagnostics_amount, og_knot_points=interior_knots, generations = 5, pop_size = fea_pop_size, process_count=1)
+    gaFEA.run()
+    diag_plt = gaFEA.diagnostic_plots()
+    filename = diag_dir / f"_fea_ga_knot_vector{knot_string}.png"
+    plt.savefig(filename)
+    plt.clf()
+    
+    deFEA = ParallelVectorBsplineFEA(factors=factors, function=scatter_plot, early_stop = fea_early_stop, true_error=scatter_plot(knots), delta=delta, dim=number_of_knots, base_algo_name=BsplineFeaDE, domain=(0,1), diagnostics_amount=diagnostics_amount, og_knot_points=interior_knots, generations = 5, pop_size = fea_pop_size, process_count=1)
+    deFEA.run()
+    diag_plt = deFEA.diagnostic_plots()
+    filename = diag_dir / f"_fea_de_knot_vector{knot_string}.png"
+    plt.savefig(filename)
+    plt.clf()
+    
 
 if __name__ == '__main__':
-    multiprocessing.freeze_support()
+    #multiprocessing.freeze_support()
     create_single_parallel_full_set()
     create_single_parallel_full_set()

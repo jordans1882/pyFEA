@@ -21,7 +21,7 @@ class KnownKnotBsplineFeaGA(BsplineFeaGA):
                 print("gen: ", self.ngenerations)
                 print("best eval: ", self.best_eval)
             if self.ngenerations > self.early_stop:
-                print("PSO early_stopped")
+                print("GA early_stopped")
                 break
         return self.best_eval
     def _track_vals(self):

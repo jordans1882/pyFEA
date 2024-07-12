@@ -48,16 +48,16 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
             result_queue = Queue()
             for j in range(int(self.process_count)):
                 p = Process(target=self.initialize_subpop, args=(parallel_i, result_queue))
-                print("helllooo")
                 processes.append(p)
                 p.start()
                 parallel_i+=1
                 if(parallel_i>=(len(self.factors))):
                     break
             for p in processes:
-                p.join()
                 result = result_queue.get()
                 subpopulations.update({result[0]: result[1]})
+            for p in processes:
+                p.join()
         while self.stopping_point < self.function(self.context_variable):
             self.niterations += 1
             parallel_i = 0
@@ -67,15 +67,15 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
                 for j in range(int(self.process_count)):
                     p = Process(target=self.subpop_compute, args=(parallel_i, subpopulations[parallel_i], result_queue))
                     processes.append(p)
-                    print("in loop")
                     p.start()
                     parallel_i+=1
                     if(parallel_i>=len(subpopulations)):
                         break
                 for p in processes:
-                    p.join()
                     result = result_queue.get()
                     subpopulations[result[0]]=result[1]
+                for p in processes:
+                    p.join()
             self.compete(subpopulations)
             self.share(subpopulations)
             if self.niterations % self.diagnostic_amount == 0:
@@ -86,7 +86,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
             print("current func eval: ", self.function(self.context_variable))
             print("full fit func: ", self.full_fit_func)
             print("part fit func: ", self.part_fit_func_array[len(self.part_fit_func_array)-1])
-            print("iters: ", self.cur_iterations)
+            print("iters: ", self.niterations)
         return self.function(self.context_variable)
         
     def subpop_compute(self, parallel_i, subpop, result_queue):
@@ -123,7 +123,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
             overlapping_factors = self.variable_map[i]
             best_val = np.copy(cont_var[i])
             temp_cont_var = np.copy(cont_var)
-            np.sort(temp_cont_var)
+            temp_cont_var.sort()
             best_fit = self.function(temp_cont_var)
             self.full_fit_func += 1
             rand_pop_permutation = np.random.permutation(len(overlapping_factors))
@@ -132,7 +132,7 @@ class ParallelVectorBsplineFEA(VectorComparisonBsplineFEA):
                 index = np.where(self.factors[s_j] == i)[0][0]
                 cont_var[i]=np.copy(subpopulations[s_j].get_solution_at_index(index))
                 temp_cont_var = np.copy(cont_var)
-                np.sort(temp_cont_var)
+                temp_cont_var.sort()
                 current_fit = self.function(temp_cont_var)
                 self.full_fit_func +=1
                 if current_fit < best_fit:
