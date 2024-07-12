@@ -1,6 +1,9 @@
+import math
 from pathlib import Path
+from bayes_opt import BayesianOptimization
 import numpy as np
 import splipy
+import feareu
 import matplotlib.pyplot as plt
 from feareu.base_algos.bspline_specific.bspline_fea_pso import BsplineFeaPSO
 from feareu.base_algos.bspline_specific.bspline_fea_de import BsplineFeaDE
@@ -13,19 +16,19 @@ from feareu.fea.vector_comparison_bspline_fea import VectorComparisonBsplineFEA
 from feareu.experiments.general_fea_experiments.automated_factors import linear_factorizer
 
 
-number_of_knots = 12
-number_of_points = 1000
-max_error = 0.01
-delta = 0.05
-diagnostics_amount = 1
-fea_pop_size = 30
-base_algo_pop_size = 200
-overlap = 2
-factor_size = 4
-fea_early_stop = 5
-base_algo_early_stop = 20
-
-def create_single_full_set():
+def create_single_full_set(number_of_knots = 12,
+        number_of_points = 1000,
+        max_error = 0.01,
+        delta = 0.05,
+        diagnostics_amount = 1,
+        fea_pop_size = 30,
+        base_algo_pop_size = 200,
+        base_algo_gens = 20,
+        overlap = 2,
+        factor_size = 4,
+        fea_early_stop = 5,
+        base_algo_early_stop = 20
+        ):
     thetas = np.random.normal(0.0, 1.0, number_of_knots+3) # coefficients for the curve
     interior_knots = np.sort(np.random.uniform(0.0, 1.0, number_of_knots)) # knot locations
     knots = np.concatenate(([0.0, 0.0, 0.0],  interior_knots,  [1.0, 1.0, 1.0]))
@@ -98,7 +101,4 @@ def create_single_full_set():
     filename = diag_dir / f"_de_knot_vector{knot_string}.png"
     plt.savefig(filename)
     plt.clf()
-
-create_single_full_set()
-create_single_full_set()
 

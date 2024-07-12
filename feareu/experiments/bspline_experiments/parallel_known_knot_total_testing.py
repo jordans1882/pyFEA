@@ -1,8 +1,11 @@
+import math
 import multiprocessing
 from pathlib import Path
+from bayes_opt import BayesianOptimization
 import numpy as np
 import splipy
 import matplotlib.pyplot as plt
+import feareu
 from feareu.base_algos.bspline_specific.bspline_fea_pso import BsplineFeaPSO
 from feareu.base_algos.bspline_specific.bspline_fea_de import BsplineFeaDE
 from feareu.base_algos.bspline_specific.bspline_fea_ga import BsplineFeaGA
@@ -13,7 +16,6 @@ from feareu.experiments.general_fea_experiments.slow_bspline_eval import SlowBsp
 from feareu.fea.parallel_vector_bspline_fea import ParallelVectorBsplineFEA
 from feareu.experiments.general_fea_experiments.automated_factors import linear_factorizer
 
-
 number_of_knots = 12
 number_of_points = 1000
 max_error = 0.01
@@ -21,6 +23,7 @@ delta = 0.05
 diagnostics_amount = 1
 fea_pop_size = 10
 base_algo_pop_size = 200
+base_algo_gens = 20
 overlap = 2
 factor_size = 4
 fea_early_stop = 5
@@ -99,8 +102,6 @@ def create_single_parallel_full_set():
     plt.savefig(filename)
     plt.clf()
     
-
 if __name__ == '__main__':
-    #multiprocessing.freeze_support()
     create_single_parallel_full_set()
     create_single_parallel_full_set()
