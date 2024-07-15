@@ -4,6 +4,8 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import numpy as np
 
+from .parallel_evaluation import parallel_eval
+
 
 class PSO:
     """
@@ -39,14 +41,7 @@ class PSO:
         self.phi_p = phi_p
         self.phi_g = phi_g
         self.omega = omega
-        self.pop = self.init_pop()
-        self.pbest = self.pop
-        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         self.fitness_functions = self.pop_size
-        self.pbest_eval = deepcopy(self.pop_eval)
-        self.gbest_eval = np.min(self.pbest_eval)
-        self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
-        self.velocities = self.init_velocities()
         self.generations_passed = 0
         self.average_velocities = []
         self.average_pop_variance = []
@@ -54,7 +49,7 @@ class PSO:
         self.gbest_evals = []
         self.fitness_list = []
 
-    def init_pop(self):
+    def _init_pop(self):
         """
         Initialize random particles.
         """
@@ -63,7 +58,7 @@ class PSO:
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(self.pop_size, area.shape[0]))
 
-    def init_velocities(self):
+    def _init_velocities(self):
         """
         Initialize random velocities.
         """
@@ -71,20 +66,43 @@ class PSO:
         area = self.domain[:, 1] - self.domain[:, 0]
         return 0.5 * area * np.random.random(size=(self.pop_size, area.shape[0]))
 
-    def run(self):
+    def _initialize(self, parallel=False, processes=4, chunksize=4):
+        self.pop = self._init_pop()
+        self.pbest = self.pop
+        if parallel:
+            self.pop_eval = parallel_eval(self.func, self.pop, processes, chunksize)
+        else:
+            self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        self.pbest_eval = deepcopy(self.pop_eval)
+        self.gbest_eval = np.min(self.pbest_eval)
+        self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
+        self.velocities = self._init_velocities()
+
+    def _update_positions(self):
+        self.pop = self.pop + self.velocities
+
+    def run(self, parallel=False, processes=4, chunksize=4):
         """
         Run the algorithm.
         """
+        self._initialize(parallel, processes, chunksize)
         for gen in range(self.generations):
-            self.update_velocities()
-            self.pop = self.pop + self.velocities
-            self.stay_in_domain()
-            self.update_bests()
+            print(f"Generation: {gen}")
+            self._update_velocities()
+            self._update_positions()
+            self._stay_in_domain()
+            self._eval_pop(parallel, processes, chunksize)
+            self._update_bests()
             self._track_values()
             self.generations_passed += 1
+
+    def get_soln(self):
+        return self.gbest
+
+    def get_soln_fitness(self):
         return self.gbest_eval
 
-    def stay_in_domain(self):
+    def _stay_in_domain(self):
         """
         Ensure that the particles don't move outside the domain of our function by projecting
         them to the domain's boundary at that point.
@@ -92,7 +110,7 @@ class PSO:
         self.pop = np.where(self.domain[:, 0] > self.pop, self.domain[:, 0], self.pop)
         self.pop = np.where(self.domain[:, 1] < self.pop, self.domain[:, 1], self.pop)
 
-    def update_velocities(self):
+    def _update_velocities(self):
         """
         Update the velocities of the particles according to the PSO algorithm.
         """
@@ -104,14 +122,24 @@ class PSO:
             + self.phi_g * r_g * (self.gbest - self.pop)
         )
 
-    def update_bests(self):
+    def _eval_pop(self, parallel=False, processes=4, chunksize=4):
+        if not parallel:
+            for pidx in range(self.pop_size):
+                curr_eval = self.func(self.pop[pidx, :])
+                self.fitness_functions += 1
+                self.pop_eval[pidx] = curr_eval
+        else:
+            self.pop_eval = parallel_eval(
+                self.func, self.pop, processes=processes, chunksize=chunksize
+            )
+            self.fitness_functions += self.pop_size
+
+    def _update_bests(self):
         """
         Update the current personal and global best values based on the new positions of the particles.
         """
         for pidx in range(self.pop_size):
-            curr_eval = self.func(self.pop[pidx, :])
-            self.fitness_functions+=1
-            self.pop_eval[pidx] = curr_eval
+            curr_eval = self.pop_eval[pidx]
             if curr_eval < self.pbest_eval[pidx]:
                 self.pbest[pidx, :] = np.copy(self.pop[pidx, :])
                 self.pbest_eval[pidx] = curr_eval
@@ -126,7 +154,7 @@ class PSO:
         """
         self.gbest_evals.append(self.gbest_eval)
         self.average_velocities.append(np.average(np.abs(self.velocities)))
-        self.average_pop_variance.append(np.average(np.var(self.pop, axis = 0)))
+        self.average_pop_variance.append(np.average(np.var(self.pop, axis=0)))
         self.average_pop_eval.append(np.average(self.pop_eval))
         self.fitness_list.append(self.fitness_functions)
 
@@ -135,26 +163,20 @@ class PSO:
         Plots the values tracked in _track_values().
         """
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3)
-
         ax1.plot(self.fitness_list, self.average_pop_variance)
-        ax1.set_xlabel('# fitness evaluations', fontsize=10)
-        ax1.set_ylabel('population variance', fontsize=10)
-        ax1.set_title('Population Diversity', fontsize=10)
-
-        #ax1.plot(self.fitness_list, self.average_velocities)
-        #ax1.set_xlabel('# fitness evaluations', fontsize=10)
-        #ax1.set_ylabel('average velocities', fontsize=10)
-        #ax1.set_title('Population Diversity', fontsize=10)
+        ax1.set_xlabel("# fitness evaluations", fontsize=10)
+        ax1.set_ylabel("population variance", fontsize=10)
+        ax1.set_title("Population Diversity", fontsize=10)
 
         ax2.plot(self.fitness_list, self.average_pop_eval)
-        ax2.set_xlabel('# fitness evaluations', fontsize=10)
-        ax2.set_ylabel('average MSE', fontsize=10)
-        ax2.set_title('Average Solution Fitness', fontsize=10)
+        ax2.set_xlabel("# fitness evaluations", fontsize=10)
+        ax2.set_ylabel("average MSE", fontsize=10)
+        ax2.set_title("Average Solution Fitness", fontsize=10)
 
         ax3.plot(self.fitness_list, self.gbest_evals)
-        ax3.set_xlabel('# fitness evaluations', fontsize=10)
-        ax3.set_ylabel('gbest MSE', fontsize=10)
-        ax3.set_title('Best Solution Fitness', fontsize=10)
+        ax3.set_xlabel("# fitness evaluations", fontsize=10)
+        ax3.set_ylabel("gbest MSE", fontsize=10)
+        ax3.set_title("Best Solution Fitness", fontsize=10)
 
         fig.suptitle("PSO")
         fig.tight_layout()

@@ -5,23 +5,37 @@ import numpy as np
 from pyfea.base_algos.fea_base_algo import FeaBaseAlgo
 from pyfea.base_algos.pso import PSO
 
+from .parallel_evaluation import parallel_eval
+
 
 class FeaPSO(PSO, FeaBaseAlgo):
     """
     The PSO algorithm adapted to be run in an FEA.
     """
 
-    def update_bests(self):
+    def _update_bests(self):
         """
         Calls to update_bests() in PSO during the FEA's share step.
         """
-        super().update_bests()
+        super()._update_bests()
 
-    def run(self):
+    def run(self, parallel=False, processes=4, chunksize=4):
         """
         Runs the base PSO algorithm.
         """
-        return super().run()
+        return super().run(parallel, processes, chunksize)
+
+    def get_soln(self):
+        """
+        Gets the solution (gbest).
+        """
+        return super().get_soln()
+
+    def get_soln_fitness(self):
+        """
+        Gets the solution (gbest).
+        """
+        return super().get_soln_fitness()
 
     def get_solution_at_index(self, idx):
         """
@@ -67,15 +81,17 @@ class FeaPSO(PSO, FeaBaseAlgo):
             omega=kwargs["omega"],
         )
 
-    def reset_fitness(self):
+    def reset_fitness(self, parallel=False, processes=4, chunksize=4):
         """
-        Reevaluate the fitness function over the entire population and update the fields accordingly.
+        Reevaluate the fitness function in parallel over the entire population and update the fields accordingly.
         """
         self.pbest = self.pop
-        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        if not parallel:
+            self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        else:
+            self.pop_eval = parallel_eval(self.func, self.pop, processes, chunksize)
         self.fitness_functions += self.pop_size
         self.pbest_eval = self.pop_eval
-        # self.worst = np.argmax(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
 
@@ -100,5 +116,5 @@ class FeaPSO(PSO, FeaBaseAlgo):
         Reset the algorithm in preparation for another run.
         """
         self.reinitialize_population()
-        self.velocities = super().init_velocities()
+        self.velocities = super()._init_velocities()
         self.reset_fitness()

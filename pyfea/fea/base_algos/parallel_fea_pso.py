@@ -42,7 +42,7 @@ class ParallelFeaPSO(FeaPSO):
         self.omega = omega
         self.processes = processes
         self.chunksize = chunksize
-        self.pop = self.init_pop()
+        self.pop = self._init_pop()
         self.pbest = self.pop
         self.pop_eval = parallel_eval(
             self.func, self.pop, processes=self.processes, chunksize=self.chunksize
@@ -51,7 +51,7 @@ class ParallelFeaPSO(FeaPSO):
         self.pbest_eval = deepcopy(self.pop_eval)
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
-        self.velocities = self.init_velocities()
+        self.velocities = self._init_velocities()
         self.generations_passed = 0
         self.average_velocities = []
         self.average_pop_eval = []
@@ -59,7 +59,7 @@ class ParallelFeaPSO(FeaPSO):
         self.gbest_evals = []
         self.fitness_list = []
 
-    def update_bests(self):
+    def _update_bests(self):
         """
         Update the current personal and global best values based on the new positions of the particles.
         """
