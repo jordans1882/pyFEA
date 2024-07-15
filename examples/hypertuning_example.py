@@ -1,7 +1,4 @@
-import time
-
 import numpy as np
-import pytest
 from bayes_opt import BayesianOptimization
 
 from pyfea import PSO, benchmarks
@@ -9,7 +6,6 @@ from pyfea import PSO, benchmarks
 
 def bayes_input(phi_p, phi_g, omega):
     domain = np.zeros((10, 2))
-    dim = 10
     domain[:, 0] = -5
     domain[:, 1] = 5
     pso = PSO(
@@ -22,7 +18,6 @@ def bayes_input(phi_p, phi_g, omega):
         omega=omega,
     )
     gbest = pso.run()
-    # print(pso.pop)
     return -benchmarks.sphere__(gbest)
 
 

@@ -1,5 +1,3 @@
-# NOTE: This example is the same as pso_example, except with parallel parms
-# passed to run()
 import math
 
 import matplotlib.pyplot as plt
