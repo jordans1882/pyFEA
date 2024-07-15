@@ -49,17 +49,19 @@ class FEA:
                 variable_map[j].append(i)
         return variable_map
 
-    def run(self):
+    def run(self, verbose=True):
         """
         Algorithm 3 from the Strasser et al. paper.
         """
         self.context_variable = self.init_full_global()
         subpopulations = self.initialize_subpops()
         for i in range(self.iterations):
+            if verbose:
+                print(f"Iteration: {i}/{self.iterations}")
             self.niterations += 1
             for subpop in subpopulations:
                 subpop.base_reset()
-                subpop.run()
+                subpop.run(verbose=False)
             self.compete(subpopulations)
             self.share(subpopulations)
             self.convergences.append(self.function(self.context_variable))

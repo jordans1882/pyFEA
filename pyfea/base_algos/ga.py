@@ -68,13 +68,14 @@ class GA:
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(self.pop_size, area.shape[0]))
 
-    def run(self, parallel=False, processes=4, chunksize=4):
+    def run(self, verbose=True, parallel=False, processes=4, chunksize=4):
         """
         Run the minimization algorithm.
         """
         self._initialize(parallel, processes, chunksize)
         for gen in range(self.generations):
-            print(f"Generation {gen}/ {self.generations}")
+            if verbose:
+                print(f"Generation {gen}/ {self.generations}")
             self.ngenerations += 1
             # self.selection()
             children = self._crossover()

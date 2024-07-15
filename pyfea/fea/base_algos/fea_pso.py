@@ -17,11 +17,11 @@ class FeaPSO(PSO, FeaBaseAlgo):
         """
         super().update_bests()
 
-    def run(self, parallel=False, processes=4, chunksize=4):
+    def run(self, verbose=True, parallel=False, processes=4, chunksize=4):
         """
         Runs the base PSO algorithm.
         """
-        return super().run(parallel, processes, chunksize)
+        return super().run(verbose, parallel, processes, chunksize)
 
     def get_soln(self):
         """

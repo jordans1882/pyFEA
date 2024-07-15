@@ -83,13 +83,14 @@ class PSO:
     def _update_positions(self):
         self.pop = self.pop + self.velocities
 
-    def run(self, parallel=False, processes=4, chunksize=4):
+    def run(self, verbose=True, parallel=False, processes=4, chunksize=4):
         """
         Run the algorithm.
         """
         self._initialize(parallel, processes, chunksize)
         for gen in range(self.generations):
-            print(f"Generation: {gen}")
+            if verbose:
+                print(f"Generation: {gen}/{self.generations}")
             self._update_velocities()
             self._update_positions()
             self._stay_in_domain()
