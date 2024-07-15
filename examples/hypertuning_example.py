@@ -1,3 +1,5 @@
+# TODO: consider adding this functionality into the library
+
 import numpy as np
 from bayes_opt import BayesianOptimization
 
