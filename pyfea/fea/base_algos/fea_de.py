@@ -1,7 +1,7 @@
 import numpy as np
 
-from pyfea.base_algos import DE
-from pyfea.base_algos.fea_base_algo import FeaBaseAlgo
+from pyfea.base_algos import DE, parallel_eval
+from pyfea.fea.base_algos.fea_base_algo import FeaBaseAlgo
 
 
 class FeaDE(DE, FeaBaseAlgo):
@@ -51,18 +51,21 @@ class FeaDE(DE, FeaBaseAlgo):
             crossover_rate=kwargs["crossover_rate"],
         )
 
-    def run(self):
+    def run(self, parallel=False, processes=4, chunksize=4):
         """
         Run the base algorithm.
         """
-        return super().run()
+        return super().run(parallel, processes, chunksize)
 
-    def update_bests(self):
+    def update_bests(self, parallel=False, processes=4, chunksize=4):
         """
         Update the evaluation of the objective function after a context vector update.
         """
-        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
-        self.fitness_functions += self.pop_size
+        if not parallel:
+            self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        else:
+            self.pop_eval = parallel_eval(self.func, self.pop, processes, chunksize)
+        self.nfitness_evals += self.pop_size
         self.best_solution = np.copy(self.pop[np.argmin(self.pop_eval), :])
         self.best_eval = np.min(self.pop_eval)
 

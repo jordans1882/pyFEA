@@ -2,8 +2,8 @@ import math
 
 import numpy as np
 
-from pyfea.base_algos.fea_base_algo import FeaBaseAlgo
 from pyfea.base_algos.ga import GA
+from pyfea.fea.base_algos import FeaBaseAlgo
 
 
 class FeaGA(GA, FeaBaseAlgo):
@@ -69,10 +69,13 @@ class FeaGA(GA, FeaBaseAlgo):
             number_of_children=kwargs["number_of_children"],
         )
 
-    def base_reset(self):
+    def base_reset(self, parallel=False, processes=4, chunksize=4):
         """
         Reset the algorithm in preparation for another run.
         """
         self.reinitialize_population()
-        self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        if not parallel:
+            self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
+        else:
+            self.pop_eval = parallel_eval(self.func, self.pop, processes, chunksize)
         self.fitness_functions += self.pop_size

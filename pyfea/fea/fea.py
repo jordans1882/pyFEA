@@ -10,13 +10,13 @@ from pyfea.fea.function import Function
 class FEA:
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al."""
 
-    def __init__(self, factors, function, iterations, dim, base_algo_name, domain, **kwargs):
+    def __init__(self, factors, function, iterations, dim, base_algo, domain, **kwargs):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
         @param iterations: the number of times that the FEA runs.
         @param dim: the number of dimensions our function optimizes over.
-        @param base_algo_name: the base algorithm class that we optomize over. Should be a subclass of FeaBaseAlgo.
+        @param base_algo: the class for the base algo. Must adhere to FeaBaseAlgo interface.
         @param domain: the domain of our function over every dimension as a numpy array of shape (dim, 2).
         @param **kwargs: parameters for the base algorithm.
         """
@@ -25,7 +25,7 @@ class FEA:
         self.variable_map = self._construct_factor_variable_mapping()
         self.function = function
         self.iterations = iterations
-        self.base_algo = base_algo_name
+        self.base_algo = base_algo
         self.dim = dim
         self.domain = domain
         self.full_fit_func = 0

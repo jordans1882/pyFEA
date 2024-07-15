@@ -59,7 +59,7 @@ class ParallelFeaPSO(FeaPSO):
         self.gbest_evals = []
         self.fitness_list = []
 
-    def _update_bests(self):
+    def update_bests(self):
         """
         Update the current personal and global best values based on the new positions of the particles.
         """

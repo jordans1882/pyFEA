@@ -2,10 +2,8 @@ import math
 
 import numpy as np
 
-from pyfea.base_algos.fea_base_algo import FeaBaseAlgo
-from pyfea.base_algos.pso import PSO
-
-from .parallel_evaluation import parallel_eval
+from pyfea.base_algos import PSO, parallel_eval
+from pyfea.fea.base_algos import FeaBaseAlgo
 
 
 class FeaPSO(PSO, FeaBaseAlgo):
@@ -13,11 +11,11 @@ class FeaPSO(PSO, FeaBaseAlgo):
     The PSO algorithm adapted to be run in an FEA.
     """
 
-    def _update_bests(self):
+    def update_bests(self):
         """
         Calls to update_bests() in PSO during the FEA's share step.
         """
-        super()._update_bests()
+        super().update_bests()
 
     def run(self, parallel=False, processes=4, chunksize=4):
         """
@@ -111,10 +109,10 @@ class FeaPSO(PSO, FeaBaseAlgo):
         #        if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
         #            self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
 
-    def base_reset(self):
+    def base_reset(self, parallel=False, processes=4, chunksize=4):
         """
         Reset the algorithm in preparation for another run.
         """
         self.reinitialize_population()
         self.velocities = super()._init_velocities()
-        self.reset_fitness()
+        self.reset_fitness(parallel, processes, chunksize)

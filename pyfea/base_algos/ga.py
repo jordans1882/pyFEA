@@ -58,7 +58,7 @@ class GA:
 
     def _initialize(self, parallel=False, processes=4, chunksize=4):
         self._eval_pop(parallel=False, processes=4, chunksize=4)
-        self._update_bests()
+        self.update_bests()
 
     def _init_pop(self):
         """
@@ -79,7 +79,7 @@ class GA:
             # self.selection()
             children = self._crossover()
             self._mutation(children, parallel, processes, chunksize)
-            self._update_bests()
+            self.update_bests()
             self._track_vals()
         return self.best_eval
 
@@ -159,7 +159,7 @@ class GA:
             self.fitness_functions += children.shape[0]
             self.pop = np.concatenate((self.pop, children))
 
-    def _update_bests(self):
+    def update_bests(self):
         """
         Resorts the population and updates the evaluations.
         """

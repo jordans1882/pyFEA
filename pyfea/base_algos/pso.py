@@ -1,4 +1,5 @@
 import math
+import sys
 from copy import deepcopy
 
 import matplotlib.pyplot as plt
@@ -48,6 +49,9 @@ class PSO:
         self.average_pop_eval = []
         self.gbest_evals = []
         self.fitness_list = []
+        self.pop = self._init_pop()
+        self.pbest = self.pop
+        self.pop_eval = [sys.float_info.max] * self.pop_size
 
     def _init_pop(self):
         """
@@ -67,8 +71,6 @@ class PSO:
         return 0.5 * area * np.random.random(size=(self.pop_size, area.shape[0]))
 
     def _initialize(self, parallel=False, processes=4, chunksize=4):
-        self.pop = self._init_pop()
-        self.pbest = self.pop
         if parallel:
             self.pop_eval = parallel_eval(self.func, self.pop, processes, chunksize)
         else:
@@ -92,7 +94,7 @@ class PSO:
             self._update_positions()
             self._stay_in_domain()
             self._eval_pop(parallel, processes, chunksize)
-            self._update_bests()
+            self.update_bests()
             self._track_values()
             self.generations_passed += 1
 
@@ -134,7 +136,7 @@ class PSO:
             )
             self.fitness_functions += self.pop_size
 
-    def _update_bests(self):
+    def update_bests(self):
         """
         Update the current personal and global best values based on the new positions of the particles.
         """
