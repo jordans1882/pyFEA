@@ -19,7 +19,7 @@ class Function:
         self.context[self.factor] = arg
         temp_cont_var = np.copy(self.context)
         temp_cont_var.sort()
-        #print(self.context)
+        # print(self.context)
         return self.function(temp_cont_var)
 
 
