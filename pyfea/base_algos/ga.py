@@ -3,6 +3,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 from .parallel_evaluation import parallel_eval
 
@@ -68,16 +69,13 @@ class GA:
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(self.pop_size, area.shape[0]))
 
-    def run(self, verbose=True, parallel=False, processes=4, chunksize=4):
+    def run(self, progress=False, parallel=False, processes=4, chunksize=4):
         """
         Run the minimization algorithm.
         """
         self._initialize(parallel, processes, chunksize)
-        for gen in range(self.generations):
-            if verbose:
-                print(f"Generation {gen}/ {self.generations}")
+        for gen in tqdm(range(self.generations), disable=(not progress)):
             self.ngenerations += 1
-            # self.selection()
             children = self._crossover()
             self._mutation(children, parallel, processes, chunksize)
             self.update_bests()

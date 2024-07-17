@@ -26,5 +26,8 @@ fea.run()
 # fea.get_soln()
 # fea.get_soln_fitness()
 
+fea.context_variable
+
+
 fea.diagnostic_plots()
 plt.show()

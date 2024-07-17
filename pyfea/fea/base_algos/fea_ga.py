@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 
-from pyfea.base_algos.ga import GA
+from pyfea.base_algos import GA, parallel_eval
 from pyfea.fea.base_algos import FeaBaseAlgo
 
 
@@ -78,4 +78,4 @@ class FeaGA(GA, FeaBaseAlgo):
             self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         else:
             self.pop_eval = parallel_eval(self.func, self.pop, processes, chunksize)
-        self.fitness_functions += self.pop_size
+        self.nfitness_evals += self.pop_size

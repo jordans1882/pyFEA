@@ -15,7 +15,7 @@ dom[:, 1] = 5.0
 ga = GA(
     rastrigin__,
     domain=dom,
-    generations=50,
+    generations=5000,
     pop_size=1000,
     mutation_rate=0.05,
     mutation_range=0.5,
@@ -23,7 +23,6 @@ ga = GA(
     number_of_children=2,
 )
 
-# Run the algorithm (in serial)
 start_time = time.time()
 ga.run(parallel=False)
 end_time = time.time()
@@ -46,8 +45,8 @@ plt.show()
 ga = GA(
     rastrigin__,
     domain=dom,
-    generations=50,
-    pop_size=1000,
+    generations=500,
+    pop_size=100,
     mutation_rate=0.05,
     mutation_range=0.5,
     tournament_options=2,

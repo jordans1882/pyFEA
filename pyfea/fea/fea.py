@@ -3,6 +3,7 @@ from operator import sub
 
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 from pyfea.fea.function import Function
 
@@ -49,19 +50,18 @@ class FEA:
                 variable_map[j].append(i)
         return variable_map
 
-    def run(self, verbose=True):
+    def run(self, progress=True):
         """
         Algorithm 3 from the Strasser et al. paper.
         """
         self.context_variable = self.init_full_global()
         subpopulations = self.initialize_subpops()
-        for i in range(self.iterations):
-            if verbose:
-                print(f"Iteration: {i}/{self.iterations}")
+        for i in tqdm(range(self.iterations), disable=(not progress)):
             self.niterations += 1
             for subpop in subpopulations:
                 subpop.base_reset()
-                subpop.run(verbose=False)
+                # subpop.run(progress=False)
+                subpop.run()
             self.compete(subpopulations)
             self.share(subpopulations)
             self.convergences.append(self.function(self.context_variable))
@@ -134,11 +134,14 @@ class FEA:
         Set up plots tracking solution convergence and variance over time.
         """
         plt.subplot(1, 2, 1)
-        ret = plt.plot(range(0, self.niterations), self.convergences)
+        plt.plot(range(0, self.niterations), self.convergences)
         plt.title("Convergence")
-
         plt.subplot(1, 2, 2)
         plt.plot(range(0, self.niterations), self.solution_variance_in_total)
         plt.title("Solution Variance")
 
-        return ret
+    def get_solution(self):
+        return self.context_variable
+
+    def get_solution_fitness(self):
+        return self.function(self.context_variable)

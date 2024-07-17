@@ -67,7 +67,7 @@ class FeaBaseAlgo(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def run(self):
+    def run(self, progress=False):
         """
         Run the base algorithm through an appropriate number of iterations.
         """

@@ -2,6 +2,7 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 from .parallel_evaluation import parallel_eval
 
@@ -71,14 +72,12 @@ class DE:
         area = self.domain[:, 1] - self.domain[:, 0]
         return lbound + area * np.random.random(size=(self.pop_size, area.shape[0]))
 
-    def run(self, verbose=True, parallel=False, processes=4, chunksize=4):
+    def run(self, progress=False, parallel=False, processes=4, chunksize=4):
         """
         Run the minimization algorithm.
         """
         self._initialize(parallel=False, processes=4, chunksize=4)
-        for gen in range(self.generations):
-            if verbose:
-                print(f"Generation: {gen}/{self.generations}")
+        for gen in tqdm(range(self.generations), disable=(not progress)):
             self.ngenerations += 1
             self._mutate()
             self._stay_in_domain()
@@ -124,7 +123,10 @@ class DE:
         The fitness evaluation and selection. Greedily selects whether to keep or throw out a value.
         Consider implementing and testing more sophisticated selection algorithms.
         """
-        mutant_pop_eval = parallel_eval(self.func, self.mutant_pop, processes, chunksize)
+        if parallel:
+            mutant_pop_eval = [self.func(self.mutant_pop[i, :]) for i in range(self.pop_size)]
+        else:
+            mutant_pop_eval = parallel_eval(self.func, self.mutant_pop, processes, chunksize)
         self.nfitness_evals += self.pop_size
         for i in range(self.pop_size):
             fella_eval = mutant_pop_eval[i]

@@ -4,6 +4,7 @@ from copy import deepcopy
 
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 from .parallel_evaluation import parallel_eval
 
@@ -42,7 +43,7 @@ class PSO:
         self.phi_p = phi_p
         self.phi_g = phi_g
         self.omega = omega
-        self.fitness_functions = self.pop_size
+        self.nfitness_evals = self.pop_size
         self.generations_passed = 0
         self.average_velocities = []
         self.average_pop_variance = []
@@ -52,6 +53,7 @@ class PSO:
         self.pop = self._init_pop()
         self.pbest = self.pop
         self.pop_eval = [sys.float_info.max] * self.pop_size
+        self.velocities = np.zeros((self.pop_size, domain.shape[0]))
 
     def _init_pop(self):
         """
@@ -83,14 +85,12 @@ class PSO:
     def _update_positions(self):
         self.pop = self.pop + self.velocities
 
-    def run(self, verbose=True, parallel=False, processes=4, chunksize=4):
+    def run(self, progress=False, parallel=False, processes=4, chunksize=4):
         """
         Run the algorithm.
         """
         self._initialize(parallel, processes, chunksize)
-        for gen in range(self.generations):
-            if verbose:
-                print(f"Generation: {gen}/{self.generations}")
+        for gen in tqdm(range(self.generations), disable=(not progress)):
             self._update_velocities()
             self._update_positions()
             self._stay_in_domain()
@@ -129,13 +129,13 @@ class PSO:
         if not parallel:
             for pidx in range(self.pop_size):
                 curr_eval = self.func(self.pop[pidx, :])
-                self.fitness_functions += 1
+                self.nfitness_evals += 1
                 self.pop_eval[pidx] = curr_eval
         else:
             self.pop_eval = parallel_eval(
                 self.func, self.pop, processes=processes, chunksize=chunksize
             )
-            self.fitness_functions += self.pop_size
+            self.nfitness_evals += self.pop_size
 
     def update_bests(self):
         """
@@ -159,7 +159,7 @@ class PSO:
         self.average_velocities.append(np.average(np.abs(self.velocities)))
         self.average_pop_variance.append(np.average(np.var(self.pop, axis=0)))
         self.average_pop_eval.append(np.average(self.pop_eval))
-        self.fitness_list.append(self.fitness_functions)
+        self.fitness_list.append(self.nfitness_evals)
 
     def diagnostic_plots(self):
         """

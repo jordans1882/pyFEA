@@ -17,11 +17,11 @@ class FeaPSO(PSO, FeaBaseAlgo):
         """
         super().update_bests()
 
-    def run(self, verbose=True, parallel=False, processes=4, chunksize=4):
+    def run(self, progress=False, parallel=False, processes=4, chunksize=4):
         """
         Runs the base PSO algorithm.
         """
-        return super().run(verbose, parallel, processes, chunksize)
+        return super().run(progress, parallel, processes, chunksize)
 
     def get_soln(self):
         """
@@ -88,7 +88,7 @@ class FeaPSO(PSO, FeaBaseAlgo):
             self.pop_eval = [self.func(self.pop[i, :]) for i in range(self.pop_size)]
         else:
             self.pop_eval = parallel_eval(self.func, self.pop, processes, chunksize)
-        self.fitness_functions += self.pop_size
+        self.nfitness_evals += self.pop_size
         self.pbest_eval = self.pop_eval
         self.gbest_eval = np.min(self.pbest_eval)
         self.gbest = np.copy(self.pbest[np.argmin(self.pbest_eval), :])
@@ -104,10 +104,6 @@ class FeaPSO(PSO, FeaBaseAlgo):
             self.domain[:, 0] + (self.domain[:, 1] - self.domain[:, 0]) * np.random.random(),
             self.pop,
         )
-        # for particle in range(self.pop_size):
-        #    for p in range(len(self.pop[0])):
-        #        if self.pop[particle, p] < self.domain[: 0].all() or self.pop[particle, p] > self.domain[: 1].all():
-        #            self.pop[particle, p] = self.domain[0, 0] + (self.domain[0, 1] - self.domain[0, 0]) * np.random.random()
 
     def base_reset(self, parallel=False, processes=4, chunksize=4):
         """

@@ -51,11 +51,11 @@ class FeaDE(DE, FeaBaseAlgo):
             crossover_rate=kwargs["crossover_rate"],
         )
 
-    def run(self, verbose=True, parallel=False, processes=4, chunksize=4):
+    def run(self, progress=False, parallel=False, processes=4, chunksize=4):
         """
         Run the base algorithm.
         """
-        return super().run(verbose, parallel, processes, chunksize)
+        return super().run(progress, parallel, processes, chunksize)
 
     def update_bests(self, parallel=False, processes=4, chunksize=4):
         """
