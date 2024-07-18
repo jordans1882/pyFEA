@@ -65,7 +65,6 @@ class FEA:
             self.compete(subpopulations)
             self.share(subpopulations)
             self.convergences.append(self.function(self.context_variable))
-        return self.function(self.context_variable)
 
     def compete(self, subpopulations):
         """
