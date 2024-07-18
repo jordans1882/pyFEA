@@ -77,6 +77,7 @@ class FeaPSO(PSO, FeaBaseAlgo):
             phi_p=kwargs["phi_p"],
             phi_g=kwargs["phi_g"],
             omega=kwargs["omega"],
+            fitness_terminate=kwargs["fitness_terminate"]
         )
 
     def reset_fitness(self, parallel=False, processes=4, chunksize=4):

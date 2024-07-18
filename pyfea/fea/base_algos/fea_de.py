@@ -49,6 +49,7 @@ class FeaDE(DE, FeaBaseAlgo):
             pop_size=kwargs["pop_size"],
             mutation_factor=kwargs["mutation_factor"],
             crossover_rate=kwargs["crossover_rate"],
+            fitness_terminate=kwargs["fitness_terminate"]
         )
 
     def run(self, progress=False, parallel=False, processes=4, chunksize=4):

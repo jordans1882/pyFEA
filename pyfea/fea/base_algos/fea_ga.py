@@ -67,6 +67,7 @@ class FeaGA(GA, FeaBaseAlgo):
             mutation_range=kwargs["mutation_range"],
             tournament_options=kwargs["tournament_options"],
             number_of_children=kwargs["number_of_children"],
+            fitness_terminate=kwargs["fitness_terminate"]
         )
 
     def base_reset(self, parallel=False, processes=4, chunksize=4):
