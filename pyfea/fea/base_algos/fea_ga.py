@@ -56,6 +56,7 @@ class FeaGA(GA, FeaBaseAlgo):
             "mutation_range": 0.5,
             "tournament_options": 2,
             "number_of_children": 2,
+            "fitness_terminate": False
         }
         kwargs.update(params)
         return cls(

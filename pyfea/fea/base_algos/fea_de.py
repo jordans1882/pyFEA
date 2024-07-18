@@ -40,6 +40,7 @@ class FeaDE(DE, FeaBaseAlgo):
             "pop_size": 20,
             "mutation_factor": 0.5,
             "crossover_rate": 0.5,
+            "fitness_terminate": False
         }
         kwargs.update(params)
         return cls(

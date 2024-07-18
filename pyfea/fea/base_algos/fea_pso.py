@@ -67,6 +67,7 @@ class FeaPSO(PSO, FeaBaseAlgo):
             "phi_p": math.sqrt(2),
             "phi_g": math.sqrt(2),
             "omega": 1 / math.sqrt(2),
+            "fitness_terminate": False
         }
         kwargs.update(params)
         return cls(
