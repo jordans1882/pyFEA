@@ -97,10 +97,10 @@ class DE:
                 self._track_vals()
 
     def get_soln(self):
-        return self.best_eval
+        return self.best_solution
 
     def get_soln_fitness(self):
-        return self.best_solution
+        return self.best_eval
 
     def _mutate(self):
         """
