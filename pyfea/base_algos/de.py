@@ -18,6 +18,7 @@ class DE:
         pop_size=20,
         mutation_factor=0.5,
         crossover_rate=0.9,
+        fitness_terminate=False
     ):
         """
         @param function: the objective function to be minimized.
@@ -45,6 +46,7 @@ class DE:
         self.pop_eval = [0] * self.pop_size
         self.best_eval = sys.float_info.max
         self.best_solution = []
+        self.fitness_terminate=fitness_terminate
 
     def _initialize(self, parallel=False, processes=4, chunksize=4):
         self.pop = self._init_pop()
@@ -77,14 +79,22 @@ class DE:
         Run the minimization algorithm.
         """
         self._initialize(parallel=False, processes=4, chunksize=4)
-        for gen in tqdm(range(self.generations), disable=(not progress)):
-            self.ngenerations += 1
-            self._mutate()
-            self._stay_in_domain()
-            self._crossover()
-            self._selection(parallel, processes, chunksize)
-            self._track_vals()
-        return self.best_eval
+        if self.fitness_terminate:
+            while self.nfitness_evals < self.generations:
+                self.ngenerations += 1
+                self._mutate()
+                self._stay_in_domain()
+                self._crossover()
+                self._selection(parallel, processes, chunksize)
+                self._track_vals()
+        else:
+            for gen in tqdm(range(self.generations), disable=(not progress)):
+                self.ngenerations += 1
+                self._mutate()
+                self._stay_in_domain()
+                self._crossover()
+                self._selection(parallel, processes, chunksize)
+                self._track_vals()
 
     def get_soln(self):
         return self.best_solution

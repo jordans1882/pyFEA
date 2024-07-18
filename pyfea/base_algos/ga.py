@@ -19,6 +19,7 @@ class GA:
         mutation_range=0.5,
         tournament_options=2,
         number_of_children=2,
+        fitness_terminate=False
     ):
         """
         @param function: the objective function to be minimized.
@@ -46,6 +47,7 @@ class GA:
         self.best_answers = []
         self.nfitness_evals = self.pop_size
         self.pop_eval = [sys.float_info.max] * self.pop_size
+        self.fitness_terminate=fitness_terminate
 
     def _eval_pop(self, parallel=False, processes=4, chunksize=4):
         if not parallel:
@@ -74,13 +76,20 @@ class GA:
         Run the minimization algorithm.
         """
         self._initialize(parallel, processes, chunksize)
-        for gen in tqdm(range(self.generations), disable=(not progress)):
-            self.ngenerations += 1
-            children = self._crossover()
-            self._mutation(children, parallel, processes, chunksize)
-            self.update_bests()
-            self._track_vals()
-        return self.best_eval
+        if self.fitness_terminate:
+            while self.nfitness_evals < self.generations:
+                self.ngenerations += 1
+                children = self._crossover()
+                self._mutation(children, parallel, processes, chunksize)
+                self.update_bests()
+                self._track_vals()
+        else:
+            for gen in tqdm(range(self.generations), disable=(not progress)):
+                self.ngenerations += 1
+                children = self._crossover()
+                self._mutation(children, parallel, processes, chunksize)
+                self.update_bests()
+                self._track_vals()
 
     def get_soln(self):
         return self.best_position
