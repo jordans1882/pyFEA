@@ -23,6 +23,7 @@ class PSO:
         phi_p=math.sqrt(2),
         phi_g=math.sqrt(2),
         omega=1 / math.sqrt(2),
+        fitness_terminate=False
     ):
         """
         @param function: the objective function to be minimized.
@@ -54,6 +55,7 @@ class PSO:
         self.pbest = self.pop
         self.pop_eval = [sys.float_info.max] * self.pop_size
         self.velocities = np.zeros((self.pop_size, domain.shape[0]))
+        self.fitness_terminate=fitness_terminate
 
     def _init_pop(self):
         """
@@ -90,14 +92,24 @@ class PSO:
         Run the algorithm.
         """
         self._initialize(parallel, processes, chunksize)
-        for gen in tqdm(range(self.generations), disable=(not progress)):
-            self._update_velocities()
-            self._update_positions()
-            self._stay_in_domain()
-            self._eval_pop(parallel, processes, chunksize)
-            self.update_bests()
-            self._track_values()
-            self.generations_passed += 1
+        if self.fitness_terminate:
+            while self.nfitness_evals < self.generations:
+                self._update_velocities()
+                self._update_positions()
+                self._stay_in_domain()
+                self._eval_pop(parallel, processes, chunksize)
+                self.update_bests()
+                self._track_values()
+                self.generations_passed += 1
+        else:
+            for gen in tqdm(range(self.generations), disable=(not progress)):
+                self._update_velocities()
+                self._update_positions()
+                self._stay_in_domain()
+                self._eval_pop(parallel, processes, chunksize)
+                self.update_bests()
+                self._track_values()
+                self.generations_passed += 1
 
     def get_soln(self):
         return self.gbest
