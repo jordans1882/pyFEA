@@ -179,17 +179,17 @@ class PSO:
         """
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=1, ncols=3)
         ax1.plot(self.fitness_list, self.average_pop_variance)
-        ax1.set_xlabel("# fitness evaluations", fontsize=10)
+        ax1.set_xlabel("fitness evaluations", fontsize=10)
         ax1.set_ylabel("population variance", fontsize=10)
         ax1.set_title("Population Diversity", fontsize=10)
 
         ax2.plot(self.fitness_list, self.average_pop_eval)
-        ax2.set_xlabel("# fitness evaluations", fontsize=10)
+        ax2.set_xlabel("fitness evaluations", fontsize=10)
         ax2.set_ylabel("average MSE", fontsize=10)
         ax2.set_title("Average Solution Fitness", fontsize=10)
 
         ax3.plot(self.fitness_list, self.gbest_evals)
-        ax3.set_xlabel("# fitness evaluations", fontsize=10)
+        ax3.set_xlabel("fitness evaluations", fontsize=10)
         ax3.set_ylabel("gbest MSE", fontsize=10)
         ax3.set_title("Best Solution Fitness", fontsize=10)
 
