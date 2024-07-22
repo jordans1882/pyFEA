@@ -18,7 +18,7 @@ class GA:
         generations=100,
         mutation_range=0.5,
         tournament_options=2,
-        number_of_children=2,
+        percent_children=0.1,
         fitness_terminate=False
     ):
         """
@@ -38,7 +38,7 @@ class GA:
         self.fitness_functions = 0
         self.ngenerations = 0
         self.tournament_options = tournament_options
-        self.number_of_children = number_of_children
+        self.number_of_children = (1+percent_children)*pop_size
         self.generations = generations
         self.mutation_range = mutation_range
         self.average_pop_eval = []

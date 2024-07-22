@@ -55,7 +55,7 @@ class FeaGA(GA, FeaBaseAlgo):
             "mutation_rate": 0.05,
             "mutation_range": 0.5,
             "tournament_options": 2,
-            "number_of_children": 2,
+            "percent_children": 0.1,
             "fitness_terminate": False
         }
         kwargs.update(params)
@@ -67,7 +67,7 @@ class FeaGA(GA, FeaBaseAlgo):
             mutation_rate=kwargs["mutation_rate"],
             mutation_range=kwargs["mutation_range"],
             tournament_options=kwargs["tournament_options"],
-            number_of_children=kwargs["number_of_children"],
+            percent_children=kwargs["percent_children"],
             fitness_terminate=kwargs["fitness_terminate"]
         )
 
