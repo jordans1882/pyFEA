@@ -35,7 +35,6 @@ class GA:
         self.func = function
         self.domain = domain
         self.pop = self._init_pop()
-        self.fitness_functions = 0
         self.ngenerations = 0
         self.tournament_options = tournament_options
         self.number_of_children = number_of_children
@@ -114,16 +113,11 @@ class GA:
         for c in range(self.number_of_children):
             winner1 = 0
             current_winner1 = np.Infinity
-            loser1 = 0
-            current_loser1 = 0
             for i in range(self.tournament_options):
                 rand_pop_num = int(random.random() * self.pop_size)
                 if self.pop_eval[rand_pop_num] < current_winner1:
                     current_winner1 = self.pop_eval[rand_pop_num]
                     winner1 = rand_pop_num
-                if self.pop_eval[rand_pop_num] > current_loser1:
-                    current_loser1 = self.pop_eval[rand_pop_num]
-                    loser1 = rand_pop_num
             winner2 = 0
             current_winner2 = np.Infinity
             for i in range(self.tournament_options):
@@ -131,19 +125,15 @@ class GA:
                 if self.pop_eval[rand_pop_num] < current_winner2:
                     current_winner2 = self.pop_eval[rand_pop_num]
                     winner2 = rand_pop_num
-                if self.pop_eval[rand_pop_num] > current_loser1:
-                    current_loser1 = self.pop_eval[rand_pop_num]
-                    loser1 = rand_pop_num
-            np.delete(self.pop, loser1)
-            np.delete(self.pop_eval, loser1)
-            new_point = []
-            for i in range(len(self.pop[0])):
-                pick_parent = int(random.random() * 2)
-                if int(pick_parent) == 0:
-                    new_point.append(self.pop[winner1, i])
-                else:
-                    new_point.append(self.pop[winner2, i])
-            children.append(new_point)
+
+            cross_rand = np.round(
+                np.random.choice(
+                    [0, 1],
+                    size=self.domain.shape[0],
+                )
+            )
+            crossed_guy = np.where(cross_rand == 1, self.pop[winner1], self.pop[winner2])
+            children.append(crossed_guy)
         return np.array(children)
 
     def _mutation(self, children, parallel=False, processes=4, chunksize=4):
@@ -157,15 +147,18 @@ class GA:
                     child[i] += rand_value
         self._bounds_check(children)
         if not parallel:
+            child_evals = []
             for child in children:
-                self.pop_eval = np.concatenate((self.pop_eval, [self.func(child)]))
-                self.fitness_functions += 1
-                self.pop = np.concatenate((self.pop, [child]))
+                child_evals.append(self.func(child))
+                self.nfitness_evals += 1
         else:
             child_evals = parallel_eval(self.func, children, processes, chunksize)
-            self.pop_eval = np.concatenate((self.pop_eval, child_evals))
-            self.fitness_functions += children.shape[0]
-            self.pop = np.concatenate((self.pop, children))
+            self.nfitness_evals += children.shape[0]
+        for i, child in enumerate(children):
+            index = np.argmax(self.pop_eval)
+            if self.pop_eval[index] > child_evals[i]:
+                self.pop_eval[index] = child_evals[i]
+                self.pop[index,:] = child
 
     def update_bests(self):
         """
@@ -181,7 +174,7 @@ class GA:
     def _track_vals(self):
         self.average_pop_eval.append(np.average(self.pop_eval))
         self.average_pop_variance.append(np.average(np.var(self.pop, axis=0)))
-        self.fitness_list.append(self.fitness_functions)
+        self.fitness_list.append(self.nfitness_evals)
         self.best_answers.append(self.best_eval)
 
     def diagnostic_plots(self):
