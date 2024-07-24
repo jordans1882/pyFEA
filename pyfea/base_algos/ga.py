@@ -37,7 +37,7 @@ class GA:
         self.pop = self._init_pop()
         self.ngenerations = 0
         self.tournament_options = tournament_options
-        self.number_of_children = (1+percent_children)*pop_size
+        self.number_of_children = int((1+percent_children)*pop_size)
         self.generations = generations
         self.mutation_range = mutation_range
         self.average_pop_eval = []
