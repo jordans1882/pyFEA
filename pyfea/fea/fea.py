@@ -11,7 +11,7 @@ from pyfea.fea.function import Function
 class FEA:
     """Factored Evolutionary Architecture, implemented based on the 2017 paper by Strasser et al."""
 
-    def __init__(self, factors, function, iterations, dim, base_algo, domain, fitness_terminate=False, **kwargs=None):
+    def __init__(self, factors, function, iterations, dim, base_algo, domain, terminate_by_fitness=False, **kwargs=None):
         """
         @param factors: list of lists, contains the dimensions that each factor of the architecture optimizes over.
         @param function: the objective function that the FEA minimizes.
@@ -27,7 +27,7 @@ class FEA:
         self.function = function
         self.iterations = iterations
         self.base_algo = base_algo
-        self.fitness_terminate = fitness_terminate
+        self.terminate_by_fitness = terminate_by_fitness
         self.dim = dim
         self.domain = domain
         self.full_fit_func = 0
@@ -57,7 +57,7 @@ class FEA:
         """
         self.context_variable = self.init_full_global()
         subpopulations = self.initialize_subpops()
-        if self.fitness_terminate:
+        if self.terminate_by_fitness:
             part_fit_func = 0
             while self.full_fit_func + part_fit_func < self.iterations:
                 part_fit_func = 0
